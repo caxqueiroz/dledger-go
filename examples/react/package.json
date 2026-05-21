@@ -1,0 +1,17 @@
+{
+  "name": "doubleledger-react-example",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^1.10.0",
+    "@connectrpc/connect": "^1.6.1",
+    "@connectrpc/connect-web": "^1.6.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
