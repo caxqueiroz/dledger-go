@@ -1,0 +1,29 @@
+version: "2"
+sql:
+  - engine: sqlite
+    schema: sql/migrations/sqlite
+    queries: sql/queries/sqlite
+    gen:
+      go:
+        package: sqlitestore
+        out: gen/sqlite
+        sql_package: database/sql
+        emit_pointers_for_null_types: true
+        emit_interface: false
+        emit_db_tags: true
+  - engine: postgresql
+    schema: sql/migrations/crdb
+    queries: sql/queries/crdb
+    gen:
+      go:
+        package: crdbstore
+        out: gen/crdb
+        sql_package: pgx/v5
+        emit_pointers_for_null_types: true
+        emit_interface: false
+        emit_db_tags: true
+        overrides:
+          - db_type: "numeric"
+            go_type: "github.com/shopspring/decimal.Decimal"
+          - db_type: "decimal"
+            go_type: "github.com/shopspring/decimal.Decimal"
