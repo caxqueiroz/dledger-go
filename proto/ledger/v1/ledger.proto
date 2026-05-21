@@ -1,0 +1,164 @@
+syntax = "proto3";
+
+package ledger.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+service LedgerService {
+  rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse);
+  rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
+  rpc PostJournal(PostJournalRequest) returns (PostJournalResponse);
+  rpc ExecuteFlow(ExecuteFlowRequest) returns (ExecuteFlowResponse);
+  rpc GetFlow(GetFlowRequest) returns (GetFlowResponse);
+  rpc ListAccountActivity(ListAccountActivityRequest) returns (ListAccountActivityResponse);
+}
+
+enum Direction {
+  DIRECTION_UNSPECIFIED = 0;
+  DIRECTION_DEBIT = 1;
+  DIRECTION_CREDIT = 2;
+}
+
+enum NormalBalance {
+  NORMAL_BALANCE_UNSPECIFIED = 0;
+  NORMAL_BALANCE_DEBIT = 1;
+  NORMAL_BALANCE_CREDIT = 2;
+}
+
+enum AccountStatus {
+  ACCOUNT_STATUS_UNSPECIFIED = 0;
+  ACCOUNT_STATUS_ACTIVE = 1;
+  ACCOUNT_STATUS_FROZEN = 2;
+  ACCOUNT_STATUS_CLOSED = 3;
+}
+
+enum FlowStatus {
+  FLOW_STATUS_UNSPECIFIED = 0;
+  FLOW_STATUS_RUNNING = 1;
+  FLOW_STATUS_COMPLETED = 2;
+  FLOW_STATUS_FAILED = 3;
+}
+
+message Entry {
+  string account_id = 1 [(buf.validate.field).string.min_len = 1];
+  string currency   = 2 [(buf.validate.field).string.min_len = 3];
+  Direction direction = 3 [(buf.validate.field).enum.defined_only = true];
+  string amount     = 4 [(buf.validate.field).string.pattern = "^[0-9]+(\\.[0-9]+)?$"];
+}
+
+message Journal {
+  string event_id        = 1 [(buf.validate.field).string.min_len = 1];
+  string source_service  = 2;
+  string source_type     = 3;
+  string actor_id        = 4;
+  google.protobuf.Struct metadata = 5;
+  repeated Entry entries = 6 [(buf.validate.field).repeated.min_items = 1];
+}
+
+message Account {
+  string id              = 1;
+  string tenant_id       = 2;
+  string owner_type      = 3;
+  string owner_id        = 4;
+  string account_type    = 5;
+  string currency        = 6;
+  NormalBalance normal_balance = 7;
+  bool   allow_negative  = 8;
+  AccountStatus status   = 9;
+  google.protobuf.Timestamp created_at = 10;
+}
+
+message Balance {
+  string account_id      = 1;
+  string currency        = 2;
+  string posted_debits   = 3;
+  string posted_credits  = 4;
+  string normalized      = 5;
+  int64  version         = 6;
+}
+
+message CreateAccountRequest {
+  string tenant_id       = 1 [(buf.validate.field).string.min_len = 1];
+  string owner_type      = 2 [(buf.validate.field).string.min_len = 1];
+  string owner_id        = 3 [(buf.validate.field).string.min_len = 1];
+  string account_type    = 4 [(buf.validate.field).string.min_len = 1];
+  string currency        = 5 [(buf.validate.field).string.min_len = 3];
+  NormalBalance normal_balance = 6 [(buf.validate.field).enum.defined_only = true];
+  bool   allow_negative  = 7;
+}
+message CreateAccountResponse { Account account = 1; }
+
+message GetAccountRequest  { string tenant_id = 1; string account_id = 2; }
+message GetAccountResponse { Account account = 1; }
+
+message GetBalanceRequest  { string tenant_id = 1; string account_id = 2; string currency = 3; }
+message GetBalanceResponse { Balance balance = 1; }
+
+message PostJournalRequest {
+  string tenant_id        = 1 [(buf.validate.field).string.min_len = 1];
+  string idempotency_key  = 2 [(buf.validate.field).string.min_len = 1];
+  string source_service   = 3;
+  string actor_id         = 4;
+  Journal journal         = 5;
+}
+message PostJournalResponse {
+  string journal_id = 1;
+  string flow_run_id = 2;
+}
+
+message Step {
+  string step_id = 1 [(buf.validate.field).string.min_len = 1];
+  Journal journal = 2;
+}
+
+message ExecuteFlowRequest {
+  string tenant_id       = 1 [(buf.validate.field).string.min_len = 1];
+  string flow_type       = 2 [(buf.validate.field).string.min_len = 1];
+  string idempotency_key = 3 [(buf.validate.field).string.min_len = 1];
+  string source_service  = 4;
+  string actor_id        = 5;
+  repeated Step steps    = 6 [(buf.validate.field).repeated.min_items = 1];
+  google.protobuf.Struct metadata = 7;
+}
+
+message FlowStepResult {
+  string step_id    = 1;
+  string status     = 2;
+  string journal_id = 3;
+  string error_code = 4;
+}
+
+message ExecuteFlowResponse {
+  string flow_run_id = 1;
+  FlowStatus status  = 2;
+  repeated FlowStepResult steps = 3;
+}
+
+message GetFlowRequest  { string tenant_id = 1; string flow_run_id = 2; }
+message GetFlowResponse { ExecuteFlowResponse flow = 1; }
+
+message ListAccountActivityRequest {
+  string tenant_id  = 1;
+  string account_id = 2;
+  string currency   = 3;
+  google.protobuf.Timestamp since = 4;
+  google.protobuf.Timestamp until = 5;
+  int32  page_size  = 6;
+  string page_token = 7;
+}
+message AccountActivityEntry {
+  string journal_id = 1;
+  string entry_id   = 2;
+  string currency   = 3;
+  Direction direction = 4;
+  string amount     = 5;
+  google.protobuf.Timestamp created_at = 6;
+  string source_service = 7;
+}
+message ListAccountActivityResponse {
+  repeated AccountActivityEntry entries = 1;
+  string next_page_token = 2;
+}
