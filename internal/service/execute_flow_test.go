@@ -244,3 +244,163 @@ func TestExecuteFlow_UnbalancedAcrossCurrencies(t *testing.T) {
 		t.Fatalf("want InvalidArgument UNBALANCED_JOURNAL, got %v", err)
 	}
 }
+
+func TestExecuteFlow_MultiStepRollback(t *testing.T) {
+	srv, cleanup := newServer(t)
+	defer cleanup()
+	avail := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
+	resv := mustCreateAccount(t, srv, "1", "cash_reserved", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
+	src := seedSource(t, srv)
+
+	if _, err := srv.PostJournal(context.Background(), connect.NewRequest(&ledgerv1.PostJournalRequest{
+		TenantId: "t1", IdempotencyKey: "seed-rb", SourceService: "test",
+		Journal: &ledgerv1.Journal{EventId: "seed-rb", Entries: []*ledgerv1.Entry{
+			{AccountId: avail, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "500"},
+			{AccountId: src, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "500"},
+		}},
+	})); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	// Two-step flow whose second step references a NONEXISTENT account: rollback expected.
+	_, err := srv.ExecuteFlow(context.Background(), connect.NewRequest(&ledgerv1.ExecuteFlowRequest{
+		TenantId: "t1", FlowType: "TWOSTEP", IdempotencyKey: "rb-1", SourceService: "test",
+		Steps: []*ledgerv1.Step{
+			{StepId: "s1", Journal: &ledgerv1.Journal{
+				EventId: "rb-1-s1", Entries: []*ledgerv1.Entry{
+					{AccountId: resv, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "100"},
+					{AccountId: avail, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "100"},
+				},
+			}},
+			{StepId: "s2", Journal: &ledgerv1.Journal{
+				EventId: "rb-1-s2", Entries: []*ledgerv1.Entry{
+					{AccountId: "NONEXISTENT", Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "1"},
+					{AccountId: avail, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "1"},
+				},
+			}},
+		},
+	}))
+	if err == nil {
+		t.Fatal("expected failure")
+	}
+
+	bal, err := srv.GetBalance(context.Background(), connect.NewRequest(&ledgerv1.GetBalanceRequest{
+		TenantId: "t1", AccountId: avail, Currency: "USD",
+	}))
+	if err != nil {
+		t.Fatalf("get balance: %v", err)
+	}
+	if bal.Msg.GetBalance().GetNormalized() != "500" {
+		t.Fatalf("expected available balance unchanged at 500, got %s", bal.Msg.GetBalance().GetNormalized())
+	}
+}
+
+func TestExecuteFlow_ConcurrentReservation_SQLite(t *testing.T) {
+	srv, cleanup := newServer(t)
+	defer cleanup()
+	avail := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
+	resv := mustCreateAccount(t, srv, "1", "cash_reserved", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
+	src := seedSource(t, srv)
+
+	// Seed exactly 100 USD — only one of two concurrent reservations can succeed.
+	if _, err := srv.PostJournal(context.Background(), connect.NewRequest(&ledgerv1.PostJournalRequest{
+		TenantId: "t1", IdempotencyKey: "seed-conc", SourceService: "test",
+		Journal: &ledgerv1.Journal{EventId: "seed-conc", Entries: []*ledgerv1.Entry{
+			{AccountId: avail, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "100"},
+			{AccountId: src, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "100"},
+		}},
+	})); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	mk := func(key string) *ledgerv1.ExecuteFlowRequest {
+		return &ledgerv1.ExecuteFlowRequest{
+			TenantId: "t1", FlowType: "RESERVE", IdempotencyKey: key, SourceService: "test",
+			Steps: []*ledgerv1.Step{{StepId: "r", Journal: &ledgerv1.Journal{
+				EventId: key + "-evt", Entries: []*ledgerv1.Entry{
+					{AccountId: resv, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "100"},
+					{AccountId: avail, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "100"},
+				},
+			}}},
+		}
+	}
+	type result struct{ err error }
+	out := make(chan result, 2)
+	go func() {
+		_, err := srv.ExecuteFlow(context.Background(), connect.NewRequest(mk("c-a")))
+		out <- result{err}
+	}()
+	go func() {
+		_, err := srv.ExecuteFlow(context.Background(), connect.NewRequest(mk("c-b")))
+		out <- result{err}
+	}()
+	r1 := <-out
+	r2 := <-out
+	successes := 0
+	failures := 0
+	for _, r := range []result{r1, r2} {
+		if r.err == nil {
+			successes++
+		} else {
+			failures++
+		}
+	}
+	if successes != 1 || failures != 1 {
+		t.Fatalf("expected exactly one success and one failure; got %d/%d", successes, failures)
+	}
+}
+
+func TestExecuteFlow_OutboxOnlyAfterCommit(t *testing.T) {
+	srv, store, cleanup := newServerWithStore(t)
+	defer cleanup()
+
+	avail := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
+	resv := mustCreateAccount(t, srv, "1", "cash_reserved", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
+	src := seedSource(t, srv)
+
+	if _, err := srv.PostJournal(context.Background(), connect.NewRequest(&ledgerv1.PostJournalRequest{
+		TenantId: "t1", IdempotencyKey: "seed-o", SourceService: "test",
+		Journal: &ledgerv1.Journal{EventId: "seed-o", Entries: []*ledgerv1.Entry{
+			{AccountId: avail, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "500"},
+			{AccountId: src, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "500"},
+		}},
+	})); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	seedRows, err := store.PendingOutbox(context.Background(), 1000)
+	if err != nil {
+		t.Fatalf("pending: %v", err)
+	}
+	baseline := len(seedRows)
+
+	// Two-step flow with a failing second step.
+	_, err = srv.ExecuteFlow(context.Background(), connect.NewRequest(&ledgerv1.ExecuteFlowRequest{
+		TenantId: "t1", FlowType: "TWOSTEP", IdempotencyKey: "ob-1", SourceService: "test",
+		Steps: []*ledgerv1.Step{
+			{StepId: "s1", Journal: &ledgerv1.Journal{
+				EventId: "ob-1-s1", Entries: []*ledgerv1.Entry{
+					{AccountId: resv, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "100"},
+					{AccountId: avail, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "100"},
+				},
+			}},
+			{StepId: "s2", Journal: &ledgerv1.Journal{
+				EventId: "ob-1-s2", Entries: []*ledgerv1.Entry{
+					{AccountId: "NONEXISTENT", Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "1"},
+					{AccountId: avail, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "1"},
+				},
+			}},
+		},
+	}))
+	if err == nil {
+		t.Fatal("expected failure")
+	}
+
+	after, err := store.PendingOutbox(context.Background(), 1000)
+	if err != nil {
+		t.Fatalf("pending after: %v", err)
+	}
+	if len(after) != baseline {
+		t.Fatalf("outbox grew despite rollback: baseline=%d after=%d", baseline, len(after))
+	}
+}
