@@ -113,8 +113,6 @@ func (s *Server) ExecuteFlow(ctx context.Context, req *connect.Request[ledgerv1.
 
 	// Apply each step: journal, entries, in-memory balance accumulation, flow_step, outbox.
 	stepResults := make([]ledger.FlowStep, 0, len(steps))
-	metaBytes, _ := json.Marshal(metaMap)
-	_ = metaBytes // metadata is stored via tx.InsertJournal as the Journal.Metadata field
 	for _, st := range steps {
 		if err := st.Journal.Validate(); err != nil {
 			return nil, ToConnectError(ledger.NewDomainError(ledger.CodeUnbalancedJournal, err.Error()))
