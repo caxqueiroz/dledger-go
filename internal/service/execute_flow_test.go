@@ -145,6 +145,85 @@ func TestExecuteFlow_InsufficientFunds(t *testing.T) {
 	}
 }
 
+func TestGetFlow_ReturnsCompletedFlow(t *testing.T) {
+	srv, cleanup := newServer(t)
+	defer cleanup()
+	avail := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
+	resv := mustCreateAccount(t, srv, "1", "cash_reserved", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
+	src := seedSource(t, srv)
+
+	if _, err := srv.PostJournal(context.Background(), connect.NewRequest(&ledgerv1.PostJournalRequest{
+		TenantId: "t1", IdempotencyKey: "seed-getflow", SourceService: "test",
+		Journal: &ledgerv1.Journal{EventId: "seed-getflow", Entries: []*ledgerv1.Entry{
+			{AccountId: avail, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "500"},
+			{AccountId: src, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "500"},
+		}},
+	})); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+	res, err := srv.ExecuteFlow(context.Background(), connect.NewRequest(&ledgerv1.ExecuteFlowRequest{
+		TenantId: "t1", FlowType: "RESERVE", IdempotencyKey: "gf-1", SourceService: "test",
+		Steps: []*ledgerv1.Step{{StepId: "r", Journal: &ledgerv1.Journal{
+			EventId: "gf-1-evt", Entries: []*ledgerv1.Entry{
+				{AccountId: resv, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "100"},
+				{AccountId: avail, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "100"},
+			},
+		}}},
+	}))
+	if err != nil {
+		t.Fatalf("flow: %v", err)
+	}
+	got, err := srv.GetFlow(context.Background(), connect.NewRequest(&ledgerv1.GetFlowRequest{
+		TenantId: "t1", FlowRunId: res.Msg.GetFlowRunId(),
+	}))
+	if err != nil {
+		t.Fatalf("get flow: %v", err)
+	}
+	if got.Msg.GetFlow().GetFlowRunId() != res.Msg.GetFlowRunId() {
+		t.Fatalf("flow_run_id mismatch")
+	}
+	if got.Msg.GetFlow().GetStatus() != ledgerv1.FlowStatus_FLOW_STATUS_COMPLETED {
+		t.Fatalf("want COMPLETED, got %v", got.Msg.GetFlow().GetStatus())
+	}
+	if len(got.Msg.GetFlow().GetSteps()) != 1 {
+		t.Fatalf("want 1 step, got %d", len(got.Msg.GetFlow().GetSteps()))
+	}
+}
+
+func TestListAccountActivity_ReturnsEntries(t *testing.T) {
+	srv, cleanup := newServer(t)
+	defer cleanup()
+	avail := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
+	src := seedSource(t, srv)
+
+	if _, err := srv.PostJournal(context.Background(), connect.NewRequest(&ledgerv1.PostJournalRequest{
+		TenantId: "t1", IdempotencyKey: "act-1", SourceService: "test",
+		Journal: &ledgerv1.Journal{EventId: "act-1", Entries: []*ledgerv1.Entry{
+			{AccountId: avail, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "250"},
+			{AccountId: src, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "250"},
+		}},
+	})); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	resp, err := srv.ListAccountActivity(context.Background(), connect.NewRequest(&ledgerv1.ListAccountActivityRequest{
+		TenantId: "t1", AccountId: avail, Currency: "USD", PageSize: 50,
+	}))
+	if err != nil {
+		t.Fatalf("list activity: %v", err)
+	}
+	if len(resp.Msg.GetEntries()) != 1 {
+		t.Fatalf("want 1 entry, got %d", len(resp.Msg.GetEntries()))
+	}
+	e := resp.Msg.GetEntries()[0]
+	if e.GetDirection() != ledgerv1.Direction_DIRECTION_DEBIT {
+		t.Fatalf("want DEBIT, got %v", e.GetDirection())
+	}
+	if e.GetAmount() != "250" {
+		t.Fatalf("want 250, got %s", e.GetAmount())
+	}
+}
+
 func TestExecuteFlow_UnbalancedAcrossCurrencies(t *testing.T) {
 	srv, cleanup := newServer(t)
 	defer cleanup()
