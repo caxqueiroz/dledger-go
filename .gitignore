@@ -1,0 +1,21 @@
+# Binaries
+/bin/
+/tmp/
+*.test
+*.out
+coverage.txt
+
+# Local databases
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# Env
+.env
+.env.local
