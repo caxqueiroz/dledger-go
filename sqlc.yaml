@@ -23,7 +23,13 @@ sql:
         emit_interface: false
         emit_db_tags: true
         overrides:
+          - db_type: "pg_catalog.numeric"
+            go_type:
+              import: "github.com/shopspring/decimal"
+              package: "decimal"
+              type: "Decimal"
           - db_type: "numeric"
-            go_type: "github.com/shopspring/decimal.Decimal"
-          - db_type: "decimal"
-            go_type: "github.com/shopspring/decimal.Decimal"
+            go_type:
+              import: "github.com/shopspring/decimal"
+              package: "decimal"
+              type: "Decimal"

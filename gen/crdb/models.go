@@ -6,6 +6,7 @@ package crdbstore
 
 import (
 	"github.com/jackc/pgx/v5/pgtype"
+	decimal "github.com/shopspring/decimal"
 )
 
 type Account struct {
@@ -25,8 +26,8 @@ type AccountBalance struct {
 	TenantID      string             `db:"tenant_id"`
 	AccountID     string             `db:"account_id"`
 	Currency      string             `db:"currency"`
-	PostedDebits  pgtype.Numeric     `db:"posted_debits"`
-	PostedCredits pgtype.Numeric     `db:"posted_credits"`
+	PostedDebits  decimal.Decimal    `db:"posted_debits"`
+	PostedCredits decimal.Decimal    `db:"posted_credits"`
 	Version       int64              `db:"version"`
 	UpdatedAt     pgtype.Timestamptz `db:"updated_at"`
 }
@@ -63,7 +64,7 @@ type LedgerEntry struct {
 	AccountID string             `db:"account_id"`
 	Currency  string             `db:"currency"`
 	Direction string             `db:"direction"`
-	Amount    pgtype.Numeric     `db:"amount"`
+	Amount    decimal.Decimal    `db:"amount"`
 	CreatedAt pgtype.Timestamptz `db:"created_at"`
 }
 

@@ -8,7 +8,7 @@ package crdbstore
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	decimal "github.com/shopspring/decimal"
 )
 
 const getBalance = `-- name: GetBalance :one
@@ -70,11 +70,11 @@ WHERE tenant_id = $1 AND account_id = $2 AND currency = $3
 `
 
 type UpdateBalanceParams struct {
-	TenantID      string         `db:"tenant_id"`
-	AccountID     string         `db:"account_id"`
-	Currency      string         `db:"currency"`
-	PostedDebits  pgtype.Numeric `db:"posted_debits"`
-	PostedCredits pgtype.Numeric `db:"posted_credits"`
+	TenantID      string          `db:"tenant_id"`
+	AccountID     string          `db:"account_id"`
+	Currency      string          `db:"currency"`
+	PostedDebits  decimal.Decimal `db:"posted_debits"`
+	PostedCredits decimal.Decimal `db:"posted_credits"`
 }
 
 func (q *Queries) UpdateBalance(ctx context.Context, arg UpdateBalanceParams) error {

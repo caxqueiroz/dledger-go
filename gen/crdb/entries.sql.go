@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	decimal "github.com/shopspring/decimal"
 )
 
 const insertEntry = `-- name: InsertEntry :exec
@@ -17,13 +18,13 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
 `
 
 type InsertEntryParams struct {
-	ID        pgtype.UUID    `db:"id"`
-	TenantID  string         `db:"tenant_id"`
-	JournalID string         `db:"journal_id"`
-	AccountID string         `db:"account_id"`
-	Currency  string         `db:"currency"`
-	Direction string         `db:"direction"`
-	Amount    pgtype.Numeric `db:"amount"`
+	ID        pgtype.UUID     `db:"id"`
+	TenantID  string          `db:"tenant_id"`
+	JournalID string          `db:"journal_id"`
+	AccountID string          `db:"account_id"`
+	Currency  string          `db:"currency"`
+	Direction string          `db:"direction"`
+	Amount    decimal.Decimal `db:"amount"`
 }
 
 func (q *Queries) InsertEntry(ctx context.Context, arg InsertEntryParams) error {
@@ -63,7 +64,7 @@ type ListAccountActivityRow struct {
 	JournalID string             `db:"journal_id"`
 	Currency  string             `db:"currency"`
 	Direction string             `db:"direction"`
-	Amount    pgtype.Numeric     `db:"amount"`
+	Amount    decimal.Decimal    `db:"amount"`
 	CreatedAt pgtype.Timestamptz `db:"created_at"`
 }
 
