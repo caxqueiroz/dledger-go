@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/shopspring/decimal"
@@ -33,23 +32,6 @@ func openTempDB(t *testing.T) *Store {
 	return s
 }
 
-// StripGoose returns only the Up section of a goose migration file.
-func StripGoose(s string) string {
-	var b strings.Builder
-	in := false
-	for _, line := range strings.Split(s, "\n") {
-		switch {
-		case strings.TrimSpace(line) == "-- +goose Up":
-			in = true
-		case strings.TrimSpace(line) == "-- +goose Down":
-			in = false
-		case in:
-			b.WriteString(line)
-			b.WriteByte('\n')
-		}
-	}
-	return b.String()
-}
 
 func TestInsertAndReadAccount(t *testing.T) {
 	s := openTempDB(t)
