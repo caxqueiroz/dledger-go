@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 
 	ledgerv1connect "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1/ledgerv1connect"
 	"github.com/caxqueiroz/doubleledger/internal/observability"
@@ -77,9 +75,14 @@ func main() {
 	})
 	go disp.Run(ctx)
 
+	protocols := new(http.Protocols)
+	protocols.SetHTTP1(true)
+	protocols.SetUnencryptedHTTP2(true)
+
 	httpSrv := &http.Server{
-		Addr:    *addr,
-		Handler: h2c.NewHandler(mux, &http2.Server{}),
+		Addr:      *addr,
+		Handler:   mux,
+		Protocols: protocols,
 	}
 	log.Info("server.start", "addr", *addr, "backend", *backend)
 	go func() {
