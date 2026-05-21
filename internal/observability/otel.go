@@ -2,18 +2,57 @@ package observability
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 )
 
-// Setup wires a no-op tracer by default. If OTEL_EXPORTER_OTLP_ENDPOINT is set,
-// callers can swap in an OTLP exporter. We keep the dependency surface small.
-func Setup(_ context.Context, service string) (shutdown func(context.Context) error, err error) {
-	tp := sdktrace.NewTracerProvider()
+// Setup installs an OpenTelemetry tracer provider. When OTEL_EXPORTER_OTLP_ENDPOINT
+// (or OTEL_EXPORTER_OTLP_TRACES_ENDPOINT) is set, traces are exported via OTLP/HTTP;
+// otherwise a provider with no exporter is installed (tests/local dev).
+//
+// OTEL_EXPORTER_OTLP_INSECURE=true disables TLS for the exporter.
+func Setup(ctx context.Context, service string) (shutdown func(context.Context) error, err error) {
+	res, err := resource.New(ctx,
+		resource.WithAttributes(semconv.ServiceName(service)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("otel resource: %w", err)
+	}
+
+	opts := []sdktrace.TracerProviderOption{sdktrace.WithResource(res)}
+
+	endpoint := firstNonEmpty(
+		os.Getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"),
+		os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"),
+	)
+	if endpoint != "" {
+		exporterOpts := []otlptracehttp.Option{}
+		if os.Getenv("OTEL_EXPORTER_OTLP_INSECURE") == "true" {
+			exporterOpts = append(exporterOpts, otlptracehttp.WithInsecure())
+		}
+		exp, expErr := otlptracehttp.New(ctx, exporterOpts...)
+		if expErr != nil {
+			return nil, fmt.Errorf("otlp exporter: %w", expErr)
+		}
+		opts = append(opts, sdktrace.WithBatcher(exp))
+	}
+
+	tp := sdktrace.NewTracerProvider(opts...)
 	otel.SetTracerProvider(tp)
-	_ = os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") // hook point for follow-up wiring
-	_ = service
 	return tp.Shutdown, nil
+}
+
+func firstNonEmpty(vals ...string) string {
+	for _, v := range vals {
+		if v != "" {
+			return v
+		}
+	}
+	return ""
 }
