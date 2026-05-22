@@ -254,3 +254,14 @@ func structToMap(s *structpb.Struct) map[string]any {
 	}
 	return s.AsMap()
 }
+
+func mapToStruct(m map[string]any) *structpb.Struct {
+	if len(m) == 0 {
+		return nil
+	}
+	s, err := structpb.NewStruct(m)
+	if err != nil {
+		return nil
+	}
+	return s
+}
