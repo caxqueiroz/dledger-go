@@ -2,7 +2,7 @@
 //
 // Temporary stubs to satisfy the LedgerServiceHandler interface between
 // Task 16 (proto landed) and Tasks 18-20 (real handlers).
-// Tasks 19, 20 will replace these.
+// Task 20 will replace GetReservation.
 package service
 
 import (
@@ -13,14 +13,6 @@ import (
 
 	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
 )
-
-func (s *Server) CommitReservation(ctx context.Context, req *connect.Request[ledgerv1.CommitReservationRequest]) (*connect.Response[ledgerv1.CommitReservationResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("CommitReservation not implemented yet"))
-}
-
-func (s *Server) ReleaseReservation(ctx context.Context, req *connect.Request[ledgerv1.ReleaseReservationRequest]) (*connect.Response[ledgerv1.ReleaseReservationResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ReleaseReservation not implemented yet"))
-}
 
 func (s *Server) GetReservation(ctx context.Context, req *connect.Request[ledgerv1.GetReservationRequest]) (*connect.Response[ledgerv1.GetReservationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("GetReservation not implemented yet"))
