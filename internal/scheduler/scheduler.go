@@ -80,9 +80,19 @@ func (s *Scheduler) snapshotTick(_ context.Context) {
 	// Operators trigger snapshots manually via the TakeBalanceSnapshot RPC.
 }
 
-func (s *Scheduler) expiryTick(_ context.Context) {
+func (s *Scheduler) expiryTick(ctx context.Context) {
 	if s.Reservations == nil {
 		return
 	}
-	// Phase A: no reservations yet. Task 22 will fill this in.
+	now := time.Now()
+	rows, err := s.Store.ListExpiredReservations(ctx, now, s.Cfg.BatchN)
+	if err != nil {
+		s.Log.WarnContext(ctx, "scheduler.list_expired", "err", err)
+		return
+	}
+	for _, r := range rows {
+		if err := s.Reservations.ExpireReservation(ctx, r.TenantID, r.ID); err != nil {
+			s.Log.WarnContext(ctx, "scheduler.expire", "tenant_id", r.TenantID, "id", r.ID, "err", err)
+		}
+	}
 }
