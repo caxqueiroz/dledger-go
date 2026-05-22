@@ -11,9 +11,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/shopspring/decimal"
 
-	crdbstore "github.com/caxqueiroz/doubleledger/gen/crdb"
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
-	"github.com/caxqueiroz/doubleledger/internal/repo"
+	crdbstore "github.com/caxqueiroz/dledger-go/gen/crdb"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
+	"github.com/caxqueiroz/dledger-go/internal/repo"
 )
 
 // Store wraps a pgxpool.Pool and implements repo.Store for CockroachDB.

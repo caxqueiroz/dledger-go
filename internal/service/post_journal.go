@@ -5,7 +5,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
 )
 
 func (s *Server) PostJournal(ctx context.Context, req *connect.Request[ledgerv1.PostJournalRequest]) (*connect.Response[ledgerv1.PostJournalResponse], error) {

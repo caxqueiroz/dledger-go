@@ -13,15 +13,15 @@ import (
 
 	"connectrpc.com/connect"
 
-	ledgerv1connect "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1/ledgerv1connect"
-	"github.com/caxqueiroz/doubleledger/internal/observability"
-	"github.com/caxqueiroz/doubleledger/internal/outbox"
-	"github.com/caxqueiroz/doubleledger/internal/repo"
-	"github.com/caxqueiroz/doubleledger/internal/repo/crdb"
-	"github.com/caxqueiroz/doubleledger/internal/repo/sqlite"
-	"github.com/caxqueiroz/doubleledger/internal/scheduler"
-	"github.com/caxqueiroz/doubleledger/internal/service"
-	"github.com/caxqueiroz/doubleledger/internal/service/interceptors"
+	ledgerv1connect "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1/ledgerv1connect"
+	"github.com/caxqueiroz/dledger-go/internal/observability"
+	"github.com/caxqueiroz/dledger-go/internal/outbox"
+	"github.com/caxqueiroz/dledger-go/internal/repo"
+	"github.com/caxqueiroz/dledger-go/internal/repo/crdb"
+	"github.com/caxqueiroz/dledger-go/internal/repo/sqlite"
+	"github.com/caxqueiroz/dledger-go/internal/scheduler"
+	"github.com/caxqueiroz/dledger-go/internal/service"
+	"github.com/caxqueiroz/dledger-go/internal/service/interceptors"
 )
 
 func main() {

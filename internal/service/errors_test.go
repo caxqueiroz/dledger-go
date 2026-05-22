@@ -6,7 +6,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
 )
 
 func TestToConnectError_Mapping(t *testing.T) {

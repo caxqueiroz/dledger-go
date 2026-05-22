@@ -8,7 +8,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgconn"
 
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
 )
 
 // IsSerializationError reports whether err is a Postgres-protocol serialization

@@ -6,8 +6,8 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
-	crdbstore "github.com/caxqueiroz/doubleledger/gen/crdb"
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
+	crdbstore "github.com/caxqueiroz/dledger-go/gen/crdb"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
 )
 
 // timestamptzToTime converts a pgtype.Timestamptz to time.Time.

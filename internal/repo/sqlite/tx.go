@@ -9,9 +9,9 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	sqlitestore "github.com/caxqueiroz/doubleledger/gen/sqlite"
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
-	"github.com/caxqueiroz/doubleledger/internal/repo"
+	sqlitestore "github.com/caxqueiroz/dledger-go/gen/sqlite"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
+	"github.com/caxqueiroz/dledger-go/internal/repo"
 )
 
 // Tx is a SQLite write transaction backed by a dedicated *sql.Conn.

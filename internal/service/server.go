@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/caxqueiroz/doubleledger/internal/repo"
+	"github.com/caxqueiroz/dledger-go/internal/repo"
 )
 
 // Clock is a function that returns the current time.

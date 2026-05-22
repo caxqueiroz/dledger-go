@@ -5,9 +5,9 @@ import (
 	"context"
 	"encoding/json"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
-	"github.com/caxqueiroz/doubleledger/internal/repo"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
+	"github.com/caxqueiroz/dledger-go/internal/repo"
 )
 
 // ExpireReservation is called by the scheduler. It mirrors ReleaseReservation

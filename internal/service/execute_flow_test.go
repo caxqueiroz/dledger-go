@@ -7,8 +7,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
-	"github.com/caxqueiroz/doubleledger/internal/service"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
+	"github.com/caxqueiroz/dledger-go/internal/service"
 )
 
 func mustCreateAccount(t *testing.T, srv *service.Server, ownerID, kind, ccy string, allowNeg bool, nb ledgerv1.NormalBalance) string {

@@ -11,10 +11,10 @@ import (
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
-	"github.com/caxqueiroz/doubleledger/internal/repo/sqlite"
-	"github.com/caxqueiroz/doubleledger/internal/scheduler"
-	"github.com/caxqueiroz/doubleledger/internal/service"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
+	"github.com/caxqueiroz/dledger-go/internal/repo/sqlite"
+	"github.com/caxqueiroz/dledger-go/internal/scheduler"
+	"github.com/caxqueiroz/dledger-go/internal/service"
 )
 
 func setup(t *testing.T) (*service.Server, *sqlite.Store, func()) {

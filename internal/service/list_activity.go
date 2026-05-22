@@ -6,8 +6,8 @@ import (
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
-	"github.com/caxqueiroz/doubleledger/internal/repo"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
+	"github.com/caxqueiroz/dledger-go/internal/repo"
 )
 
 func (s *Server) ListAccountActivity(ctx context.Context, req *connect.Request[ledgerv1.ListAccountActivityRequest]) (*connect.Response[ledgerv1.ListAccountActivityResponse], error) {

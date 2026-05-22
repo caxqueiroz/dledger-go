@@ -6,8 +6,8 @@ import (
 
 	"connectrpc.com/connect"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
 )
 
 func (s *Server) TakeBalanceSnapshot(ctx context.Context, req *connect.Request[ledgerv1.TakeBalanceSnapshotRequest]) (*connect.Response[ledgerv1.TakeBalanceSnapshotResponse], error) {

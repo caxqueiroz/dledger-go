@@ -4,8 +4,8 @@ package service
 import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
 )
 
 func reservationToProto(r *ledger.Reservation) *ledgerv1.Reservation {

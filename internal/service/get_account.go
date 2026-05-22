@@ -5,7 +5,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
 )
 
 // GetAccount fetches a single account by tenant and account ID.

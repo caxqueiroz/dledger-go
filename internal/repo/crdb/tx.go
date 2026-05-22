@@ -10,9 +10,9 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 
-	crdbstore "github.com/caxqueiroz/doubleledger/gen/crdb"
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
-	"github.com/caxqueiroz/doubleledger/internal/repo"
+	crdbstore "github.com/caxqueiroz/dledger-go/gen/crdb"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
+	"github.com/caxqueiroz/dledger-go/internal/repo"
 )
 
 // Tx wraps a pgx.Tx and implements repo.Tx for CockroachDB.

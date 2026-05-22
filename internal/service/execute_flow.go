@@ -10,9 +10,9 @@ import (
 	"github.com/shopspring/decimal"
 	"google.golang.org/protobuf/types/known/structpb"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
-	"github.com/caxqueiroz/doubleledger/internal/repo"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
+	"github.com/caxqueiroz/dledger-go/internal/repo"
 )
 
 // ExecuteFlow is the public Connect handler. It opens a tx, runs the

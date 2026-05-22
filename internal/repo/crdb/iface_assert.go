@@ -1,6 +1,6 @@
 package crdb
 
-import "github.com/caxqueiroz/doubleledger/internal/repo"
+import "github.com/caxqueiroz/dledger-go/internal/repo"
 
 var (
 	_ repo.Store = (*Store)(nil)

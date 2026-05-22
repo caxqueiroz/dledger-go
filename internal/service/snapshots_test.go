@@ -9,7 +9,7 @@ import (
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
 )
 
 func TestTakeBalanceSnapshot_SingleRow(t *testing.T) {

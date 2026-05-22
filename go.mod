@@ -1,4 +1,4 @@
-module github.com/caxqueiroz/doubleledger
+module github.com/caxqueiroz/dledger-go
 
 go 1.26.3
 

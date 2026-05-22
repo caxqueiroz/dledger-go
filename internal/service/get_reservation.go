@@ -6,7 +6,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
 )
 
 func (s *Server) GetReservation(ctx context.Context, req *connect.Request[ledgerv1.GetReservationRequest]) (*connect.Response[ledgerv1.GetReservationResponse], error) {

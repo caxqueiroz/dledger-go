@@ -8,9 +8,9 @@ import (
 
 	"connectrpc.com/connect"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
-	"github.com/caxqueiroz/doubleledger/internal/repo"
-	"github.com/caxqueiroz/doubleledger/internal/service"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
+	"github.com/caxqueiroz/dledger-go/internal/repo"
+	"github.com/caxqueiroz/dledger-go/internal/service"
 )
 
 type Snapshotter interface {

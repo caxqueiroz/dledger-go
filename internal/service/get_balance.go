@@ -7,8 +7,8 @@ import (
 	"connectrpc.com/connect"
 	"github.com/shopspring/decimal"
 
-	ledgerv1 "github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1"
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
+	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
 )
 
 // GetBalance returns the balance for an account and currency.

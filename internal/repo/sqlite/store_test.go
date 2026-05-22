@@ -8,7 +8,7 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
 )
 
 func openTempDB(t *testing.T) *Store {

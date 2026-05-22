@@ -6,7 +6,7 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
 )
 
 // Store opens transactions and executes read-only queries.

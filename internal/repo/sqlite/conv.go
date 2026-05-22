@@ -6,8 +6,8 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	sqlitestore "github.com/caxqueiroz/doubleledger/gen/sqlite"
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
+	sqlitestore "github.com/caxqueiroz/dledger-go/gen/sqlite"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
 )
 
 // parseTime parses an RFC3339Nano timestamp string, returning zero time on failure.

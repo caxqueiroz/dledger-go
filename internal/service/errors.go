@@ -5,7 +5,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
 )
 
 // ToConnectError converts a domain error into a Connect-RPC error with the

@@ -3,7 +3,7 @@ package outbox
 import (
 	"context"
 
-	"github.com/caxqueiroz/doubleledger/internal/repo"
+	"github.com/caxqueiroz/dledger-go/internal/repo"
 )
 
 type RepoAdapter struct{ Store repo.Store }

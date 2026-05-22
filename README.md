@@ -1,6 +1,6 @@
-# doubleledger
+# dledger-go
 
-Multi-currency double-entry ledger service. See `docs/superpowers/specs/` for the design.
+Multi-currency double-entry ledger service in Go. See `docs/superpowers/specs/` for the design.
 
 ## Local dev
 

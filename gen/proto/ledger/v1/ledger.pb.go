@@ -2654,8 +2654,8 @@ const file_ledger_v1_ledger_proto_rawDesc = "" +
 	"\x11CreateReservation\x12#.ledger.v1.CreateReservationRequest\x1a$.ledger.v1.CreateReservationResponse\x12^\n" +
 	"\x11CommitReservation\x12#.ledger.v1.CommitReservationRequest\x1a$.ledger.v1.CommitReservationResponse\x12a\n" +
 	"\x12ReleaseReservation\x12$.ledger.v1.ReleaseReservationRequest\x1a%.ledger.v1.ReleaseReservationResponse\x12U\n" +
-	"\x0eGetReservation\x12 .ledger.v1.GetReservationRequest\x1a!.ledger.v1.GetReservationResponseB\xa2\x01\n" +
-	"\rcom.ledger.v1B\vLedgerProtoP\x01Z?github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1;ledgerv1\xa2\x02\x03LXX\xaa\x02\tLedger.V1\xca\x02\tLedger\\V1\xe2\x02\x15Ledger\\V1\\GPBMetadata\xea\x02\n" +
+	"\x0eGetReservation\x12 .ledger.v1.GetReservationRequest\x1a!.ledger.v1.GetReservationResponseB\xa0\x01\n" +
+	"\rcom.ledger.v1B\vLedgerProtoP\x01Z=github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1;ledgerv1\xa2\x02\x03LXX\xaa\x02\tLedger.V1\xca\x02\tLedger\\V1\xe2\x02\x15Ledger\\V1\\GPBMetadata\xea\x02\n" +
 	"Ledger::V1b\x06proto3"
 
 var (

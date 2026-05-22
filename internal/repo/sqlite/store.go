@@ -10,9 +10,9 @@ import (
 	"github.com/shopspring/decimal"
 	_ "modernc.org/sqlite"
 
-	sqlitestore "github.com/caxqueiroz/doubleledger/gen/sqlite"
-	"github.com/caxqueiroz/doubleledger/internal/ledger"
-	"github.com/caxqueiroz/doubleledger/internal/repo"
+	sqlitestore "github.com/caxqueiroz/dledger-go/gen/sqlite"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
+	"github.com/caxqueiroz/dledger-go/internal/repo"
 )
 
 // sqliteTimeFormat matches SQLite's strftime('%Y-%m-%dT%H:%M:%fZ','now') output

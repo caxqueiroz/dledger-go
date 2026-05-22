@@ -3,7 +3,7 @@ managed:
   enabled: true
   override:
     - file_option: go_package_prefix
-      value: github.com/caxqueiroz/doubleledger/gen/proto
+      value: github.com/caxqueiroz/dledger-go/gen/proto
   disable:
     - module: buf.build/bufbuild/protovalidate
 plugins:
