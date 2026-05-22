@@ -19,6 +19,10 @@ service LedgerService {
   rpc CommitReservation(CommitReservationRequest) returns (CommitReservationResponse);
   rpc ReleaseReservation(ReleaseReservationRequest) returns (ReleaseReservationResponse);
   rpc GetReservation(GetReservationRequest) returns (GetReservationResponse);
+  rpc ExecuteExchange(ExecuteExchangeRequest) returns (ExecuteExchangeResponse);
+  rpc PutFXRate(PutFXRateRequest) returns (PutFXRateResponse);
+  rpc GetFXRate(GetFXRateRequest) returns (GetFXRateResponse);
+  rpc ListFXRates(ListFXRatesRequest) returns (ListFXRatesResponse);
 }
 
 enum Direction {
@@ -238,3 +242,64 @@ message ReleaseReservationResponse { Reservation reservation = 1; }
 
 message GetReservationRequest  { string tenant_id = 1; string reservation_id = 2; }
 message GetReservationResponse { Reservation reservation = 1; }
+
+message FXRate {
+  string id              = 1;
+  string tenant_id       = 2;
+  string base_currency   = 3;
+  string quote_currency  = 4;
+  string rate            = 5;
+  string source          = 6;
+  google.protobuf.Timestamp effective_at = 7;
+  google.protobuf.Timestamp created_at   = 8;
+}
+
+message ExecuteExchangeRequest {
+  string tenant_id                  = 1 [(buf.validate.field).string.min_len = 1];
+  string idempotency_key            = 2 [(buf.validate.field).string.min_len = 1];
+  string from_account_id            = 3 [(buf.validate.field).string.min_len = 1];
+  string to_account_id              = 4 [(buf.validate.field).string.min_len = 1];
+  string from_counter_account_id    = 5 [(buf.validate.field).string.min_len = 1];
+  string to_counter_account_id      = 6 [(buf.validate.field).string.min_len = 1];
+  string from_amount                = 7 [(buf.validate.field).string.pattern = "^[0-9]+(\\.[0-9]+)?$"];
+  string to_amount                  = 8 [(buf.validate.field).string.pattern = "^[0-9]+(\\.[0-9]+)?$"];
+  string rate                       = 9;
+  string rate_source                = 10;
+  string source_service             = 11;
+  string actor_id                   = 12;
+  google.protobuf.Struct metadata   = 13;
+}
+message ExecuteExchangeResponse {
+  string flow_run_id = 1;
+  string journal_id  = 2;
+  string rate_used   = 3;
+  string rate_source = 4;
+}
+
+message PutFXRateRequest {
+  string tenant_id       = 1 [(buf.validate.field).string.min_len = 1];
+  string base_currency   = 2 [(buf.validate.field).string.min_len = 3];
+  string quote_currency  = 3 [(buf.validate.field).string.min_len = 3];
+  string rate            = 4 [(buf.validate.field).string.pattern = "^[0-9]+(\\.[0-9]+)?$"];
+  string source          = 5 [(buf.validate.field).string.min_len = 1];
+  google.protobuf.Timestamp effective_at = 6;
+}
+message PutFXRateResponse { FXRate rate = 1; }
+
+message GetFXRateRequest {
+  string tenant_id      = 1;
+  string base_currency  = 2;
+  string quote_currency = 3;
+  google.protobuf.Timestamp at = 4;
+}
+message GetFXRateResponse { FXRate rate = 1; }
+
+message ListFXRatesRequest {
+  string tenant_id      = 1;
+  string base_currency  = 2;
+  string quote_currency = 3;
+  google.protobuf.Timestamp since = 4;
+  google.protobuf.Timestamp until = 5;
+  int32  page_size      = 6;
+}
+message ListFXRatesResponse { repeated FXRate rates = 1; }

@@ -68,6 +68,16 @@ const (
 	// LedgerServiceGetReservationProcedure is the fully-qualified name of the LedgerService's
 	// GetReservation RPC.
 	LedgerServiceGetReservationProcedure = "/ledger.v1.LedgerService/GetReservation"
+	// LedgerServiceExecuteExchangeProcedure is the fully-qualified name of the LedgerService's
+	// ExecuteExchange RPC.
+	LedgerServiceExecuteExchangeProcedure = "/ledger.v1.LedgerService/ExecuteExchange"
+	// LedgerServicePutFXRateProcedure is the fully-qualified name of the LedgerService's PutFXRate RPC.
+	LedgerServicePutFXRateProcedure = "/ledger.v1.LedgerService/PutFXRate"
+	// LedgerServiceGetFXRateProcedure is the fully-qualified name of the LedgerService's GetFXRate RPC.
+	LedgerServiceGetFXRateProcedure = "/ledger.v1.LedgerService/GetFXRate"
+	// LedgerServiceListFXRatesProcedure is the fully-qualified name of the LedgerService's ListFXRates
+	// RPC.
+	LedgerServiceListFXRatesProcedure = "/ledger.v1.LedgerService/ListFXRates"
 )
 
 // LedgerServiceClient is a client for the ledger.v1.LedgerService service.
@@ -84,6 +94,10 @@ type LedgerServiceClient interface {
 	CommitReservation(context.Context, *connect.Request[v1.CommitReservationRequest]) (*connect.Response[v1.CommitReservationResponse], error)
 	ReleaseReservation(context.Context, *connect.Request[v1.ReleaseReservationRequest]) (*connect.Response[v1.ReleaseReservationResponse], error)
 	GetReservation(context.Context, *connect.Request[v1.GetReservationRequest]) (*connect.Response[v1.GetReservationResponse], error)
+	ExecuteExchange(context.Context, *connect.Request[v1.ExecuteExchangeRequest]) (*connect.Response[v1.ExecuteExchangeResponse], error)
+	PutFXRate(context.Context, *connect.Request[v1.PutFXRateRequest]) (*connect.Response[v1.PutFXRateResponse], error)
+	GetFXRate(context.Context, *connect.Request[v1.GetFXRateRequest]) (*connect.Response[v1.GetFXRateResponse], error)
+	ListFXRates(context.Context, *connect.Request[v1.ListFXRatesRequest]) (*connect.Response[v1.ListFXRatesResponse], error)
 }
 
 // NewLedgerServiceClient constructs a client for the ledger.v1.LedgerService service. By default,
@@ -169,6 +183,30 @@ func NewLedgerServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(ledgerServiceMethods.ByName("GetReservation")),
 			connect.WithClientOptions(opts...),
 		),
+		executeExchange: connect.NewClient[v1.ExecuteExchangeRequest, v1.ExecuteExchangeResponse](
+			httpClient,
+			baseURL+LedgerServiceExecuteExchangeProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("ExecuteExchange")),
+			connect.WithClientOptions(opts...),
+		),
+		putFXRate: connect.NewClient[v1.PutFXRateRequest, v1.PutFXRateResponse](
+			httpClient,
+			baseURL+LedgerServicePutFXRateProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("PutFXRate")),
+			connect.WithClientOptions(opts...),
+		),
+		getFXRate: connect.NewClient[v1.GetFXRateRequest, v1.GetFXRateResponse](
+			httpClient,
+			baseURL+LedgerServiceGetFXRateProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("GetFXRate")),
+			connect.WithClientOptions(opts...),
+		),
+		listFXRates: connect.NewClient[v1.ListFXRatesRequest, v1.ListFXRatesResponse](
+			httpClient,
+			baseURL+LedgerServiceListFXRatesProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("ListFXRates")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -186,6 +224,10 @@ type ledgerServiceClient struct {
 	commitReservation   *connect.Client[v1.CommitReservationRequest, v1.CommitReservationResponse]
 	releaseReservation  *connect.Client[v1.ReleaseReservationRequest, v1.ReleaseReservationResponse]
 	getReservation      *connect.Client[v1.GetReservationRequest, v1.GetReservationResponse]
+	executeExchange     *connect.Client[v1.ExecuteExchangeRequest, v1.ExecuteExchangeResponse]
+	putFXRate           *connect.Client[v1.PutFXRateRequest, v1.PutFXRateResponse]
+	getFXRate           *connect.Client[v1.GetFXRateRequest, v1.GetFXRateResponse]
+	listFXRates         *connect.Client[v1.ListFXRatesRequest, v1.ListFXRatesResponse]
 }
 
 // CreateAccount calls ledger.v1.LedgerService.CreateAccount.
@@ -248,6 +290,26 @@ func (c *ledgerServiceClient) GetReservation(ctx context.Context, req *connect.R
 	return c.getReservation.CallUnary(ctx, req)
 }
 
+// ExecuteExchange calls ledger.v1.LedgerService.ExecuteExchange.
+func (c *ledgerServiceClient) ExecuteExchange(ctx context.Context, req *connect.Request[v1.ExecuteExchangeRequest]) (*connect.Response[v1.ExecuteExchangeResponse], error) {
+	return c.executeExchange.CallUnary(ctx, req)
+}
+
+// PutFXRate calls ledger.v1.LedgerService.PutFXRate.
+func (c *ledgerServiceClient) PutFXRate(ctx context.Context, req *connect.Request[v1.PutFXRateRequest]) (*connect.Response[v1.PutFXRateResponse], error) {
+	return c.putFXRate.CallUnary(ctx, req)
+}
+
+// GetFXRate calls ledger.v1.LedgerService.GetFXRate.
+func (c *ledgerServiceClient) GetFXRate(ctx context.Context, req *connect.Request[v1.GetFXRateRequest]) (*connect.Response[v1.GetFXRateResponse], error) {
+	return c.getFXRate.CallUnary(ctx, req)
+}
+
+// ListFXRates calls ledger.v1.LedgerService.ListFXRates.
+func (c *ledgerServiceClient) ListFXRates(ctx context.Context, req *connect.Request[v1.ListFXRatesRequest]) (*connect.Response[v1.ListFXRatesResponse], error) {
+	return c.listFXRates.CallUnary(ctx, req)
+}
+
 // LedgerServiceHandler is an implementation of the ledger.v1.LedgerService service.
 type LedgerServiceHandler interface {
 	CreateAccount(context.Context, *connect.Request[v1.CreateAccountRequest]) (*connect.Response[v1.CreateAccountResponse], error)
@@ -262,6 +324,10 @@ type LedgerServiceHandler interface {
 	CommitReservation(context.Context, *connect.Request[v1.CommitReservationRequest]) (*connect.Response[v1.CommitReservationResponse], error)
 	ReleaseReservation(context.Context, *connect.Request[v1.ReleaseReservationRequest]) (*connect.Response[v1.ReleaseReservationResponse], error)
 	GetReservation(context.Context, *connect.Request[v1.GetReservationRequest]) (*connect.Response[v1.GetReservationResponse], error)
+	ExecuteExchange(context.Context, *connect.Request[v1.ExecuteExchangeRequest]) (*connect.Response[v1.ExecuteExchangeResponse], error)
+	PutFXRate(context.Context, *connect.Request[v1.PutFXRateRequest]) (*connect.Response[v1.PutFXRateResponse], error)
+	GetFXRate(context.Context, *connect.Request[v1.GetFXRateRequest]) (*connect.Response[v1.GetFXRateResponse], error)
+	ListFXRates(context.Context, *connect.Request[v1.ListFXRatesRequest]) (*connect.Response[v1.ListFXRatesResponse], error)
 }
 
 // NewLedgerServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -343,6 +409,30 @@ func NewLedgerServiceHandler(svc LedgerServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(ledgerServiceMethods.ByName("GetReservation")),
 		connect.WithHandlerOptions(opts...),
 	)
+	ledgerServiceExecuteExchangeHandler := connect.NewUnaryHandler(
+		LedgerServiceExecuteExchangeProcedure,
+		svc.ExecuteExchange,
+		connect.WithSchema(ledgerServiceMethods.ByName("ExecuteExchange")),
+		connect.WithHandlerOptions(opts...),
+	)
+	ledgerServicePutFXRateHandler := connect.NewUnaryHandler(
+		LedgerServicePutFXRateProcedure,
+		svc.PutFXRate,
+		connect.WithSchema(ledgerServiceMethods.ByName("PutFXRate")),
+		connect.WithHandlerOptions(opts...),
+	)
+	ledgerServiceGetFXRateHandler := connect.NewUnaryHandler(
+		LedgerServiceGetFXRateProcedure,
+		svc.GetFXRate,
+		connect.WithSchema(ledgerServiceMethods.ByName("GetFXRate")),
+		connect.WithHandlerOptions(opts...),
+	)
+	ledgerServiceListFXRatesHandler := connect.NewUnaryHandler(
+		LedgerServiceListFXRatesProcedure,
+		svc.ListFXRates,
+		connect.WithSchema(ledgerServiceMethods.ByName("ListFXRates")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/ledger.v1.LedgerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case LedgerServiceCreateAccountProcedure:
@@ -369,6 +459,14 @@ func NewLedgerServiceHandler(svc LedgerServiceHandler, opts ...connect.HandlerOp
 			ledgerServiceReleaseReservationHandler.ServeHTTP(w, r)
 		case LedgerServiceGetReservationProcedure:
 			ledgerServiceGetReservationHandler.ServeHTTP(w, r)
+		case LedgerServiceExecuteExchangeProcedure:
+			ledgerServiceExecuteExchangeHandler.ServeHTTP(w, r)
+		case LedgerServicePutFXRateProcedure:
+			ledgerServicePutFXRateHandler.ServeHTTP(w, r)
+		case LedgerServiceGetFXRateProcedure:
+			ledgerServiceGetFXRateHandler.ServeHTTP(w, r)
+		case LedgerServiceListFXRatesProcedure:
+			ledgerServiceListFXRatesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -424,4 +522,20 @@ func (UnimplementedLedgerServiceHandler) ReleaseReservation(context.Context, *co
 
 func (UnimplementedLedgerServiceHandler) GetReservation(context.Context, *connect.Request[v1.GetReservationRequest]) (*connect.Response[v1.GetReservationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.GetReservation is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) ExecuteExchange(context.Context, *connect.Request[v1.ExecuteExchangeRequest]) (*connect.Response[v1.ExecuteExchangeResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.ExecuteExchange is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) PutFXRate(context.Context, *connect.Request[v1.PutFXRateRequest]) (*connect.Response[v1.PutFXRateResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.PutFXRate is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) GetFXRate(context.Context, *connect.Request[v1.GetFXRateRequest]) (*connect.Response[v1.GetFXRateResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.GetFXRate is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) ListFXRates(context.Context, *connect.Request[v1.ListFXRatesRequest]) (*connect.Response[v1.ListFXRatesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.ListFXRates is not implemented"))
 }
