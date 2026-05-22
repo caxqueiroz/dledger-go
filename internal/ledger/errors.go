@@ -18,6 +18,8 @@ const (
 	CodeReservationClosed           DomainCode = "RESERVATION_CLOSED"
 	CodeReservationAmountExceeds    DomainCode = "RESERVATION_AMOUNT_EXCEEDS"
 	CodeReservationCurrencyMismatch DomainCode = "RESERVATION_CURRENCY_MISMATCH"
+	CodeFXRateNotFound              DomainCode = "FX_RATE_NOT_FOUND"
+	CodeFXAmountMismatch            DomainCode = "FX_AMOUNT_MISMATCH"
 )
 
 type DomainError struct {
