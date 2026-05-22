@@ -15,8 +15,7 @@ func ToConnectError(err error) error {
 	if err == nil {
 		return nil
 	}
-	var de *ledger.DomainError
-	if errors.As(err, &de) {
+	if de, ok := errors.AsType[*ledger.DomainError](err); ok {
 		code := connect.CodeInternal
 		switch de.Code {
 		case ledger.CodeInsufficientFunds, ledger.CodeInvalidAccountStatus:

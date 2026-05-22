@@ -7,7 +7,7 @@ import "strings"
 func StripGoose(s string) string {
 	var b strings.Builder
 	in := false
-	for _, line := range strings.Split(s, "\n") {
+	for line := range strings.SplitSeq(s, "\n") {
 		switch {
 		case strings.TrimSpace(line) == "-- +goose Up":
 			in = true

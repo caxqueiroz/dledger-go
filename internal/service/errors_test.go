@@ -27,8 +27,8 @@ func TestToConnectError_Mapping(t *testing.T) {
 	for _, c := range cases {
 		t.Run(string(c.code), func(t *testing.T) {
 			err := ToConnectError(ledger.NewDomainError(c.code, "x"))
-			var cerr *connect.Error
-			if !errors.As(err, &cerr) {
+			cerr, ok := errors.AsType[*connect.Error](err)
+			if !ok {
 				t.Fatalf("not a connect.Error: %v", err)
 			}
 			if cerr.Code() != c.expected {
@@ -40,8 +40,8 @@ func TestToConnectError_Mapping(t *testing.T) {
 
 func TestToConnectError_GenericErrorIsInternal(t *testing.T) {
 	err := ToConnectError(errors.New("boom"))
-	var cerr *connect.Error
-	if !errors.As(err, &cerr) {
+	cerr, ok := errors.AsType[*connect.Error](err)
+	if !ok {
 		t.Fatalf("not a connect.Error")
 	}
 	if cerr.Code() != connect.CodeInternal {

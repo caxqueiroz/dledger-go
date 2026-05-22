@@ -225,7 +225,7 @@ func parseUUID(s string) (pgtype.UUID, error) {
 		return pgtype.UUID{}, fmt.Errorf("expected 32 hex chars, got %d", len(hex))
 	}
 	var b [16]byte
-	for i := 0; i < 16; i++ {
+	for i := range 16 {
 		hi := hexVal(hex[i*2])
 		lo := hexVal(hex[i*2+1])
 		if hi < 0 || lo < 0 {

@@ -16,10 +16,7 @@ type fakeStore struct {
 func (f *fakeStore) PendingOutbox(ctx context.Context, limit int) ([]Event, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	n := limit
-	if n > len(f.pending) {
-		n = len(f.pending)
-	}
+	n := min(limit, len(f.pending))
 	out := make([]Event, n)
 	copy(out, f.pending[:n])
 	return out, nil
@@ -64,7 +61,7 @@ func TestDispatcher_PublishesPending(t *testing.T) {
 	}
 	sink := &fakeSink{}
 	d := NewDispatcher(store, sink, Config{Interval: 5 * time.Millisecond, BatchSize: 10})
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	go d.Run(ctx)
 	defer cancel()
 
@@ -88,7 +85,7 @@ func TestDispatcher_FailedSinkLeavesPending(t *testing.T) {
 	}
 	sink := &fakeSink{failID: "bad"}
 	d := NewDispatcher(store, sink, Config{Interval: 5 * time.Millisecond, BatchSize: 10})
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	go d.Run(ctx)
 	defer cancel()
 

@@ -139,8 +139,8 @@ func TestExecuteFlow_InsufficientFunds(t *testing.T) {
 			},
 		}}},
 	}))
-	var cerr *connect.Error
-	if !errors.As(err, &cerr) || cerr.Code() != connect.CodeFailedPrecondition {
+	cerr, ok := errors.AsType[*connect.Error](err)
+	if !ok || cerr.Code() != connect.CodeFailedPrecondition {
 		t.Fatalf("want FailedPrecondition INSUFFICIENT_FUNDS, got %v", err)
 	}
 }
@@ -239,8 +239,8 @@ func TestExecuteFlow_UnbalancedAcrossCurrencies(t *testing.T) {
 			},
 		}}},
 	}))
-	var cerr *connect.Error
-	if !errors.As(err, &cerr) || cerr.Code() != connect.CodeInvalidArgument {
+	cerr, ok := errors.AsType[*connect.Error](err)
+	if !ok || cerr.Code() != connect.CodeInvalidArgument {
 		t.Fatalf("want InvalidArgument UNBALANCED_JOURNAL, got %v", err)
 	}
 }

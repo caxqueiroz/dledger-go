@@ -125,8 +125,8 @@ func TestExecuteFlow_ConcurrentReservation_CRDB(t *testing.T) {
 			continue
 		}
 		// Either INSUFFICIENT_FUNDS (FailedPrecondition) or SERIALIZATION_RETRY_EXHAUSTED (Aborted) is acceptable.
-		var cerr *connect.Error
-		if !errors.As(r.err, &cerr) {
+		cerr, ok := errors.AsType[*connect.Error](r.err)
+		if !ok {
 			t.Fatalf("non-connect error: %v", r.err)
 		}
 		if cerr.Code() != connect.CodeFailedPrecondition && cerr.Code() != connect.CodeAborted {

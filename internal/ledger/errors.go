@@ -30,8 +30,7 @@ func NewDomainError(code DomainCode, msg string) *DomainError {
 // IsDomainCode reports whether err (or any wrapped error) is a DomainError
 // with the given code.
 func IsDomainCode(err error, code DomainCode) bool {
-	var de *DomainError
-	if errors.As(err, &de) {
+	if de, ok := errors.AsType[*DomainError](err); ok {
 		return de.Code == code
 	}
 	return false

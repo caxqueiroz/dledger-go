@@ -1,6 +1,7 @@
 package observability
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"os"
@@ -27,7 +28,7 @@ func Setup(ctx context.Context, service string) (shutdown func(context.Context) 
 
 	opts := []sdktrace.TracerProviderOption{sdktrace.WithResource(res)}
 
-	endpoint := firstNonEmpty(
+	endpoint := cmp.Or(
 		os.Getenv("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"),
 		os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"),
 	)
@@ -46,13 +47,4 @@ func Setup(ctx context.Context, service string) (shutdown func(context.Context) 
 	tp := sdktrace.NewTracerProvider(opts...)
 	otel.SetTracerProvider(tp)
 	return tp.Shutdown, nil
-}
-
-func firstNonEmpty(vals ...string) string {
-	for _, v := range vals {
-		if v != "" {
-			return v
-		}
-	}
-	return ""
 }

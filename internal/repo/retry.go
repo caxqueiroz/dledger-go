@@ -3,7 +3,7 @@ package repo
 import (
 	"context"
 	"errors"
-	"math/rand"
+	"math/rand/v2"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
@@ -14,8 +14,7 @@ import (
 // IsSerializationError reports whether err is a Postgres-protocol serialization
 // failure (SQLSTATE 40001). CockroachDB returns this on isolation conflicts.
 func IsSerializationError(err error) bool {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
+	if pgErr, ok := errors.AsType[*pgconn.PgError](err); ok {
 		return pgErr.Code == "40001"
 	}
 	return false
@@ -30,7 +29,7 @@ func WithRetry(ctx context.Context, maxAttempts int, fn func() error) error {
 	}
 	var lastErr error
 	delay := 5 * time.Millisecond
-	for i := 0; i < maxAttempts; i++ {
+	for range maxAttempts {
 		err := fn()
 		if err == nil {
 			return nil
@@ -39,7 +38,7 @@ func WithRetry(ctx context.Context, maxAttempts int, fn func() error) error {
 			return err
 		}
 		lastErr = err
-		jitter := time.Duration(rand.Int63n(int64(delay)))
+		jitter := time.Duration(rand.Int64N(int64(delay)))
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
