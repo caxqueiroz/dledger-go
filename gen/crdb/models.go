@@ -32,6 +32,18 @@ type AccountBalance struct {
 	UpdatedAt     pgtype.Timestamptz `db:"updated_at"`
 }
 
+type BalanceSnapshot struct {
+	ID            string             `db:"id"`
+	TenantID      string             `db:"tenant_id"`
+	AccountID     string             `db:"account_id"`
+	Currency      string             `db:"currency"`
+	PostedDebits  decimal.Decimal    `db:"posted_debits"`
+	PostedCredits decimal.Decimal    `db:"posted_credits"`
+	Version       int64              `db:"version"`
+	SnapshotAt    pgtype.Timestamptz `db:"snapshot_at"`
+	CreatedAt     pgtype.Timestamptz `db:"created_at"`
+}
+
 type FlowRun struct {
 	ID             string             `db:"id"`
 	TenantID       string             `db:"tenant_id"`

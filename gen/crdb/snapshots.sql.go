@@ -121,8 +121,8 @@ func (q *Queries) ListAllBalancesForTenant(ctx context.Context, tenantID string)
 
 const sumEntriesBetween = `-- name: SumEntriesBetween :one
 SELECT
-    COALESCE(SUM(CASE WHEN direction = 'DEBIT'  THEN amount ELSE 0 END), 0) AS debits,
-    COALESCE(SUM(CASE WHEN direction = 'CREDIT' THEN amount ELSE 0 END), 0) AS credits
+    CAST(COALESCE(SUM(CASE WHEN direction = 'DEBIT'  THEN amount END), 0) AS DECIMAL(38, 18)) AS debits,
+    CAST(COALESCE(SUM(CASE WHEN direction = 'CREDIT' THEN amount END), 0) AS DECIMAL(38, 18)) AS credits
 FROM ledger_entries
 WHERE tenant_id = $1 AND account_id = $2 AND currency = $3
   AND created_at > $4 AND created_at <= $5
@@ -137,8 +137,8 @@ type SumEntriesBetweenParams struct {
 }
 
 type SumEntriesBetweenRow struct {
-	Debits  interface{} `db:"debits"`
-	Credits interface{} `db:"credits"`
+	Debits  decimal.Decimal `db:"debits"`
+	Credits decimal.Decimal `db:"credits"`
 }
 
 func (q *Queries) SumEntriesBetween(ctx context.Context, arg SumEntriesBetweenParams) (SumEntriesBetweenRow, error) {
