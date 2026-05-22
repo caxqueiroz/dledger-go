@@ -15,14 +15,9 @@ import (
 	"github.com/caxqueiroz/doubleledger/internal/repo"
 )
 
+// ExecuteFlow is the public Connect handler. It opens a tx, runs the
+// orchestrator body, and commits (or rolls back on error).
 func (s *Server) ExecuteFlow(ctx context.Context, req *connect.Request[ledgerv1.ExecuteFlowRequest]) (*connect.Response[ledgerv1.ExecuteFlowResponse], error) {
-	r := req.Msg
-
-	steps, err := stepsFromProto(r.GetSteps())
-	if err != nil {
-		return nil, ToConnectError(err)
-	}
-
 	tx, err := s.Store.BeginFlowTx(ctx)
 	if err != nil {
 		return nil, ToConnectError(err)
@@ -34,24 +29,41 @@ func (s *Server) ExecuteFlow(ctx context.Context, req *connect.Request[ledgerv1.
 		}
 	}()
 
-	// Idempotency check.
-	existing, err := tx.GetFlowByIdempotency(ctx, r.GetTenantId(), r.GetIdempotencyKey())
+	resp, err := s.executeFlowInTx(ctx, tx, req.Msg)
 	if err != nil {
 		return nil, ToConnectError(err)
 	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, ToConnectError(err)
+	}
+	committed = true
+	return connect.NewResponse(resp), nil
+}
+
+// executeFlowInTx runs the orchestrator body against an existing tx. It does
+// NOT begin, commit, or rollback. Callers own the tx lifecycle. Returns the
+// raw domain error (NOT wrapped in connect.Error).
+func (s *Server) executeFlowInTx(ctx context.Context, tx repo.Tx, r *ledgerv1.ExecuteFlowRequest) (*ledgerv1.ExecuteFlowResponse, error) {
+	steps, err := stepsFromProto(r.GetSteps())
+	if err != nil {
+		return nil, err
+	}
+
+	// Idempotency check.
+	existing, err := tx.GetFlowByIdempotency(ctx, r.GetTenantId(), r.GetIdempotencyKey())
+	if err != nil {
+		return nil, err
+	}
 	if existing != nil {
 		if existing.Status != ledger.FlowCompleted {
-			return nil, ToConnectError(ledger.NewDomainError(ledger.CodeFlowConflict, "flow not completed: "+string(existing.Status)))
+			return nil, ledger.NewDomainError(ledger.CodeFlowConflict, "flow not completed: "+string(existing.Status))
 		}
 		existingSteps, err := tx.GetFlowSteps(ctx, r.GetTenantId(), existing.ID)
 		if err != nil {
-			return nil, ToConnectError(err)
+			return nil, err
 		}
-		if err := tx.Commit(); err != nil {
-			return nil, ToConnectError(err)
-		}
-		committed = true
-		return connect.NewResponse(flowRunToResponse(existing, existingSteps)), nil
+		return flowRunToResponse(existing, existingSteps), nil
 	}
 
 	flowRunID := s.NewID()
@@ -63,7 +75,7 @@ func (s *Server) ExecuteFlow(ctx context.Context, req *connect.Request[ledgerv1.
 		ActorID: r.GetActorId(), Status: ledger.FlowRunning, Metadata: metaMap,
 		CreatedAt: s.Now(),
 	}); err != nil {
-		return nil, ToConnectError(err)
+		return nil, err
 	}
 
 	// Collect unique (account, currency) keys deterministically.
@@ -95,18 +107,18 @@ func (s *Server) ExecuteFlow(ctx context.Context, req *connect.Request[ledgerv1.
 	for _, k := range ordered {
 		acc, err := tx.GetAccount(ctx, r.GetTenantId(), k.acct)
 		if err != nil {
-			return nil, ToConnectError(err)
+			return nil, err
 		}
 		if acc.Status != ledger.AccountActive {
-			return nil, ToConnectError(ledger.NewDomainError(ledger.CodeInvalidAccountStatus, acc.ID))
+			return nil, ledger.NewDomainError(ledger.CodeInvalidAccountStatus, acc.ID)
 		}
 		if acc.Currency != k.ccy {
-			return nil, ToConnectError(ledger.NewDomainError(ledger.CodeAccountCurrencyMismatch,
-				fmt.Sprintf("%s: account=%s req=%s", acc.ID, acc.Currency, k.ccy)))
+			return nil, ledger.NewDomainError(ledger.CodeAccountCurrencyMismatch,
+				fmt.Sprintf("%s: account=%s req=%s", acc.ID, acc.Currency, k.ccy))
 		}
 		d, c, _, err := tx.LockBalance(ctx, r.GetTenantId(), k.acct, k.ccy)
 		if err != nil {
-			return nil, ToConnectError(err)
+			return nil, err
 		}
 		state[k] = &balState{acct: acc, postedDebits: d, postedCredits: c}
 	}
@@ -115,7 +127,7 @@ func (s *Server) ExecuteFlow(ctx context.Context, req *connect.Request[ledgerv1.
 	stepResults := make([]ledger.FlowStep, 0, len(steps))
 	for _, st := range steps {
 		if err := st.Journal.Validate(); err != nil {
-			return nil, ToConnectError(ledger.NewDomainError(ledger.CodeUnbalancedJournal, err.Error()))
+			return nil, ledger.NewDomainError(ledger.CodeUnbalancedJournal, err.Error())
 		}
 		journalID := s.NewID()
 		st.Journal.ID = journalID
@@ -128,12 +140,12 @@ func (s *Server) ExecuteFlow(ctx context.Context, req *connect.Request[ledgerv1.
 		st.Journal.CreatedAt = s.Now()
 
 		if err := tx.InsertJournal(ctx, st.Journal); err != nil {
-			return nil, ToConnectError(err)
+			return nil, err
 		}
 		for _, e := range st.Journal.Entries {
 			entryID := s.NewID()
 			if err := tx.InsertEntry(ctx, r.GetTenantId(), entryID, journalID, e.AccountID, e.Currency, e.Direction, e.Amount); err != nil {
-				return nil, ToConnectError(err)
+				return nil, err
 			}
 			k := key{e.AccountID, e.Currency}
 			bs := state[k]
@@ -150,7 +162,7 @@ func (s *Server) ExecuteFlow(ctx context.Context, req *connect.Request[ledgerv1.
 			CreatedAt: s.Now(),
 		}
 		if err := tx.InsertFlowStep(ctx, fs); err != nil {
-			return nil, ToConnectError(err)
+			return nil, err
 		}
 		stepResults = append(stepResults, fs)
 
@@ -162,7 +174,7 @@ func (s *Server) ExecuteFlow(ctx context.Context, req *connect.Request[ledgerv1.
 			EventType:      r.GetFlowType() + "." + st.StepID,
 			IdempotencyKey: flowRunID + ":" + st.StepID, Payload: payload, CreatedAt: s.Now(),
 		}); err != nil {
-			return nil, ToConnectError(err)
+			return nil, err
 		}
 	}
 
@@ -172,26 +184,22 @@ func (s *Server) ExecuteFlow(ctx context.Context, req *connect.Request[ledgerv1.
 		if !bs.acct.AllowNegative {
 			nb := ledger.NormalizedBalance(bs.acct.NormalBalance, bs.postedDebits, bs.postedCredits)
 			if nb.IsNegative() {
-				return nil, ToConnectError(ledger.NewDomainError(ledger.CodeInsufficientFunds,
-					fmt.Sprintf("account=%s currency=%s normalized=%s", bs.acct.ID, k.ccy, nb)))
+				return nil, ledger.NewDomainError(ledger.CodeInsufficientFunds,
+					fmt.Sprintf("account=%s currency=%s normalized=%s", bs.acct.ID, k.ccy, nb))
 			}
 		}
 		if err := tx.UpdateBalance(ctx, r.GetTenantId(), k.acct, k.ccy, bs.postedDebits, bs.postedCredits); err != nil {
-			return nil, ToConnectError(err)
+			return nil, err
 		}
 	}
 
 	if err := tx.CompleteFlowRun(ctx, r.GetTenantId(), flowRunID); err != nil {
-		return nil, ToConnectError(err)
+		return nil, err
 	}
-	if err := tx.Commit(); err != nil {
-		return nil, ToConnectError(err)
-	}
-	committed = true
 
-	return connect.NewResponse(flowRunToResponse(&ledger.FlowRun{
+	return flowRunToResponse(&ledger.FlowRun{
 		ID: flowRunID, TenantID: r.GetTenantId(), Status: ledger.FlowCompleted,
-	}, stepResults)), nil
+	}, stepResults), nil
 }
 
 func flowRunToResponse(f *ledger.FlowRun, steps []ledger.FlowStep) *ledgerv1.ExecuteFlowResponse {
