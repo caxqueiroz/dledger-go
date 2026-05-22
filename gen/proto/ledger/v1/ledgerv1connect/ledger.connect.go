@@ -56,6 +56,18 @@ const (
 	// LedgerServiceTakeBalanceSnapshotProcedure is the fully-qualified name of the LedgerService's
 	// TakeBalanceSnapshot RPC.
 	LedgerServiceTakeBalanceSnapshotProcedure = "/ledger.v1.LedgerService/TakeBalanceSnapshot"
+	// LedgerServiceCreateReservationProcedure is the fully-qualified name of the LedgerService's
+	// CreateReservation RPC.
+	LedgerServiceCreateReservationProcedure = "/ledger.v1.LedgerService/CreateReservation"
+	// LedgerServiceCommitReservationProcedure is the fully-qualified name of the LedgerService's
+	// CommitReservation RPC.
+	LedgerServiceCommitReservationProcedure = "/ledger.v1.LedgerService/CommitReservation"
+	// LedgerServiceReleaseReservationProcedure is the fully-qualified name of the LedgerService's
+	// ReleaseReservation RPC.
+	LedgerServiceReleaseReservationProcedure = "/ledger.v1.LedgerService/ReleaseReservation"
+	// LedgerServiceGetReservationProcedure is the fully-qualified name of the LedgerService's
+	// GetReservation RPC.
+	LedgerServiceGetReservationProcedure = "/ledger.v1.LedgerService/GetReservation"
 )
 
 // LedgerServiceClient is a client for the ledger.v1.LedgerService service.
@@ -68,6 +80,10 @@ type LedgerServiceClient interface {
 	GetFlow(context.Context, *connect.Request[v1.GetFlowRequest]) (*connect.Response[v1.GetFlowResponse], error)
 	ListAccountActivity(context.Context, *connect.Request[v1.ListAccountActivityRequest]) (*connect.Response[v1.ListAccountActivityResponse], error)
 	TakeBalanceSnapshot(context.Context, *connect.Request[v1.TakeBalanceSnapshotRequest]) (*connect.Response[v1.TakeBalanceSnapshotResponse], error)
+	CreateReservation(context.Context, *connect.Request[v1.CreateReservationRequest]) (*connect.Response[v1.CreateReservationResponse], error)
+	CommitReservation(context.Context, *connect.Request[v1.CommitReservationRequest]) (*connect.Response[v1.CommitReservationResponse], error)
+	ReleaseReservation(context.Context, *connect.Request[v1.ReleaseReservationRequest]) (*connect.Response[v1.ReleaseReservationResponse], error)
+	GetReservation(context.Context, *connect.Request[v1.GetReservationRequest]) (*connect.Response[v1.GetReservationResponse], error)
 }
 
 // NewLedgerServiceClient constructs a client for the ledger.v1.LedgerService service. By default,
@@ -129,6 +145,30 @@ func NewLedgerServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(ledgerServiceMethods.ByName("TakeBalanceSnapshot")),
 			connect.WithClientOptions(opts...),
 		),
+		createReservation: connect.NewClient[v1.CreateReservationRequest, v1.CreateReservationResponse](
+			httpClient,
+			baseURL+LedgerServiceCreateReservationProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("CreateReservation")),
+			connect.WithClientOptions(opts...),
+		),
+		commitReservation: connect.NewClient[v1.CommitReservationRequest, v1.CommitReservationResponse](
+			httpClient,
+			baseURL+LedgerServiceCommitReservationProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("CommitReservation")),
+			connect.WithClientOptions(opts...),
+		),
+		releaseReservation: connect.NewClient[v1.ReleaseReservationRequest, v1.ReleaseReservationResponse](
+			httpClient,
+			baseURL+LedgerServiceReleaseReservationProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("ReleaseReservation")),
+			connect.WithClientOptions(opts...),
+		),
+		getReservation: connect.NewClient[v1.GetReservationRequest, v1.GetReservationResponse](
+			httpClient,
+			baseURL+LedgerServiceGetReservationProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("GetReservation")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -142,6 +182,10 @@ type ledgerServiceClient struct {
 	getFlow             *connect.Client[v1.GetFlowRequest, v1.GetFlowResponse]
 	listAccountActivity *connect.Client[v1.ListAccountActivityRequest, v1.ListAccountActivityResponse]
 	takeBalanceSnapshot *connect.Client[v1.TakeBalanceSnapshotRequest, v1.TakeBalanceSnapshotResponse]
+	createReservation   *connect.Client[v1.CreateReservationRequest, v1.CreateReservationResponse]
+	commitReservation   *connect.Client[v1.CommitReservationRequest, v1.CommitReservationResponse]
+	releaseReservation  *connect.Client[v1.ReleaseReservationRequest, v1.ReleaseReservationResponse]
+	getReservation      *connect.Client[v1.GetReservationRequest, v1.GetReservationResponse]
 }
 
 // CreateAccount calls ledger.v1.LedgerService.CreateAccount.
@@ -184,6 +228,26 @@ func (c *ledgerServiceClient) TakeBalanceSnapshot(ctx context.Context, req *conn
 	return c.takeBalanceSnapshot.CallUnary(ctx, req)
 }
 
+// CreateReservation calls ledger.v1.LedgerService.CreateReservation.
+func (c *ledgerServiceClient) CreateReservation(ctx context.Context, req *connect.Request[v1.CreateReservationRequest]) (*connect.Response[v1.CreateReservationResponse], error) {
+	return c.createReservation.CallUnary(ctx, req)
+}
+
+// CommitReservation calls ledger.v1.LedgerService.CommitReservation.
+func (c *ledgerServiceClient) CommitReservation(ctx context.Context, req *connect.Request[v1.CommitReservationRequest]) (*connect.Response[v1.CommitReservationResponse], error) {
+	return c.commitReservation.CallUnary(ctx, req)
+}
+
+// ReleaseReservation calls ledger.v1.LedgerService.ReleaseReservation.
+func (c *ledgerServiceClient) ReleaseReservation(ctx context.Context, req *connect.Request[v1.ReleaseReservationRequest]) (*connect.Response[v1.ReleaseReservationResponse], error) {
+	return c.releaseReservation.CallUnary(ctx, req)
+}
+
+// GetReservation calls ledger.v1.LedgerService.GetReservation.
+func (c *ledgerServiceClient) GetReservation(ctx context.Context, req *connect.Request[v1.GetReservationRequest]) (*connect.Response[v1.GetReservationResponse], error) {
+	return c.getReservation.CallUnary(ctx, req)
+}
+
 // LedgerServiceHandler is an implementation of the ledger.v1.LedgerService service.
 type LedgerServiceHandler interface {
 	CreateAccount(context.Context, *connect.Request[v1.CreateAccountRequest]) (*connect.Response[v1.CreateAccountResponse], error)
@@ -194,6 +258,10 @@ type LedgerServiceHandler interface {
 	GetFlow(context.Context, *connect.Request[v1.GetFlowRequest]) (*connect.Response[v1.GetFlowResponse], error)
 	ListAccountActivity(context.Context, *connect.Request[v1.ListAccountActivityRequest]) (*connect.Response[v1.ListAccountActivityResponse], error)
 	TakeBalanceSnapshot(context.Context, *connect.Request[v1.TakeBalanceSnapshotRequest]) (*connect.Response[v1.TakeBalanceSnapshotResponse], error)
+	CreateReservation(context.Context, *connect.Request[v1.CreateReservationRequest]) (*connect.Response[v1.CreateReservationResponse], error)
+	CommitReservation(context.Context, *connect.Request[v1.CommitReservationRequest]) (*connect.Response[v1.CommitReservationResponse], error)
+	ReleaseReservation(context.Context, *connect.Request[v1.ReleaseReservationRequest]) (*connect.Response[v1.ReleaseReservationResponse], error)
+	GetReservation(context.Context, *connect.Request[v1.GetReservationRequest]) (*connect.Response[v1.GetReservationResponse], error)
 }
 
 // NewLedgerServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -251,6 +319,30 @@ func NewLedgerServiceHandler(svc LedgerServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(ledgerServiceMethods.ByName("TakeBalanceSnapshot")),
 		connect.WithHandlerOptions(opts...),
 	)
+	ledgerServiceCreateReservationHandler := connect.NewUnaryHandler(
+		LedgerServiceCreateReservationProcedure,
+		svc.CreateReservation,
+		connect.WithSchema(ledgerServiceMethods.ByName("CreateReservation")),
+		connect.WithHandlerOptions(opts...),
+	)
+	ledgerServiceCommitReservationHandler := connect.NewUnaryHandler(
+		LedgerServiceCommitReservationProcedure,
+		svc.CommitReservation,
+		connect.WithSchema(ledgerServiceMethods.ByName("CommitReservation")),
+		connect.WithHandlerOptions(opts...),
+	)
+	ledgerServiceReleaseReservationHandler := connect.NewUnaryHandler(
+		LedgerServiceReleaseReservationProcedure,
+		svc.ReleaseReservation,
+		connect.WithSchema(ledgerServiceMethods.ByName("ReleaseReservation")),
+		connect.WithHandlerOptions(opts...),
+	)
+	ledgerServiceGetReservationHandler := connect.NewUnaryHandler(
+		LedgerServiceGetReservationProcedure,
+		svc.GetReservation,
+		connect.WithSchema(ledgerServiceMethods.ByName("GetReservation")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/ledger.v1.LedgerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case LedgerServiceCreateAccountProcedure:
@@ -269,6 +361,14 @@ func NewLedgerServiceHandler(svc LedgerServiceHandler, opts ...connect.HandlerOp
 			ledgerServiceListAccountActivityHandler.ServeHTTP(w, r)
 		case LedgerServiceTakeBalanceSnapshotProcedure:
 			ledgerServiceTakeBalanceSnapshotHandler.ServeHTTP(w, r)
+		case LedgerServiceCreateReservationProcedure:
+			ledgerServiceCreateReservationHandler.ServeHTTP(w, r)
+		case LedgerServiceCommitReservationProcedure:
+			ledgerServiceCommitReservationHandler.ServeHTTP(w, r)
+		case LedgerServiceReleaseReservationProcedure:
+			ledgerServiceReleaseReservationHandler.ServeHTTP(w, r)
+		case LedgerServiceGetReservationProcedure:
+			ledgerServiceGetReservationHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -308,4 +408,20 @@ func (UnimplementedLedgerServiceHandler) ListAccountActivity(context.Context, *c
 
 func (UnimplementedLedgerServiceHandler) TakeBalanceSnapshot(context.Context, *connect.Request[v1.TakeBalanceSnapshotRequest]) (*connect.Response[v1.TakeBalanceSnapshotResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.TakeBalanceSnapshot is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) CreateReservation(context.Context, *connect.Request[v1.CreateReservationRequest]) (*connect.Response[v1.CreateReservationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.CreateReservation is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) CommitReservation(context.Context, *connect.Request[v1.CommitReservationRequest]) (*connect.Response[v1.CommitReservationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.CommitReservation is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) ReleaseReservation(context.Context, *connect.Request[v1.ReleaseReservationRequest]) (*connect.Response[v1.ReleaseReservationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.ReleaseReservation is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) GetReservation(context.Context, *connect.Request[v1.GetReservationRequest]) (*connect.Response[v1.GetReservationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.GetReservation is not implemented"))
 }

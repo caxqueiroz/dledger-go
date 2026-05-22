@@ -15,6 +15,10 @@ service LedgerService {
   rpc GetFlow(GetFlowRequest) returns (GetFlowResponse);
   rpc ListAccountActivity(ListAccountActivityRequest) returns (ListAccountActivityResponse);
   rpc TakeBalanceSnapshot(TakeBalanceSnapshotRequest) returns (TakeBalanceSnapshotResponse);
+  rpc CreateReservation(CreateReservationRequest) returns (CreateReservationResponse);
+  rpc CommitReservation(CommitReservationRequest) returns (CommitReservationResponse);
+  rpc ReleaseReservation(ReleaseReservationRequest) returns (ReleaseReservationResponse);
+  rpc GetReservation(GetReservationRequest) returns (GetReservationResponse);
 }
 
 enum Direction {
@@ -179,3 +183,58 @@ message TakeBalanceSnapshotRequest {
 message TakeBalanceSnapshotResponse {
   int32 snapshots_taken = 1;
 }
+
+message Reservation {
+  string id                       = 1;
+  string tenant_id                = 2;
+  string status                   = 3;
+  string source_account_id        = 4;
+  string reserved_account_id      = 5;
+  string currency                 = 6;
+  string original_amount          = 7;
+  string outstanding_amount       = 8;
+  string committed_amount         = 9;
+  string released_amount          = 10;
+  google.protobuf.Timestamp expires_at = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+  string flow_run_id              = 14;
+}
+
+message CreateReservationRequest {
+  string tenant_id            = 1 [(buf.validate.field).string.min_len = 1];
+  string idempotency_key      = 2 [(buf.validate.field).string.min_len = 1];
+  string source_account_id    = 3 [(buf.validate.field).string.min_len = 1];
+  string reserved_account_id  = 4 [(buf.validate.field).string.min_len = 1];
+  string currency             = 5 [(buf.validate.field).string.min_len = 3];
+  string amount               = 6 [(buf.validate.field).string.pattern = "^[0-9]+(\\.[0-9]+)?$"];
+  google.protobuf.Timestamp expires_at = 7;
+  string source_service       = 8;
+  string actor_id             = 9;
+  google.protobuf.Struct metadata = 10;
+}
+message CreateReservationResponse { Reservation reservation = 1; }
+
+message CommitReservationRequest {
+  string tenant_id              = 1;
+  string reservation_id         = 2;
+  string destination_account_id = 3;
+  string amount                 = 4;
+  string idempotency_key        = 5;
+  string source_service         = 6;
+  string actor_id               = 7;
+}
+message CommitReservationResponse { Reservation reservation = 1; }
+
+message ReleaseReservationRequest {
+  string tenant_id       = 1;
+  string reservation_id  = 2;
+  string amount          = 3;
+  string idempotency_key = 4;
+  string source_service  = 5;
+  string actor_id        = 6;
+}
+message ReleaseReservationResponse { Reservation reservation = 1; }
+
+message GetReservationRequest  { string tenant_id = 1; string reservation_id = 2; }
+message GetReservationResponse { Reservation reservation = 1; }

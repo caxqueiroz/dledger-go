@@ -1760,6 +1760,674 @@ func (x *TakeBalanceSnapshotResponse) GetSnapshotsTaken() int32 {
 	return 0
 }
 
+type Reservation struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	TenantId          string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	Status            string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	SourceAccountId   string                 `protobuf:"bytes,4,opt,name=source_account_id,json=sourceAccountId,proto3" json:"source_account_id,omitempty"`
+	ReservedAccountId string                 `protobuf:"bytes,5,opt,name=reserved_account_id,json=reservedAccountId,proto3" json:"reserved_account_id,omitempty"`
+	Currency          string                 `protobuf:"bytes,6,opt,name=currency,proto3" json:"currency,omitempty"`
+	OriginalAmount    string                 `protobuf:"bytes,7,opt,name=original_amount,json=originalAmount,proto3" json:"original_amount,omitempty"`
+	OutstandingAmount string                 `protobuf:"bytes,8,opt,name=outstanding_amount,json=outstandingAmount,proto3" json:"outstanding_amount,omitempty"`
+	CommittedAmount   string                 `protobuf:"bytes,9,opt,name=committed_amount,json=committedAmount,proto3" json:"committed_amount,omitempty"`
+	ReleasedAmount    string                 `protobuf:"bytes,10,opt,name=released_amount,json=releasedAmount,proto3" json:"released_amount,omitempty"`
+	ExpiresAt         *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt         *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	FlowRunId         string                 `protobuf:"bytes,14,opt,name=flow_run_id,json=flowRunId,proto3" json:"flow_run_id,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *Reservation) Reset() {
+	*x = Reservation{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Reservation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Reservation) ProtoMessage() {}
+
+func (x *Reservation) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Reservation.ProtoReflect.Descriptor instead.
+func (*Reservation) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *Reservation) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Reservation) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *Reservation) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *Reservation) GetSourceAccountId() string {
+	if x != nil {
+		return x.SourceAccountId
+	}
+	return ""
+}
+
+func (x *Reservation) GetReservedAccountId() string {
+	if x != nil {
+		return x.ReservedAccountId
+	}
+	return ""
+}
+
+func (x *Reservation) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+func (x *Reservation) GetOriginalAmount() string {
+	if x != nil {
+		return x.OriginalAmount
+	}
+	return ""
+}
+
+func (x *Reservation) GetOutstandingAmount() string {
+	if x != nil {
+		return x.OutstandingAmount
+	}
+	return ""
+}
+
+func (x *Reservation) GetCommittedAmount() string {
+	if x != nil {
+		return x.CommittedAmount
+	}
+	return ""
+}
+
+func (x *Reservation) GetReleasedAmount() string {
+	if x != nil {
+		return x.ReleasedAmount
+	}
+	return ""
+}
+
+func (x *Reservation) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *Reservation) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Reservation) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *Reservation) GetFlowRunId() string {
+	if x != nil {
+		return x.FlowRunId
+	}
+	return ""
+}
+
+type CreateReservationRequest struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	TenantId          string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	IdempotencyKey    string                 `protobuf:"bytes,2,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	SourceAccountId   string                 `protobuf:"bytes,3,opt,name=source_account_id,json=sourceAccountId,proto3" json:"source_account_id,omitempty"`
+	ReservedAccountId string                 `protobuf:"bytes,4,opt,name=reserved_account_id,json=reservedAccountId,proto3" json:"reserved_account_id,omitempty"`
+	Currency          string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
+	Amount            string                 `protobuf:"bytes,6,opt,name=amount,proto3" json:"amount,omitempty"`
+	ExpiresAt         *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	SourceService     string                 `protobuf:"bytes,8,opt,name=source_service,json=sourceService,proto3" json:"source_service,omitempty"`
+	ActorId           string                 `protobuf:"bytes,9,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	Metadata          *structpb.Struct       `protobuf:"bytes,10,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *CreateReservationRequest) Reset() {
+	*x = CreateReservationRequest{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateReservationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateReservationRequest) ProtoMessage() {}
+
+func (x *CreateReservationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateReservationRequest.ProtoReflect.Descriptor instead.
+func (*CreateReservationRequest) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *CreateReservationRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *CreateReservationRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+func (x *CreateReservationRequest) GetSourceAccountId() string {
+	if x != nil {
+		return x.SourceAccountId
+	}
+	return ""
+}
+
+func (x *CreateReservationRequest) GetReservedAccountId() string {
+	if x != nil {
+		return x.ReservedAccountId
+	}
+	return ""
+}
+
+func (x *CreateReservationRequest) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+func (x *CreateReservationRequest) GetAmount() string {
+	if x != nil {
+		return x.Amount
+	}
+	return ""
+}
+
+func (x *CreateReservationRequest) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *CreateReservationRequest) GetSourceService() string {
+	if x != nil {
+		return x.SourceService
+	}
+	return ""
+}
+
+func (x *CreateReservationRequest) GetActorId() string {
+	if x != nil {
+		return x.ActorId
+	}
+	return ""
+}
+
+func (x *CreateReservationRequest) GetMetadata() *structpb.Struct {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
+type CreateReservationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Reservation   *Reservation           `protobuf:"bytes,1,opt,name=reservation,proto3" json:"reservation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateReservationResponse) Reset() {
+	*x = CreateReservationResponse{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateReservationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateReservationResponse) ProtoMessage() {}
+
+func (x *CreateReservationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateReservationResponse.ProtoReflect.Descriptor instead.
+func (*CreateReservationResponse) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *CreateReservationResponse) GetReservation() *Reservation {
+	if x != nil {
+		return x.Reservation
+	}
+	return nil
+}
+
+type CommitReservationRequest struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	TenantId             string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	ReservationId        string                 `protobuf:"bytes,2,opt,name=reservation_id,json=reservationId,proto3" json:"reservation_id,omitempty"`
+	DestinationAccountId string                 `protobuf:"bytes,3,opt,name=destination_account_id,json=destinationAccountId,proto3" json:"destination_account_id,omitempty"`
+	Amount               string                 `protobuf:"bytes,4,opt,name=amount,proto3" json:"amount,omitempty"`
+	IdempotencyKey       string                 `protobuf:"bytes,5,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	SourceService        string                 `protobuf:"bytes,6,opt,name=source_service,json=sourceService,proto3" json:"source_service,omitempty"`
+	ActorId              string                 `protobuf:"bytes,7,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *CommitReservationRequest) Reset() {
+	*x = CommitReservationRequest{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CommitReservationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CommitReservationRequest) ProtoMessage() {}
+
+func (x *CommitReservationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CommitReservationRequest.ProtoReflect.Descriptor instead.
+func (*CommitReservationRequest) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *CommitReservationRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *CommitReservationRequest) GetReservationId() string {
+	if x != nil {
+		return x.ReservationId
+	}
+	return ""
+}
+
+func (x *CommitReservationRequest) GetDestinationAccountId() string {
+	if x != nil {
+		return x.DestinationAccountId
+	}
+	return ""
+}
+
+func (x *CommitReservationRequest) GetAmount() string {
+	if x != nil {
+		return x.Amount
+	}
+	return ""
+}
+
+func (x *CommitReservationRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+func (x *CommitReservationRequest) GetSourceService() string {
+	if x != nil {
+		return x.SourceService
+	}
+	return ""
+}
+
+func (x *CommitReservationRequest) GetActorId() string {
+	if x != nil {
+		return x.ActorId
+	}
+	return ""
+}
+
+type CommitReservationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Reservation   *Reservation           `protobuf:"bytes,1,opt,name=reservation,proto3" json:"reservation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CommitReservationResponse) Reset() {
+	*x = CommitReservationResponse{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CommitReservationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CommitReservationResponse) ProtoMessage() {}
+
+func (x *CommitReservationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CommitReservationResponse.ProtoReflect.Descriptor instead.
+func (*CommitReservationResponse) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *CommitReservationResponse) GetReservation() *Reservation {
+	if x != nil {
+		return x.Reservation
+	}
+	return nil
+}
+
+type ReleaseReservationRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	TenantId       string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	ReservationId  string                 `protobuf:"bytes,2,opt,name=reservation_id,json=reservationId,proto3" json:"reservation_id,omitempty"`
+	Amount         string                 `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	IdempotencyKey string                 `protobuf:"bytes,4,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	SourceService  string                 `protobuf:"bytes,5,opt,name=source_service,json=sourceService,proto3" json:"source_service,omitempty"`
+	ActorId        string                 `protobuf:"bytes,6,opt,name=actor_id,json=actorId,proto3" json:"actor_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ReleaseReservationRequest) Reset() {
+	*x = ReleaseReservationRequest{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReleaseReservationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReleaseReservationRequest) ProtoMessage() {}
+
+func (x *ReleaseReservationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReleaseReservationRequest.ProtoReflect.Descriptor instead.
+func (*ReleaseReservationRequest) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *ReleaseReservationRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *ReleaseReservationRequest) GetReservationId() string {
+	if x != nil {
+		return x.ReservationId
+	}
+	return ""
+}
+
+func (x *ReleaseReservationRequest) GetAmount() string {
+	if x != nil {
+		return x.Amount
+	}
+	return ""
+}
+
+func (x *ReleaseReservationRequest) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+func (x *ReleaseReservationRequest) GetSourceService() string {
+	if x != nil {
+		return x.SourceService
+	}
+	return ""
+}
+
+func (x *ReleaseReservationRequest) GetActorId() string {
+	if x != nil {
+		return x.ActorId
+	}
+	return ""
+}
+
+type ReleaseReservationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Reservation   *Reservation           `protobuf:"bytes,1,opt,name=reservation,proto3" json:"reservation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReleaseReservationResponse) Reset() {
+	*x = ReleaseReservationResponse{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReleaseReservationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReleaseReservationResponse) ProtoMessage() {}
+
+func (x *ReleaseReservationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReleaseReservationResponse.ProtoReflect.Descriptor instead.
+func (*ReleaseReservationResponse) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *ReleaseReservationResponse) GetReservation() *Reservation {
+	if x != nil {
+		return x.Reservation
+	}
+	return nil
+}
+
+type GetReservationRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	ReservationId string                 `protobuf:"bytes,2,opt,name=reservation_id,json=reservationId,proto3" json:"reservation_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReservationRequest) Reset() {
+	*x = GetReservationRequest{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReservationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReservationRequest) ProtoMessage() {}
+
+func (x *GetReservationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReservationRequest.ProtoReflect.Descriptor instead.
+func (*GetReservationRequest) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *GetReservationRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *GetReservationRequest) GetReservationId() string {
+	if x != nil {
+		return x.ReservationId
+	}
+	return ""
+}
+
+type GetReservationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Reservation   *Reservation           `protobuf:"bytes,1,opt,name=reservation,proto3" json:"reservation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReservationResponse) Reset() {
+	*x = GetReservationResponse{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReservationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReservationResponse) ProtoMessage() {}
+
+func (x *GetReservationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReservationResponse.ProtoReflect.Descriptor instead.
+func (*GetReservationResponse) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *GetReservationResponse) GetReservation() *Reservation {
+	if x != nil {
+		return x.Reservation
+	}
+	return nil
+}
+
 var File_ledger_v1_ledger_proto protoreflect.FileDescriptor
 
 const file_ledger_v1_ledger_proto_rawDesc = "" +
@@ -1894,7 +2562,65 @@ const file_ledger_v1_ledger_proto_rawDesc = "" +
 	"account_id\x18\x02 \x01(\tR\taccountId\x12\x1a\n" +
 	"\bcurrency\x18\x03 \x01(\tR\bcurrency\"F\n" +
 	"\x1bTakeBalanceSnapshotResponse\x12'\n" +
-	"\x0fsnapshots_taken\x18\x01 \x01(\x05R\x0esnapshotsTaken*Q\n" +
+	"\x0fsnapshots_taken\x18\x01 \x01(\x05R\x0esnapshotsTaken\"\xc7\x04\n" +
+	"\vReservation\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
+	"\ttenant_id\x18\x02 \x01(\tR\btenantId\x12\x16\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\x12*\n" +
+	"\x11source_account_id\x18\x04 \x01(\tR\x0fsourceAccountId\x12.\n" +
+	"\x13reserved_account_id\x18\x05 \x01(\tR\x11reservedAccountId\x12\x1a\n" +
+	"\bcurrency\x18\x06 \x01(\tR\bcurrency\x12'\n" +
+	"\x0foriginal_amount\x18\a \x01(\tR\x0eoriginalAmount\x12-\n" +
+	"\x12outstanding_amount\x18\b \x01(\tR\x11outstandingAmount\x12)\n" +
+	"\x10committed_amount\x18\t \x01(\tR\x0fcommittedAmount\x12'\n" +
+	"\x0freleased_amount\x18\n" +
+	" \x01(\tR\x0ereleasedAmount\x129\n" +
+	"\n" +
+	"expires_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x129\n" +
+	"\n" +
+	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1e\n" +
+	"\vflow_run_id\x18\x0e \x01(\tR\tflowRunId\"\xeb\x03\n" +
+	"\x18CreateReservationRequest\x12$\n" +
+	"\ttenant_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\btenantId\x120\n" +
+	"\x0fidempotency_key\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x0eidempotencyKey\x123\n" +
+	"\x11source_account_id\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x0fsourceAccountId\x127\n" +
+	"\x13reserved_account_id\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x11reservedAccountId\x12#\n" +
+	"\bcurrency\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x03R\bcurrency\x122\n" +
+	"\x06amount\x18\x06 \x01(\tB\x1a\xbaH\x17r\x152\x13^[0-9]+(\\.[0-9]+)?$R\x06amount\x129\n" +
+	"\n" +
+	"expires_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12%\n" +
+	"\x0esource_service\x18\b \x01(\tR\rsourceService\x12\x19\n" +
+	"\bactor_id\x18\t \x01(\tR\aactorId\x123\n" +
+	"\bmetadata\x18\n" +
+	" \x01(\v2\x17.google.protobuf.StructR\bmetadata\"U\n" +
+	"\x19CreateReservationResponse\x128\n" +
+	"\vreservation\x18\x01 \x01(\v2\x16.ledger.v1.ReservationR\vreservation\"\x97\x02\n" +
+	"\x18CommitReservationRequest\x12\x1b\n" +
+	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12%\n" +
+	"\x0ereservation_id\x18\x02 \x01(\tR\rreservationId\x124\n" +
+	"\x16destination_account_id\x18\x03 \x01(\tR\x14destinationAccountId\x12\x16\n" +
+	"\x06amount\x18\x04 \x01(\tR\x06amount\x12'\n" +
+	"\x0fidempotency_key\x18\x05 \x01(\tR\x0eidempotencyKey\x12%\n" +
+	"\x0esource_service\x18\x06 \x01(\tR\rsourceService\x12\x19\n" +
+	"\bactor_id\x18\a \x01(\tR\aactorId\"U\n" +
+	"\x19CommitReservationResponse\x128\n" +
+	"\vreservation\x18\x01 \x01(\v2\x16.ledger.v1.ReservationR\vreservation\"\xe2\x01\n" +
+	"\x19ReleaseReservationRequest\x12\x1b\n" +
+	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12%\n" +
+	"\x0ereservation_id\x18\x02 \x01(\tR\rreservationId\x12\x16\n" +
+	"\x06amount\x18\x03 \x01(\tR\x06amount\x12'\n" +
+	"\x0fidempotency_key\x18\x04 \x01(\tR\x0eidempotencyKey\x12%\n" +
+	"\x0esource_service\x18\x05 \x01(\tR\rsourceService\x12\x19\n" +
+	"\bactor_id\x18\x06 \x01(\tR\aactorId\"V\n" +
+	"\x1aReleaseReservationResponse\x128\n" +
+	"\vreservation\x18\x01 \x01(\v2\x16.ledger.v1.ReservationR\vreservation\"[\n" +
+	"\x15GetReservationRequest\x12\x1b\n" +
+	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12%\n" +
+	"\x0ereservation_id\x18\x02 \x01(\tR\rreservationId\"R\n" +
+	"\x16GetReservationResponse\x128\n" +
+	"\vreservation\x18\x01 \x01(\v2\x16.ledger.v1.ReservationR\vreservation*Q\n" +
 	"\tDirection\x12\x19\n" +
 	"\x15DIRECTION_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fDIRECTION_DEBIT\x10\x01\x12\x14\n" +
@@ -1913,7 +2639,7 @@ const file_ledger_v1_ledger_proto_rawDesc = "" +
 	"\x17FLOW_STATUS_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13FLOW_STATUS_RUNNING\x10\x01\x12\x19\n" +
 	"\x15FLOW_STATUS_COMPLETED\x10\x02\x12\x16\n" +
-	"\x12FLOW_STATUS_FAILED\x10\x032\xa3\x05\n" +
+	"\x12FLOW_STATUS_FAILED\x10\x032\x9d\b\n" +
 	"\rLedgerService\x12R\n" +
 	"\rCreateAccount\x12\x1f.ledger.v1.CreateAccountRequest\x1a .ledger.v1.CreateAccountResponse\x12I\n" +
 	"\n" +
@@ -1924,7 +2650,11 @@ const file_ledger_v1_ledger_proto_rawDesc = "" +
 	"\vExecuteFlow\x12\x1d.ledger.v1.ExecuteFlowRequest\x1a\x1e.ledger.v1.ExecuteFlowResponse\x12@\n" +
 	"\aGetFlow\x12\x19.ledger.v1.GetFlowRequest\x1a\x1a.ledger.v1.GetFlowResponse\x12d\n" +
 	"\x13ListAccountActivity\x12%.ledger.v1.ListAccountActivityRequest\x1a&.ledger.v1.ListAccountActivityResponse\x12d\n" +
-	"\x13TakeBalanceSnapshot\x12%.ledger.v1.TakeBalanceSnapshotRequest\x1a&.ledger.v1.TakeBalanceSnapshotResponseB\xa2\x01\n" +
+	"\x13TakeBalanceSnapshot\x12%.ledger.v1.TakeBalanceSnapshotRequest\x1a&.ledger.v1.TakeBalanceSnapshotResponse\x12^\n" +
+	"\x11CreateReservation\x12#.ledger.v1.CreateReservationRequest\x1a$.ledger.v1.CreateReservationResponse\x12^\n" +
+	"\x11CommitReservation\x12#.ledger.v1.CommitReservationRequest\x1a$.ledger.v1.CommitReservationResponse\x12a\n" +
+	"\x12ReleaseReservation\x12$.ledger.v1.ReleaseReservationRequest\x1a%.ledger.v1.ReleaseReservationResponse\x12U\n" +
+	"\x0eGetReservation\x12 .ledger.v1.GetReservationRequest\x1a!.ledger.v1.GetReservationResponseB\xa2\x01\n" +
 	"\rcom.ledger.v1B\vLedgerProtoP\x01Z?github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1;ledgerv1\xa2\x02\x03LXX\xaa\x02\tLedger.V1\xca\x02\tLedger\\V1\xe2\x02\x15Ledger\\V1\\GPBMetadata\xea\x02\n" +
 	"Ledger::V1b\x06proto3"
 
@@ -1941,7 +2671,7 @@ func file_ledger_v1_ledger_proto_rawDescGZIP() []byte {
 }
 
 var file_ledger_v1_ledger_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_ledger_v1_ledger_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_ledger_v1_ledger_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_ledger_v1_ledger_proto_goTypes = []any{
 	(Direction)(0),                      // 0: ledger.v1.Direction
 	(NormalBalance)(0),                  // 1: ledger.v1.NormalBalance
@@ -1970,54 +2700,80 @@ var file_ledger_v1_ledger_proto_goTypes = []any{
 	(*ListAccountActivityResponse)(nil), // 24: ledger.v1.ListAccountActivityResponse
 	(*TakeBalanceSnapshotRequest)(nil),  // 25: ledger.v1.TakeBalanceSnapshotRequest
 	(*TakeBalanceSnapshotResponse)(nil), // 26: ledger.v1.TakeBalanceSnapshotResponse
-	(*structpb.Struct)(nil),             // 27: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil),       // 28: google.protobuf.Timestamp
+	(*Reservation)(nil),                 // 27: ledger.v1.Reservation
+	(*CreateReservationRequest)(nil),    // 28: ledger.v1.CreateReservationRequest
+	(*CreateReservationResponse)(nil),   // 29: ledger.v1.CreateReservationResponse
+	(*CommitReservationRequest)(nil),    // 30: ledger.v1.CommitReservationRequest
+	(*CommitReservationResponse)(nil),   // 31: ledger.v1.CommitReservationResponse
+	(*ReleaseReservationRequest)(nil),   // 32: ledger.v1.ReleaseReservationRequest
+	(*ReleaseReservationResponse)(nil),  // 33: ledger.v1.ReleaseReservationResponse
+	(*GetReservationRequest)(nil),       // 34: ledger.v1.GetReservationRequest
+	(*GetReservationResponse)(nil),      // 35: ledger.v1.GetReservationResponse
+	(*structpb.Struct)(nil),             // 36: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),       // 37: google.protobuf.Timestamp
 }
 var file_ledger_v1_ledger_proto_depIdxs = []int32{
 	0,  // 0: ledger.v1.Entry.direction:type_name -> ledger.v1.Direction
-	27, // 1: ledger.v1.Journal.metadata:type_name -> google.protobuf.Struct
+	36, // 1: ledger.v1.Journal.metadata:type_name -> google.protobuf.Struct
 	4,  // 2: ledger.v1.Journal.entries:type_name -> ledger.v1.Entry
 	1,  // 3: ledger.v1.Account.normal_balance:type_name -> ledger.v1.NormalBalance
 	2,  // 4: ledger.v1.Account.status:type_name -> ledger.v1.AccountStatus
-	28, // 5: ledger.v1.Account.created_at:type_name -> google.protobuf.Timestamp
+	37, // 5: ledger.v1.Account.created_at:type_name -> google.protobuf.Timestamp
 	1,  // 6: ledger.v1.CreateAccountRequest.normal_balance:type_name -> ledger.v1.NormalBalance
 	6,  // 7: ledger.v1.CreateAccountResponse.account:type_name -> ledger.v1.Account
 	6,  // 8: ledger.v1.GetAccountResponse.account:type_name -> ledger.v1.Account
-	28, // 9: ledger.v1.GetBalanceRequest.as_of:type_name -> google.protobuf.Timestamp
+	37, // 9: ledger.v1.GetBalanceRequest.as_of:type_name -> google.protobuf.Timestamp
 	7,  // 10: ledger.v1.GetBalanceResponse.balance:type_name -> ledger.v1.Balance
 	5,  // 11: ledger.v1.PostJournalRequest.journal:type_name -> ledger.v1.Journal
 	5,  // 12: ledger.v1.Step.journal:type_name -> ledger.v1.Journal
 	16, // 13: ledger.v1.ExecuteFlowRequest.steps:type_name -> ledger.v1.Step
-	27, // 14: ledger.v1.ExecuteFlowRequest.metadata:type_name -> google.protobuf.Struct
+	36, // 14: ledger.v1.ExecuteFlowRequest.metadata:type_name -> google.protobuf.Struct
 	3,  // 15: ledger.v1.ExecuteFlowResponse.status:type_name -> ledger.v1.FlowStatus
 	18, // 16: ledger.v1.ExecuteFlowResponse.steps:type_name -> ledger.v1.FlowStepResult
 	19, // 17: ledger.v1.GetFlowResponse.flow:type_name -> ledger.v1.ExecuteFlowResponse
-	28, // 18: ledger.v1.ListAccountActivityRequest.since:type_name -> google.protobuf.Timestamp
-	28, // 19: ledger.v1.ListAccountActivityRequest.until:type_name -> google.protobuf.Timestamp
+	37, // 18: ledger.v1.ListAccountActivityRequest.since:type_name -> google.protobuf.Timestamp
+	37, // 19: ledger.v1.ListAccountActivityRequest.until:type_name -> google.protobuf.Timestamp
 	0,  // 20: ledger.v1.AccountActivityEntry.direction:type_name -> ledger.v1.Direction
-	28, // 21: ledger.v1.AccountActivityEntry.created_at:type_name -> google.protobuf.Timestamp
+	37, // 21: ledger.v1.AccountActivityEntry.created_at:type_name -> google.protobuf.Timestamp
 	23, // 22: ledger.v1.ListAccountActivityResponse.entries:type_name -> ledger.v1.AccountActivityEntry
-	8,  // 23: ledger.v1.LedgerService.CreateAccount:input_type -> ledger.v1.CreateAccountRequest
-	10, // 24: ledger.v1.LedgerService.GetAccount:input_type -> ledger.v1.GetAccountRequest
-	12, // 25: ledger.v1.LedgerService.GetBalance:input_type -> ledger.v1.GetBalanceRequest
-	14, // 26: ledger.v1.LedgerService.PostJournal:input_type -> ledger.v1.PostJournalRequest
-	17, // 27: ledger.v1.LedgerService.ExecuteFlow:input_type -> ledger.v1.ExecuteFlowRequest
-	20, // 28: ledger.v1.LedgerService.GetFlow:input_type -> ledger.v1.GetFlowRequest
-	22, // 29: ledger.v1.LedgerService.ListAccountActivity:input_type -> ledger.v1.ListAccountActivityRequest
-	25, // 30: ledger.v1.LedgerService.TakeBalanceSnapshot:input_type -> ledger.v1.TakeBalanceSnapshotRequest
-	9,  // 31: ledger.v1.LedgerService.CreateAccount:output_type -> ledger.v1.CreateAccountResponse
-	11, // 32: ledger.v1.LedgerService.GetAccount:output_type -> ledger.v1.GetAccountResponse
-	13, // 33: ledger.v1.LedgerService.GetBalance:output_type -> ledger.v1.GetBalanceResponse
-	15, // 34: ledger.v1.LedgerService.PostJournal:output_type -> ledger.v1.PostJournalResponse
-	19, // 35: ledger.v1.LedgerService.ExecuteFlow:output_type -> ledger.v1.ExecuteFlowResponse
-	21, // 36: ledger.v1.LedgerService.GetFlow:output_type -> ledger.v1.GetFlowResponse
-	24, // 37: ledger.v1.LedgerService.ListAccountActivity:output_type -> ledger.v1.ListAccountActivityResponse
-	26, // 38: ledger.v1.LedgerService.TakeBalanceSnapshot:output_type -> ledger.v1.TakeBalanceSnapshotResponse
-	31, // [31:39] is the sub-list for method output_type
-	23, // [23:31] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	37, // 23: ledger.v1.Reservation.expires_at:type_name -> google.protobuf.Timestamp
+	37, // 24: ledger.v1.Reservation.created_at:type_name -> google.protobuf.Timestamp
+	37, // 25: ledger.v1.Reservation.updated_at:type_name -> google.protobuf.Timestamp
+	37, // 26: ledger.v1.CreateReservationRequest.expires_at:type_name -> google.protobuf.Timestamp
+	36, // 27: ledger.v1.CreateReservationRequest.metadata:type_name -> google.protobuf.Struct
+	27, // 28: ledger.v1.CreateReservationResponse.reservation:type_name -> ledger.v1.Reservation
+	27, // 29: ledger.v1.CommitReservationResponse.reservation:type_name -> ledger.v1.Reservation
+	27, // 30: ledger.v1.ReleaseReservationResponse.reservation:type_name -> ledger.v1.Reservation
+	27, // 31: ledger.v1.GetReservationResponse.reservation:type_name -> ledger.v1.Reservation
+	8,  // 32: ledger.v1.LedgerService.CreateAccount:input_type -> ledger.v1.CreateAccountRequest
+	10, // 33: ledger.v1.LedgerService.GetAccount:input_type -> ledger.v1.GetAccountRequest
+	12, // 34: ledger.v1.LedgerService.GetBalance:input_type -> ledger.v1.GetBalanceRequest
+	14, // 35: ledger.v1.LedgerService.PostJournal:input_type -> ledger.v1.PostJournalRequest
+	17, // 36: ledger.v1.LedgerService.ExecuteFlow:input_type -> ledger.v1.ExecuteFlowRequest
+	20, // 37: ledger.v1.LedgerService.GetFlow:input_type -> ledger.v1.GetFlowRequest
+	22, // 38: ledger.v1.LedgerService.ListAccountActivity:input_type -> ledger.v1.ListAccountActivityRequest
+	25, // 39: ledger.v1.LedgerService.TakeBalanceSnapshot:input_type -> ledger.v1.TakeBalanceSnapshotRequest
+	28, // 40: ledger.v1.LedgerService.CreateReservation:input_type -> ledger.v1.CreateReservationRequest
+	30, // 41: ledger.v1.LedgerService.CommitReservation:input_type -> ledger.v1.CommitReservationRequest
+	32, // 42: ledger.v1.LedgerService.ReleaseReservation:input_type -> ledger.v1.ReleaseReservationRequest
+	34, // 43: ledger.v1.LedgerService.GetReservation:input_type -> ledger.v1.GetReservationRequest
+	9,  // 44: ledger.v1.LedgerService.CreateAccount:output_type -> ledger.v1.CreateAccountResponse
+	11, // 45: ledger.v1.LedgerService.GetAccount:output_type -> ledger.v1.GetAccountResponse
+	13, // 46: ledger.v1.LedgerService.GetBalance:output_type -> ledger.v1.GetBalanceResponse
+	15, // 47: ledger.v1.LedgerService.PostJournal:output_type -> ledger.v1.PostJournalResponse
+	19, // 48: ledger.v1.LedgerService.ExecuteFlow:output_type -> ledger.v1.ExecuteFlowResponse
+	21, // 49: ledger.v1.LedgerService.GetFlow:output_type -> ledger.v1.GetFlowResponse
+	24, // 50: ledger.v1.LedgerService.ListAccountActivity:output_type -> ledger.v1.ListAccountActivityResponse
+	26, // 51: ledger.v1.LedgerService.TakeBalanceSnapshot:output_type -> ledger.v1.TakeBalanceSnapshotResponse
+	29, // 52: ledger.v1.LedgerService.CreateReservation:output_type -> ledger.v1.CreateReservationResponse
+	31, // 53: ledger.v1.LedgerService.CommitReservation:output_type -> ledger.v1.CommitReservationResponse
+	33, // 54: ledger.v1.LedgerService.ReleaseReservation:output_type -> ledger.v1.ReleaseReservationResponse
+	35, // 55: ledger.v1.LedgerService.GetReservation:output_type -> ledger.v1.GetReservationResponse
+	44, // [44:56] is the sub-list for method output_type
+	32, // [32:44] is the sub-list for method input_type
+	32, // [32:32] is the sub-list for extension type_name
+	32, // [32:32] is the sub-list for extension extendee
+	0,  // [0:32] is the sub-list for field type_name
 }
 
 func init() { file_ledger_v1_ledger_proto_init() }
@@ -2031,7 +2787,7 @@ func file_ledger_v1_ledger_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_ledger_v1_ledger_proto_rawDesc), len(file_ledger_v1_ledger_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   23,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
