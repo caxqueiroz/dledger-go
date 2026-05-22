@@ -102,6 +102,22 @@ func rowToFlowStep(r crdbstore.FlowStep) *ledger.FlowStep {
 	return s
 }
 
+// rowToFXRate converts a crdbstore.FxRate to a ledger.FXRate.
+func rowToFXRate(r crdbstore.FxRate) *ledger.FXRate {
+	res := &ledger.FXRate{
+		ID: r.ID, TenantID: r.TenantID,
+		BaseCurrency: r.BaseCurrency, QuoteCurrency: r.QuoteCurrency,
+		Rate: r.Rate, Source: r.Source,
+	}
+	if r.EffectiveAt.Valid {
+		res.EffectiveAt = r.EffectiveAt.Time
+	}
+	if r.CreatedAt.Valid {
+		res.CreatedAt = r.CreatedAt.Time
+	}
+	return res
+}
+
 // rowToReservation converts a crdbstore.Reservation to a ledger.Reservation.
 func rowToReservation(r crdbstore.Reservation) *ledger.Reservation {
 	meta := map[string]any{}

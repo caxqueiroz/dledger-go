@@ -305,3 +305,70 @@ func (s *Store) ListExpiredReservations(ctx context.Context, now time.Time, limi
 	}
 	return out, nil
 }
+
+// UpsertFXRate inserts or updates an FX rate row by the unique tuple.
+func (s *Store) UpsertFXRate(ctx context.Context, r ledger.FXRate) (*ledger.FXRate, error) {
+	row, err := s.q.UpsertFXRate(ctx, sqlitestore.UpsertFXRateParams{
+		ID: r.ID, TenantID: r.TenantID,
+		BaseCurrency: r.BaseCurrency, QuoteCurrency: r.QuoteCurrency,
+		Rate: r.Rate.String(), Source: r.Source,
+		EffectiveAt: r.EffectiveAt.UTC().Format(sqliteTimeFormat),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return rowToFXRate(row), nil
+}
+
+// GetFXRateAt returns the most recent rate with effective_at <= at, or nil if none.
+func (s *Store) GetFXRateAt(ctx context.Context, tenantID, base, quote string, at time.Time) (*ledger.FXRate, error) {
+	row, err := s.q.GetFXRateAt(ctx, sqlitestore.GetFXRateAtParams{
+		TenantID: tenantID, BaseCurrency: base, QuoteCurrency: quote,
+		EffectiveAt: at.UTC().Format(sqliteTimeFormat),
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return rowToFXRate(row), nil
+}
+
+// ListFXRates returns FX rate rows filtered by base/quote/time-range.
+func (s *Store) ListFXRates(ctx context.Context, in repo.ListFXRatesInput) ([]ledger.FXRate, error) {
+	limit := int64(in.Limit)
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	since, until := "", ""
+	if in.Since != nil {
+		since = in.Since.UTC().Format(sqliteTimeFormat)
+	}
+	if in.Until != nil {
+		until = in.Until.UTC().Format(sqliteTimeFormat)
+	}
+	// The dual-bind ? = '' pattern produces Column3/5/7/9 as opaque sides.
+	// Pass the same value for both binds; the empty-string sentinel disables
+	// the filter at the SQL level.
+	rows, err := s.q.ListFXRates(ctx, sqlitestore.ListFXRatesParams{
+		TenantID:      in.TenantID,
+		BaseCurrency:  in.BaseCurrency,
+		Column3:       in.BaseCurrency,
+		QuoteCurrency: in.QuoteCurrency,
+		Column5:       in.QuoteCurrency,
+		EffectiveAt:   since,
+		Column7:       since,
+		EffectiveAt_2: until,
+		Column9:       until,
+		Limit:         limit,
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ledger.FXRate, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, *rowToFXRate(r))
+	}
+	return out, nil
+}

@@ -95,6 +95,18 @@ func rowToFlowStep(r sqlitestore.FlowStep) *ledger.FlowStep {
 	return s
 }
 
+// rowToFXRate converts a sqlitestore.FxRate to a ledger.FXRate.
+func rowToFXRate(r sqlitestore.FxRate) *ledger.FXRate {
+	rate, _ := decimal.NewFromString(r.Rate)
+	return &ledger.FXRate{
+		ID: r.ID, TenantID: r.TenantID,
+		BaseCurrency: r.BaseCurrency, QuoteCurrency: r.QuoteCurrency,
+		Rate: rate, Source: r.Source,
+		EffectiveAt: parseTime(r.EffectiveAt),
+		CreatedAt:   parseTime(r.CreatedAt),
+	}
+}
+
 // rowToReservation converts a sqlitestore.Reservation to a ledger.Reservation.
 func rowToReservation(r sqlitestore.Reservation) *ledger.Reservation {
 	orig, _ := decimal.NewFromString(r.OriginalAmount)

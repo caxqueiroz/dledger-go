@@ -33,6 +33,11 @@ type Store interface {
 	ListTenantBalances(ctx context.Context, tenantID string) ([]TenantBalanceRow, error)
 	ListTenantsDueForSnapshot(ctx context.Context, cutoff time.Time, limit int) ([]string, error)
 
+	// FX rates
+	UpsertFXRate(ctx context.Context, r ledger.FXRate) (*ledger.FXRate, error)
+	GetFXRateAt(ctx context.Context, tenantID, base, quote string, at time.Time) (*ledger.FXRate, error)
+	ListFXRates(ctx context.Context, in ListFXRatesInput) ([]ledger.FXRate, error)
+
 	// Reservations (read-only)
 	GetReservation(ctx context.Context, tenantID, reservationID string) (*ledger.Reservation, error)
 	ListExpiredReservations(ctx context.Context, now time.Time, limit int) ([]ExpiredReservation, error)
@@ -90,6 +95,15 @@ type ListActivityInput struct {
 	Since     *time.Time
 	Until     *time.Time
 	Limit     int
+}
+
+type ListFXRatesInput struct {
+	TenantID      string
+	BaseCurrency  string
+	QuoteCurrency string
+	Since         *time.Time
+	Until         *time.Time
+	Limit         int
 }
 
 type ActivityRow struct {

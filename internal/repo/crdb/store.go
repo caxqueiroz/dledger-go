@@ -281,3 +281,64 @@ func (s *Store) ListExpiredReservations(ctx context.Context, now time.Time, limi
 	}
 	return out, nil
 }
+
+// UpsertFXRate inserts or updates an FX rate row by the unique tuple.
+func (s *Store) UpsertFXRate(ctx context.Context, r ledger.FXRate) (*ledger.FXRate, error) {
+	row, err := s.q.UpsertFXRate(ctx, crdbstore.UpsertFXRateParams{
+		ID: r.ID, TenantID: r.TenantID,
+		BaseCurrency: r.BaseCurrency, QuoteCurrency: r.QuoteCurrency,
+		Rate: r.Rate, Source: r.Source,
+		EffectiveAt: pgtype.Timestamptz{Time: r.EffectiveAt.UTC(), Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return rowToFXRate(row), nil
+}
+
+// GetFXRateAt returns the most recent rate with effective_at <= at, or nil if none.
+func (s *Store) GetFXRateAt(ctx context.Context, tenantID, base, quote string, at time.Time) (*ledger.FXRate, error) {
+	row, err := s.q.GetFXRateAt(ctx, crdbstore.GetFXRateAtParams{
+		TenantID: tenantID, BaseCurrency: base, QuoteCurrency: quote,
+		EffectiveAt: pgtype.Timestamptz{Time: at.UTC(), Valid: true},
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return rowToFXRate(row), nil
+}
+
+// ListFXRates returns FX rate rows filtered by base/quote/time-range.
+func (s *Store) ListFXRates(ctx context.Context, in repo.ListFXRatesInput) ([]ledger.FXRate, error) {
+	limit := int32(in.Limit)
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	since := pgtype.Timestamptz{}
+	if in.Since != nil {
+		since = pgtype.Timestamptz{Time: in.Since.UTC(), Valid: true}
+	}
+	until := pgtype.Timestamptz{}
+	if in.Until != nil {
+		until = pgtype.Timestamptz{Time: in.Until.UTC(), Valid: true}
+	}
+	rows, err := s.q.ListFXRates(ctx, crdbstore.ListFXRatesParams{
+		TenantID: in.TenantID,
+		Column2:  in.BaseCurrency,
+		Column3:  in.QuoteCurrency,
+		Column4:  since,
+		Column5:  until,
+		Limit:    limit,
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ledger.FXRate, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, *rowToFXRate(r))
+	}
+	return out, nil
+}
