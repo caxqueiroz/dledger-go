@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateAccountRequest, CreateAccountResponse, ExecuteFlowRequest, ExecuteFlowResponse, GetAccountRequest, GetAccountResponse, GetBalanceRequest, GetBalanceResponse, GetFlowRequest, GetFlowResponse, ListAccountActivityRequest, ListAccountActivityResponse, PostJournalRequest, PostJournalResponse } from "./ledger_pb.js";
+import { CommitReservationRequest, CommitReservationResponse, CreateAccountRequest, CreateAccountResponse, CreateReservationRequest, CreateReservationResponse, ExecuteFlowRequest, ExecuteFlowResponse, GetAccountRequest, GetAccountResponse, GetBalanceRequest, GetBalanceResponse, GetFlowRequest, GetFlowResponse, GetReservationRequest, GetReservationResponse, ListAccountActivityRequest, ListAccountActivityResponse, PostJournalRequest, PostJournalResponse, ReleaseReservationRequest, ReleaseReservationResponse, TakeBalanceSnapshotRequest, TakeBalanceSnapshotResponse } from "./ledger_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -73,6 +73,51 @@ export const LedgerService = {
       name: "ListAccountActivity",
       I: ListAccountActivityRequest,
       O: ListAccountActivityResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.TakeBalanceSnapshot
+     */
+    takeBalanceSnapshot: {
+      name: "TakeBalanceSnapshot",
+      I: TakeBalanceSnapshotRequest,
+      O: TakeBalanceSnapshotResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.CreateReservation
+     */
+    createReservation: {
+      name: "CreateReservation",
+      I: CreateReservationRequest,
+      O: CreateReservationResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.CommitReservation
+     */
+    commitReservation: {
+      name: "CommitReservation",
+      I: CommitReservationRequest,
+      O: CommitReservationResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.ReleaseReservation
+     */
+    releaseReservation: {
+      name: "ReleaseReservation",
+      I: ReleaseReservationRequest,
+      O: ReleaseReservationResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.GetReservation
+     */
+    getReservation: {
+      name: "GetReservation",
+      I: GetReservationRequest,
+      O: GetReservationResponse,
       kind: MethodKind.Unary,
     },
   }

@@ -104,3 +104,22 @@ type OutboxEvent struct {
 	CreatedAt      pgtype.Timestamptz `db:"created_at"`
 	PublishedAt    pgtype.Timestamptz `db:"published_at"`
 }
+
+type Reservation struct {
+	ID                string             `db:"id"`
+	TenantID          string             `db:"tenant_id"`
+	IdempotencyKey    string             `db:"idempotency_key"`
+	SourceAccountID   string             `db:"source_account_id"`
+	ReservedAccountID string             `db:"reserved_account_id"`
+	Currency          string             `db:"currency"`
+	OriginalAmount    decimal.Decimal    `db:"original_amount"`
+	OutstandingAmount decimal.Decimal    `db:"outstanding_amount"`
+	CommittedAmount   decimal.Decimal    `db:"committed_amount"`
+	ReleasedAmount    decimal.Decimal    `db:"released_amount"`
+	Status            string             `db:"status"`
+	ExpiresAt         pgtype.Timestamptz `db:"expires_at"`
+	FlowRunID         string             `db:"flow_run_id"`
+	Metadata          []byte             `db:"metadata"`
+	CreatedAt         pgtype.Timestamptz `db:"created_at"`
+	UpdatedAt         pgtype.Timestamptz `db:"updated_at"`
+}

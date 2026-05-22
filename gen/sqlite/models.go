@@ -99,3 +99,22 @@ type OutboxEvent struct {
 	CreatedAt      string  `db:"created_at"`
 	PublishedAt    *string `db:"published_at"`
 }
+
+type Reservation struct {
+	ID                string  `db:"id"`
+	TenantID          string  `db:"tenant_id"`
+	IdempotencyKey    string  `db:"idempotency_key"`
+	SourceAccountID   string  `db:"source_account_id"`
+	ReservedAccountID string  `db:"reserved_account_id"`
+	Currency          string  `db:"currency"`
+	OriginalAmount    string  `db:"original_amount"`
+	OutstandingAmount string  `db:"outstanding_amount"`
+	CommittedAmount   string  `db:"committed_amount"`
+	ReleasedAmount    string  `db:"released_amount"`
+	Status            string  `db:"status"`
+	ExpiresAt         *string `db:"expires_at"`
+	FlowRunID         string  `db:"flow_run_id"`
+	Metadata          string  `db:"metadata"`
+	CreatedAt         string  `db:"created_at"`
+	UpdatedAt         string  `db:"updated_at"`
+}

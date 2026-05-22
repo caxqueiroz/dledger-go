@@ -611,6 +611,11 @@ export class GetBalanceRequest extends Message<GetBalanceRequest> {
    */
   currency = "";
 
+  /**
+   * @generated from field: google.protobuf.Timestamp as_of = 4;
+   */
+  asOf?: Timestamp;
+
   constructor(data?: PartialMessage<GetBalanceRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -622,6 +627,7 @@ export class GetBalanceRequest extends Message<GetBalanceRequest> {
     { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "as_of", kind: "message", T: Timestamp },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetBalanceRequest {
@@ -1268,6 +1274,632 @@ export class ListAccountActivityResponse extends Message<ListAccountActivityResp
 
   static equals(a: ListAccountActivityResponse | PlainMessage<ListAccountActivityResponse> | undefined, b: ListAccountActivityResponse | PlainMessage<ListAccountActivityResponse> | undefined): boolean {
     return proto3.util.equals(ListAccountActivityResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.TakeBalanceSnapshotRequest
+ */
+export class TakeBalanceSnapshotRequest extends Message<TakeBalanceSnapshotRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * If account_id+currency are set, snapshot one row. Otherwise snapshot
+   * every account_balances row in the tenant.
+   *
+   * @generated from field: string account_id = 2;
+   */
+  accountId = "";
+
+  /**
+   * @generated from field: string currency = 3;
+   */
+  currency = "";
+
+  constructor(data?: PartialMessage<TakeBalanceSnapshotRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.TakeBalanceSnapshotRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TakeBalanceSnapshotRequest {
+    return new TakeBalanceSnapshotRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TakeBalanceSnapshotRequest {
+    return new TakeBalanceSnapshotRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TakeBalanceSnapshotRequest {
+    return new TakeBalanceSnapshotRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TakeBalanceSnapshotRequest | PlainMessage<TakeBalanceSnapshotRequest> | undefined, b: TakeBalanceSnapshotRequest | PlainMessage<TakeBalanceSnapshotRequest> | undefined): boolean {
+    return proto3.util.equals(TakeBalanceSnapshotRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.TakeBalanceSnapshotResponse
+ */
+export class TakeBalanceSnapshotResponse extends Message<TakeBalanceSnapshotResponse> {
+  /**
+   * @generated from field: int32 snapshots_taken = 1;
+   */
+  snapshotsTaken = 0;
+
+  constructor(data?: PartialMessage<TakeBalanceSnapshotResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.TakeBalanceSnapshotResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "snapshots_taken", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TakeBalanceSnapshotResponse {
+    return new TakeBalanceSnapshotResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TakeBalanceSnapshotResponse {
+    return new TakeBalanceSnapshotResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TakeBalanceSnapshotResponse {
+    return new TakeBalanceSnapshotResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TakeBalanceSnapshotResponse | PlainMessage<TakeBalanceSnapshotResponse> | undefined, b: TakeBalanceSnapshotResponse | PlainMessage<TakeBalanceSnapshotResponse> | undefined): boolean {
+    return proto3.util.equals(TakeBalanceSnapshotResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.Reservation
+ */
+export class Reservation extends Message<Reservation> {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id = "";
+
+  /**
+   * @generated from field: string tenant_id = 2;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string status = 3;
+   */
+  status = "";
+
+  /**
+   * @generated from field: string source_account_id = 4;
+   */
+  sourceAccountId = "";
+
+  /**
+   * @generated from field: string reserved_account_id = 5;
+   */
+  reservedAccountId = "";
+
+  /**
+   * @generated from field: string currency = 6;
+   */
+  currency = "";
+
+  /**
+   * @generated from field: string original_amount = 7;
+   */
+  originalAmount = "";
+
+  /**
+   * @generated from field: string outstanding_amount = 8;
+   */
+  outstandingAmount = "";
+
+  /**
+   * @generated from field: string committed_amount = 9;
+   */
+  committedAmount = "";
+
+  /**
+   * @generated from field: string released_amount = 10;
+   */
+  releasedAmount = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp expires_at = 11;
+   */
+  expiresAt?: Timestamp;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp created_at = 12;
+   */
+  createdAt?: Timestamp;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp updated_at = 13;
+   */
+  updatedAt?: Timestamp;
+
+  /**
+   * @generated from field: string flow_run_id = 14;
+   */
+  flowRunId = "";
+
+  constructor(data?: PartialMessage<Reservation>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.Reservation";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "status", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "source_account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "reserved_account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "original_amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 8, name: "outstanding_amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 9, name: "committed_amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 10, name: "released_amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 11, name: "expires_at", kind: "message", T: Timestamp },
+    { no: 12, name: "created_at", kind: "message", T: Timestamp },
+    { no: 13, name: "updated_at", kind: "message", T: Timestamp },
+    { no: 14, name: "flow_run_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Reservation {
+    return new Reservation().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Reservation {
+    return new Reservation().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Reservation {
+    return new Reservation().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: Reservation | PlainMessage<Reservation> | undefined, b: Reservation | PlainMessage<Reservation> | undefined): boolean {
+    return proto3.util.equals(Reservation, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.CreateReservationRequest
+ */
+export class CreateReservationRequest extends Message<CreateReservationRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string idempotency_key = 2;
+   */
+  idempotencyKey = "";
+
+  /**
+   * @generated from field: string source_account_id = 3;
+   */
+  sourceAccountId = "";
+
+  /**
+   * @generated from field: string reserved_account_id = 4;
+   */
+  reservedAccountId = "";
+
+  /**
+   * @generated from field: string currency = 5;
+   */
+  currency = "";
+
+  /**
+   * @generated from field: string amount = 6;
+   */
+  amount = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp expires_at = 7;
+   */
+  expiresAt?: Timestamp;
+
+  /**
+   * @generated from field: string source_service = 8;
+   */
+  sourceService = "";
+
+  /**
+   * @generated from field: string actor_id = 9;
+   */
+  actorId = "";
+
+  /**
+   * @generated from field: google.protobuf.Struct metadata = 10;
+   */
+  metadata?: Struct;
+
+  constructor(data?: PartialMessage<CreateReservationRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.CreateReservationRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "idempotency_key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "source_account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "reserved_account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "expires_at", kind: "message", T: Timestamp },
+    { no: 8, name: "source_service", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 9, name: "actor_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 10, name: "metadata", kind: "message", T: Struct },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateReservationRequest {
+    return new CreateReservationRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): CreateReservationRequest {
+    return new CreateReservationRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): CreateReservationRequest {
+    return new CreateReservationRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: CreateReservationRequest | PlainMessage<CreateReservationRequest> | undefined, b: CreateReservationRequest | PlainMessage<CreateReservationRequest> | undefined): boolean {
+    return proto3.util.equals(CreateReservationRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.CreateReservationResponse
+ */
+export class CreateReservationResponse extends Message<CreateReservationResponse> {
+  /**
+   * @generated from field: ledger.v1.Reservation reservation = 1;
+   */
+  reservation?: Reservation;
+
+  constructor(data?: PartialMessage<CreateReservationResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.CreateReservationResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "reservation", kind: "message", T: Reservation },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateReservationResponse {
+    return new CreateReservationResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): CreateReservationResponse {
+    return new CreateReservationResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): CreateReservationResponse {
+    return new CreateReservationResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: CreateReservationResponse | PlainMessage<CreateReservationResponse> | undefined, b: CreateReservationResponse | PlainMessage<CreateReservationResponse> | undefined): boolean {
+    return proto3.util.equals(CreateReservationResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.CommitReservationRequest
+ */
+export class CommitReservationRequest extends Message<CommitReservationRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string reservation_id = 2;
+   */
+  reservationId = "";
+
+  /**
+   * @generated from field: string destination_account_id = 3;
+   */
+  destinationAccountId = "";
+
+  /**
+   * @generated from field: string amount = 4;
+   */
+  amount = "";
+
+  /**
+   * @generated from field: string idempotency_key = 5;
+   */
+  idempotencyKey = "";
+
+  /**
+   * @generated from field: string source_service = 6;
+   */
+  sourceService = "";
+
+  /**
+   * @generated from field: string actor_id = 7;
+   */
+  actorId = "";
+
+  constructor(data?: PartialMessage<CommitReservationRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.CommitReservationRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "reservation_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "destination_account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "idempotency_key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "source_service", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "actor_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CommitReservationRequest {
+    return new CommitReservationRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): CommitReservationRequest {
+    return new CommitReservationRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): CommitReservationRequest {
+    return new CommitReservationRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: CommitReservationRequest | PlainMessage<CommitReservationRequest> | undefined, b: CommitReservationRequest | PlainMessage<CommitReservationRequest> | undefined): boolean {
+    return proto3.util.equals(CommitReservationRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.CommitReservationResponse
+ */
+export class CommitReservationResponse extends Message<CommitReservationResponse> {
+  /**
+   * @generated from field: ledger.v1.Reservation reservation = 1;
+   */
+  reservation?: Reservation;
+
+  constructor(data?: PartialMessage<CommitReservationResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.CommitReservationResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "reservation", kind: "message", T: Reservation },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CommitReservationResponse {
+    return new CommitReservationResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): CommitReservationResponse {
+    return new CommitReservationResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): CommitReservationResponse {
+    return new CommitReservationResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: CommitReservationResponse | PlainMessage<CommitReservationResponse> | undefined, b: CommitReservationResponse | PlainMessage<CommitReservationResponse> | undefined): boolean {
+    return proto3.util.equals(CommitReservationResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ReleaseReservationRequest
+ */
+export class ReleaseReservationRequest extends Message<ReleaseReservationRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string reservation_id = 2;
+   */
+  reservationId = "";
+
+  /**
+   * @generated from field: string amount = 3;
+   */
+  amount = "";
+
+  /**
+   * @generated from field: string idempotency_key = 4;
+   */
+  idempotencyKey = "";
+
+  /**
+   * @generated from field: string source_service = 5;
+   */
+  sourceService = "";
+
+  /**
+   * @generated from field: string actor_id = 6;
+   */
+  actorId = "";
+
+  constructor(data?: PartialMessage<ReleaseReservationRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ReleaseReservationRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "reservation_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "idempotency_key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "source_service", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "actor_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ReleaseReservationRequest {
+    return new ReleaseReservationRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ReleaseReservationRequest {
+    return new ReleaseReservationRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ReleaseReservationRequest {
+    return new ReleaseReservationRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ReleaseReservationRequest | PlainMessage<ReleaseReservationRequest> | undefined, b: ReleaseReservationRequest | PlainMessage<ReleaseReservationRequest> | undefined): boolean {
+    return proto3.util.equals(ReleaseReservationRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ReleaseReservationResponse
+ */
+export class ReleaseReservationResponse extends Message<ReleaseReservationResponse> {
+  /**
+   * @generated from field: ledger.v1.Reservation reservation = 1;
+   */
+  reservation?: Reservation;
+
+  constructor(data?: PartialMessage<ReleaseReservationResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ReleaseReservationResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "reservation", kind: "message", T: Reservation },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ReleaseReservationResponse {
+    return new ReleaseReservationResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ReleaseReservationResponse {
+    return new ReleaseReservationResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ReleaseReservationResponse {
+    return new ReleaseReservationResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ReleaseReservationResponse | PlainMessage<ReleaseReservationResponse> | undefined, b: ReleaseReservationResponse | PlainMessage<ReleaseReservationResponse> | undefined): boolean {
+    return proto3.util.equals(ReleaseReservationResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.GetReservationRequest
+ */
+export class GetReservationRequest extends Message<GetReservationRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string reservation_id = 2;
+   */
+  reservationId = "";
+
+  constructor(data?: PartialMessage<GetReservationRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.GetReservationRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "reservation_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetReservationRequest {
+    return new GetReservationRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetReservationRequest {
+    return new GetReservationRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetReservationRequest {
+    return new GetReservationRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetReservationRequest | PlainMessage<GetReservationRequest> | undefined, b: GetReservationRequest | PlainMessage<GetReservationRequest> | undefined): boolean {
+    return proto3.util.equals(GetReservationRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.GetReservationResponse
+ */
+export class GetReservationResponse extends Message<GetReservationResponse> {
+  /**
+   * @generated from field: ledger.v1.Reservation reservation = 1;
+   */
+  reservation?: Reservation;
+
+  constructor(data?: PartialMessage<GetReservationResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.GetReservationResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "reservation", kind: "message", T: Reservation },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetReservationResponse {
+    return new GetReservationResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetReservationResponse {
+    return new GetReservationResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetReservationResponse {
+    return new GetReservationResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetReservationResponse | PlainMessage<GetReservationResponse> | undefined, b: GetReservationResponse | PlainMessage<GetReservationResponse> | undefined): boolean {
+    return proto3.util.equals(GetReservationResponse, a, b);
   }
 }
 
