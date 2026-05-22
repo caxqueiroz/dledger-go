@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CommitReservationRequest, CommitReservationResponse, CreateAccountRequest, CreateAccountResponse, CreateReservationRequest, CreateReservationResponse, ExecuteFlowRequest, ExecuteFlowResponse, GetAccountRequest, GetAccountResponse, GetBalanceRequest, GetBalanceResponse, GetFlowRequest, GetFlowResponse, GetReservationRequest, GetReservationResponse, ListAccountActivityRequest, ListAccountActivityResponse, PostJournalRequest, PostJournalResponse, ReleaseReservationRequest, ReleaseReservationResponse, TakeBalanceSnapshotRequest, TakeBalanceSnapshotResponse } from "./ledger_pb.js";
+import { CommitReservationRequest, CommitReservationResponse, CreateAccountRequest, CreateAccountResponse, CreateReservationRequest, CreateReservationResponse, ExecuteExchangeRequest, ExecuteExchangeResponse, ExecuteFlowRequest, ExecuteFlowResponse, GetAccountRequest, GetAccountResponse, GetBalanceRequest, GetBalanceResponse, GetFlowRequest, GetFlowResponse, GetFXRateRequest, GetFXRateResponse, GetReservationRequest, GetReservationResponse, ListAccountActivityRequest, ListAccountActivityResponse, ListFXRatesRequest, ListFXRatesResponse, PostJournalRequest, PostJournalResponse, PutFXRateRequest, PutFXRateResponse, ReleaseReservationRequest, ReleaseReservationResponse, TakeBalanceSnapshotRequest, TakeBalanceSnapshotResponse } from "./ledger_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -118,6 +118,42 @@ export const LedgerService = {
       name: "GetReservation",
       I: GetReservationRequest,
       O: GetReservationResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.ExecuteExchange
+     */
+    executeExchange: {
+      name: "ExecuteExchange",
+      I: ExecuteExchangeRequest,
+      O: ExecuteExchangeResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.PutFXRate
+     */
+    putFXRate: {
+      name: "PutFXRate",
+      I: PutFXRateRequest,
+      O: PutFXRateResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.GetFXRate
+     */
+    getFXRate: {
+      name: "GetFXRate",
+      I: GetFXRateRequest,
+      O: GetFXRateResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.ListFXRates
+     */
+    listFXRates: {
+      name: "ListFXRates",
+      I: ListFXRatesRequest,
+      O: ListFXRatesResponse,
       kind: MethodKind.Unary,
     },
   }

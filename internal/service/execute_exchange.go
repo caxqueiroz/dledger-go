@@ -38,7 +38,7 @@ func (s *Server) ExecuteExchange(ctx context.Context, req *connect.Request[ledge
 	}
 
 	// Resolve rate outside the transaction for the same reason.
-	rate := decimal.Zero
+	var rate decimal.Decimal
 	rateSource := r.GetRateSource()
 	if r.GetRate() != "" {
 		rate, err = decimal.NewFromString(r.GetRate())

@@ -1903,3 +1903,546 @@ export class GetReservationResponse extends Message<GetReservationResponse> {
   }
 }
 
+/**
+ * @generated from message ledger.v1.FXRate
+ */
+export class FXRate extends Message<FXRate> {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id = "";
+
+  /**
+   * @generated from field: string tenant_id = 2;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string base_currency = 3;
+   */
+  baseCurrency = "";
+
+  /**
+   * @generated from field: string quote_currency = 4;
+   */
+  quoteCurrency = "";
+
+  /**
+   * @generated from field: string rate = 5;
+   */
+  rate = "";
+
+  /**
+   * @generated from field: string source = 6;
+   */
+  source = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp effective_at = 7;
+   */
+  effectiveAt?: Timestamp;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp created_at = 8;
+   */
+  createdAt?: Timestamp;
+
+  constructor(data?: PartialMessage<FXRate>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.FXRate";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "base_currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "quote_currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "rate", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "source", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "effective_at", kind: "message", T: Timestamp },
+    { no: 8, name: "created_at", kind: "message", T: Timestamp },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FXRate {
+    return new FXRate().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): FXRate {
+    return new FXRate().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): FXRate {
+    return new FXRate().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: FXRate | PlainMessage<FXRate> | undefined, b: FXRate | PlainMessage<FXRate> | undefined): boolean {
+    return proto3.util.equals(FXRate, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ExecuteExchangeRequest
+ */
+export class ExecuteExchangeRequest extends Message<ExecuteExchangeRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string idempotency_key = 2;
+   */
+  idempotencyKey = "";
+
+  /**
+   * @generated from field: string from_account_id = 3;
+   */
+  fromAccountId = "";
+
+  /**
+   * @generated from field: string to_account_id = 4;
+   */
+  toAccountId = "";
+
+  /**
+   * @generated from field: string from_counter_account_id = 5;
+   */
+  fromCounterAccountId = "";
+
+  /**
+   * @generated from field: string to_counter_account_id = 6;
+   */
+  toCounterAccountId = "";
+
+  /**
+   * @generated from field: string from_amount = 7;
+   */
+  fromAmount = "";
+
+  /**
+   * @generated from field: string to_amount = 8;
+   */
+  toAmount = "";
+
+  /**
+   * @generated from field: string rate = 9;
+   */
+  rate = "";
+
+  /**
+   * @generated from field: string rate_source = 10;
+   */
+  rateSource = "";
+
+  /**
+   * @generated from field: string source_service = 11;
+   */
+  sourceService = "";
+
+  /**
+   * @generated from field: string actor_id = 12;
+   */
+  actorId = "";
+
+  /**
+   * @generated from field: google.protobuf.Struct metadata = 13;
+   */
+  metadata?: Struct;
+
+  constructor(data?: PartialMessage<ExecuteExchangeRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ExecuteExchangeRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "idempotency_key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "from_account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "to_account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "from_counter_account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "to_counter_account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "from_amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 8, name: "to_amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 9, name: "rate", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 10, name: "rate_source", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 11, name: "source_service", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 12, name: "actor_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 13, name: "metadata", kind: "message", T: Struct },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ExecuteExchangeRequest {
+    return new ExecuteExchangeRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ExecuteExchangeRequest {
+    return new ExecuteExchangeRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ExecuteExchangeRequest {
+    return new ExecuteExchangeRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ExecuteExchangeRequest | PlainMessage<ExecuteExchangeRequest> | undefined, b: ExecuteExchangeRequest | PlainMessage<ExecuteExchangeRequest> | undefined): boolean {
+    return proto3.util.equals(ExecuteExchangeRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ExecuteExchangeResponse
+ */
+export class ExecuteExchangeResponse extends Message<ExecuteExchangeResponse> {
+  /**
+   * @generated from field: string flow_run_id = 1;
+   */
+  flowRunId = "";
+
+  /**
+   * @generated from field: string journal_id = 2;
+   */
+  journalId = "";
+
+  /**
+   * @generated from field: string rate_used = 3;
+   */
+  rateUsed = "";
+
+  /**
+   * @generated from field: string rate_source = 4;
+   */
+  rateSource = "";
+
+  constructor(data?: PartialMessage<ExecuteExchangeResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ExecuteExchangeResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "flow_run_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "journal_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "rate_used", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "rate_source", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ExecuteExchangeResponse {
+    return new ExecuteExchangeResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ExecuteExchangeResponse {
+    return new ExecuteExchangeResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ExecuteExchangeResponse {
+    return new ExecuteExchangeResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ExecuteExchangeResponse | PlainMessage<ExecuteExchangeResponse> | undefined, b: ExecuteExchangeResponse | PlainMessage<ExecuteExchangeResponse> | undefined): boolean {
+    return proto3.util.equals(ExecuteExchangeResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.PutFXRateRequest
+ */
+export class PutFXRateRequest extends Message<PutFXRateRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string base_currency = 2;
+   */
+  baseCurrency = "";
+
+  /**
+   * @generated from field: string quote_currency = 3;
+   */
+  quoteCurrency = "";
+
+  /**
+   * @generated from field: string rate = 4;
+   */
+  rate = "";
+
+  /**
+   * @generated from field: string source = 5;
+   */
+  source = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp effective_at = 6;
+   */
+  effectiveAt?: Timestamp;
+
+  constructor(data?: PartialMessage<PutFXRateRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.PutFXRateRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "base_currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "quote_currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "rate", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "source", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "effective_at", kind: "message", T: Timestamp },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PutFXRateRequest {
+    return new PutFXRateRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PutFXRateRequest {
+    return new PutFXRateRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PutFXRateRequest {
+    return new PutFXRateRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PutFXRateRequest | PlainMessage<PutFXRateRequest> | undefined, b: PutFXRateRequest | PlainMessage<PutFXRateRequest> | undefined): boolean {
+    return proto3.util.equals(PutFXRateRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.PutFXRateResponse
+ */
+export class PutFXRateResponse extends Message<PutFXRateResponse> {
+  /**
+   * @generated from field: ledger.v1.FXRate rate = 1;
+   */
+  rate?: FXRate;
+
+  constructor(data?: PartialMessage<PutFXRateResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.PutFXRateResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "rate", kind: "message", T: FXRate },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PutFXRateResponse {
+    return new PutFXRateResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PutFXRateResponse {
+    return new PutFXRateResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PutFXRateResponse {
+    return new PutFXRateResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: PutFXRateResponse | PlainMessage<PutFXRateResponse> | undefined, b: PutFXRateResponse | PlainMessage<PutFXRateResponse> | undefined): boolean {
+    return proto3.util.equals(PutFXRateResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.GetFXRateRequest
+ */
+export class GetFXRateRequest extends Message<GetFXRateRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string base_currency = 2;
+   */
+  baseCurrency = "";
+
+  /**
+   * @generated from field: string quote_currency = 3;
+   */
+  quoteCurrency = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp at = 4;
+   */
+  at?: Timestamp;
+
+  constructor(data?: PartialMessage<GetFXRateRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.GetFXRateRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "base_currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "quote_currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "at", kind: "message", T: Timestamp },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetFXRateRequest {
+    return new GetFXRateRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetFXRateRequest {
+    return new GetFXRateRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetFXRateRequest {
+    return new GetFXRateRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetFXRateRequest | PlainMessage<GetFXRateRequest> | undefined, b: GetFXRateRequest | PlainMessage<GetFXRateRequest> | undefined): boolean {
+    return proto3.util.equals(GetFXRateRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.GetFXRateResponse
+ */
+export class GetFXRateResponse extends Message<GetFXRateResponse> {
+  /**
+   * @generated from field: ledger.v1.FXRate rate = 1;
+   */
+  rate?: FXRate;
+
+  constructor(data?: PartialMessage<GetFXRateResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.GetFXRateResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "rate", kind: "message", T: FXRate },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetFXRateResponse {
+    return new GetFXRateResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetFXRateResponse {
+    return new GetFXRateResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetFXRateResponse {
+    return new GetFXRateResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetFXRateResponse | PlainMessage<GetFXRateResponse> | undefined, b: GetFXRateResponse | PlainMessage<GetFXRateResponse> | undefined): boolean {
+    return proto3.util.equals(GetFXRateResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ListFXRatesRequest
+ */
+export class ListFXRatesRequest extends Message<ListFXRatesRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string base_currency = 2;
+   */
+  baseCurrency = "";
+
+  /**
+   * @generated from field: string quote_currency = 3;
+   */
+  quoteCurrency = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp since = 4;
+   */
+  since?: Timestamp;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp until = 5;
+   */
+  until?: Timestamp;
+
+  /**
+   * @generated from field: int32 page_size = 6;
+   */
+  pageSize = 0;
+
+  constructor(data?: PartialMessage<ListFXRatesRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ListFXRatesRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "base_currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "quote_currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "since", kind: "message", T: Timestamp },
+    { no: 5, name: "until", kind: "message", T: Timestamp },
+    { no: 6, name: "page_size", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListFXRatesRequest {
+    return new ListFXRatesRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ListFXRatesRequest {
+    return new ListFXRatesRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ListFXRatesRequest {
+    return new ListFXRatesRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ListFXRatesRequest | PlainMessage<ListFXRatesRequest> | undefined, b: ListFXRatesRequest | PlainMessage<ListFXRatesRequest> | undefined): boolean {
+    return proto3.util.equals(ListFXRatesRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ListFXRatesResponse
+ */
+export class ListFXRatesResponse extends Message<ListFXRatesResponse> {
+  /**
+   * @generated from field: repeated ledger.v1.FXRate rates = 1;
+   */
+  rates: FXRate[] = [];
+
+  constructor(data?: PartialMessage<ListFXRatesResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ListFXRatesResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "rates", kind: "message", T: FXRate, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListFXRatesResponse {
+    return new ListFXRatesResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ListFXRatesResponse {
+    return new ListFXRatesResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ListFXRatesResponse {
+    return new ListFXRatesResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ListFXRatesResponse | PlainMessage<ListFXRatesResponse> | undefined, b: ListFXRatesResponse | PlainMessage<ListFXRatesResponse> | undefined): boolean {
+    return proto3.util.equals(ListFXRatesResponse, a, b);
+  }
+}
+

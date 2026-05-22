@@ -64,6 +64,17 @@ type FlowStep struct {
 	CreatedAt string  `db:"created_at"`
 }
 
+type FxRate struct {
+	ID            string `db:"id"`
+	TenantID      string `db:"tenant_id"`
+	BaseCurrency  string `db:"base_currency"`
+	QuoteCurrency string `db:"quote_currency"`
+	Rate          string `db:"rate"`
+	Source        string `db:"source"`
+	EffectiveAt   string `db:"effective_at"`
+	CreatedAt     string `db:"created_at"`
+}
+
 type LedgerEntry struct {
 	ID        string `db:"id"`
 	TenantID  string `db:"tenant_id"`
