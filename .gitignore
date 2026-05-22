@@ -1,9 +1,15 @@
 # Binaries
 /bin/
 /tmp/
+/server
+/client
+/migrate
 *.test
 *.out
 coverage.txt
+
+# Node
+node_modules/
 
 # Local databases
 *.db
