@@ -23,22 +23,12 @@ func (s *Server) ExecuteExchange(ctx context.Context, req *connect.Request[ledge
 		return nil, ToConnectError(ledger.NewDomainError(ledger.CodeFXAmountMismatch, "to_amount: "+err.Error()))
 	}
 
-	tx, err := s.Store.BeginFlowTx(ctx)
+	// Resolve accounts outside the transaction to avoid deadlock on single-connection stores.
+	fromAcc, err := s.Store.GetAccount(ctx, r.GetTenantId(), r.GetFromAccountId())
 	if err != nil {
 		return nil, ToConnectError(err)
 	}
-	committed := false
-	defer func() {
-		if !committed {
-			_ = tx.Rollback()
-		}
-	}()
-
-	fromAcc, err := tx.GetAccount(ctx, r.GetTenantId(), r.GetFromAccountId())
-	if err != nil {
-		return nil, ToConnectError(err)
-	}
-	toAcc, err := tx.GetAccount(ctx, r.GetTenantId(), r.GetToAccountId())
+	toAcc, err := s.Store.GetAccount(ctx, r.GetTenantId(), r.GetToAccountId())
 	if err != nil {
 		return nil, ToConnectError(err)
 	}
@@ -47,7 +37,7 @@ func (s *Server) ExecuteExchange(ctx context.Context, req *connect.Request[ledge
 			"from and to currencies must differ"))
 	}
 
-	// Resolve rate.
+	// Resolve rate outside the transaction for the same reason.
 	rate := decimal.Zero
 	rateSource := r.GetRateSource()
 	if r.GetRate() != "" {
@@ -67,6 +57,17 @@ func (s *Server) ExecuteExchange(ctx context.Context, req *connect.Request[ledge
 		rate = got.Rate
 		rateSource = got.Source
 	}
+
+	tx, err := s.Store.BeginFlowTx(ctx)
+	if err != nil {
+		return nil, ToConnectError(err)
+	}
+	committed := false
+	defer func() {
+		if !committed {
+			_ = tx.Rollback()
+		}
+	}()
 
 	// Validate amount math: from_amount * rate == to_amount.
 	expected := fromAmount.Mul(rate)

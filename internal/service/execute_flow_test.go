@@ -38,6 +38,18 @@ func seedSource(t *testing.T, srv *service.Server) string {
 	return r.Msg.GetAccount().GetId()
 }
 
+func mustCreatePlatformAccount(t *testing.T, srv *service.Server, ownerID, kind, ccy string, allowNeg bool, nb ledgerv1.NormalBalance) string {
+	t.Helper()
+	r, err := srv.CreateAccount(context.Background(), connect.NewRequest(&ledgerv1.CreateAccountRequest{
+		TenantId: "t1", OwnerType: "platform", OwnerId: ownerID, AccountType: kind, Currency: ccy,
+		NormalBalance: nb, AllowNegative: allowNeg,
+	}))
+	if err != nil {
+		t.Fatalf("create platform %s/%s: %v", kind, ccy, err)
+	}
+	return r.Msg.GetAccount().GetId()
+}
+
 func TestExecuteFlow_PlaceOrder(t *testing.T) {
 	srv, cleanup := newServer(t)
 	defer cleanup()
