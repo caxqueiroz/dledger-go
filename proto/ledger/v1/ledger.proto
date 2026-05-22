@@ -14,6 +14,7 @@ service LedgerService {
   rpc ExecuteFlow(ExecuteFlowRequest) returns (ExecuteFlowResponse);
   rpc GetFlow(GetFlowRequest) returns (GetFlowResponse);
   rpc ListAccountActivity(ListAccountActivityRequest) returns (ListAccountActivityResponse);
+  rpc TakeBalanceSnapshot(TakeBalanceSnapshotRequest) returns (TakeBalanceSnapshotResponse);
 }
 
 enum Direction {
@@ -94,7 +95,12 @@ message CreateAccountResponse { Account account = 1; }
 message GetAccountRequest  { string tenant_id = 1; string account_id = 2; }
 message GetAccountResponse { Account account = 1; }
 
-message GetBalanceRequest  { string tenant_id = 1; string account_id = 2; string currency = 3; }
+message GetBalanceRequest {
+  string tenant_id  = 1;
+  string account_id = 2;
+  string currency   = 3;
+  google.protobuf.Timestamp as_of = 4;
+}
 message GetBalanceResponse { Balance balance = 1; }
 
 message PostJournalRequest {
@@ -161,4 +167,15 @@ message AccountActivityEntry {
 message ListAccountActivityResponse {
   repeated AccountActivityEntry entries = 1;
   string next_page_token = 2;
+}
+
+message TakeBalanceSnapshotRequest {
+  string tenant_id  = 1 [(buf.validate.field).string.min_len = 1];
+  // If account_id+currency are set, snapshot one row. Otherwise snapshot
+  // every account_balances row in the tenant.
+  string account_id = 2;
+  string currency   = 3;
+}
+message TakeBalanceSnapshotResponse {
+  int32 snapshots_taken = 1;
 }

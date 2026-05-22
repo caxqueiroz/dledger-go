@@ -53,6 +53,9 @@ const (
 	// LedgerServiceListAccountActivityProcedure is the fully-qualified name of the LedgerService's
 	// ListAccountActivity RPC.
 	LedgerServiceListAccountActivityProcedure = "/ledger.v1.LedgerService/ListAccountActivity"
+	// LedgerServiceTakeBalanceSnapshotProcedure is the fully-qualified name of the LedgerService's
+	// TakeBalanceSnapshot RPC.
+	LedgerServiceTakeBalanceSnapshotProcedure = "/ledger.v1.LedgerService/TakeBalanceSnapshot"
 )
 
 // LedgerServiceClient is a client for the ledger.v1.LedgerService service.
@@ -64,6 +67,7 @@ type LedgerServiceClient interface {
 	ExecuteFlow(context.Context, *connect.Request[v1.ExecuteFlowRequest]) (*connect.Response[v1.ExecuteFlowResponse], error)
 	GetFlow(context.Context, *connect.Request[v1.GetFlowRequest]) (*connect.Response[v1.GetFlowResponse], error)
 	ListAccountActivity(context.Context, *connect.Request[v1.ListAccountActivityRequest]) (*connect.Response[v1.ListAccountActivityResponse], error)
+	TakeBalanceSnapshot(context.Context, *connect.Request[v1.TakeBalanceSnapshotRequest]) (*connect.Response[v1.TakeBalanceSnapshotResponse], error)
 }
 
 // NewLedgerServiceClient constructs a client for the ledger.v1.LedgerService service. By default,
@@ -119,6 +123,12 @@ func NewLedgerServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(ledgerServiceMethods.ByName("ListAccountActivity")),
 			connect.WithClientOptions(opts...),
 		),
+		takeBalanceSnapshot: connect.NewClient[v1.TakeBalanceSnapshotRequest, v1.TakeBalanceSnapshotResponse](
+			httpClient,
+			baseURL+LedgerServiceTakeBalanceSnapshotProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("TakeBalanceSnapshot")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -131,6 +141,7 @@ type ledgerServiceClient struct {
 	executeFlow         *connect.Client[v1.ExecuteFlowRequest, v1.ExecuteFlowResponse]
 	getFlow             *connect.Client[v1.GetFlowRequest, v1.GetFlowResponse]
 	listAccountActivity *connect.Client[v1.ListAccountActivityRequest, v1.ListAccountActivityResponse]
+	takeBalanceSnapshot *connect.Client[v1.TakeBalanceSnapshotRequest, v1.TakeBalanceSnapshotResponse]
 }
 
 // CreateAccount calls ledger.v1.LedgerService.CreateAccount.
@@ -168,6 +179,11 @@ func (c *ledgerServiceClient) ListAccountActivity(ctx context.Context, req *conn
 	return c.listAccountActivity.CallUnary(ctx, req)
 }
 
+// TakeBalanceSnapshot calls ledger.v1.LedgerService.TakeBalanceSnapshot.
+func (c *ledgerServiceClient) TakeBalanceSnapshot(ctx context.Context, req *connect.Request[v1.TakeBalanceSnapshotRequest]) (*connect.Response[v1.TakeBalanceSnapshotResponse], error) {
+	return c.takeBalanceSnapshot.CallUnary(ctx, req)
+}
+
 // LedgerServiceHandler is an implementation of the ledger.v1.LedgerService service.
 type LedgerServiceHandler interface {
 	CreateAccount(context.Context, *connect.Request[v1.CreateAccountRequest]) (*connect.Response[v1.CreateAccountResponse], error)
@@ -177,6 +193,7 @@ type LedgerServiceHandler interface {
 	ExecuteFlow(context.Context, *connect.Request[v1.ExecuteFlowRequest]) (*connect.Response[v1.ExecuteFlowResponse], error)
 	GetFlow(context.Context, *connect.Request[v1.GetFlowRequest]) (*connect.Response[v1.GetFlowResponse], error)
 	ListAccountActivity(context.Context, *connect.Request[v1.ListAccountActivityRequest]) (*connect.Response[v1.ListAccountActivityResponse], error)
+	TakeBalanceSnapshot(context.Context, *connect.Request[v1.TakeBalanceSnapshotRequest]) (*connect.Response[v1.TakeBalanceSnapshotResponse], error)
 }
 
 // NewLedgerServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -228,6 +245,12 @@ func NewLedgerServiceHandler(svc LedgerServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(ledgerServiceMethods.ByName("ListAccountActivity")),
 		connect.WithHandlerOptions(opts...),
 	)
+	ledgerServiceTakeBalanceSnapshotHandler := connect.NewUnaryHandler(
+		LedgerServiceTakeBalanceSnapshotProcedure,
+		svc.TakeBalanceSnapshot,
+		connect.WithSchema(ledgerServiceMethods.ByName("TakeBalanceSnapshot")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/ledger.v1.LedgerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case LedgerServiceCreateAccountProcedure:
@@ -244,6 +267,8 @@ func NewLedgerServiceHandler(svc LedgerServiceHandler, opts ...connect.HandlerOp
 			ledgerServiceGetFlowHandler.ServeHTTP(w, r)
 		case LedgerServiceListAccountActivityProcedure:
 			ledgerServiceListAccountActivityHandler.ServeHTTP(w, r)
+		case LedgerServiceTakeBalanceSnapshotProcedure:
+			ledgerServiceTakeBalanceSnapshotHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -279,4 +304,8 @@ func (UnimplementedLedgerServiceHandler) GetFlow(context.Context, *connect.Reque
 
 func (UnimplementedLedgerServiceHandler) ListAccountActivity(context.Context, *connect.Request[v1.ListAccountActivityRequest]) (*connect.Response[v1.ListAccountActivityResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.ListAccountActivity is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) TakeBalanceSnapshot(context.Context, *connect.Request[v1.TakeBalanceSnapshotRequest]) (*connect.Response[v1.TakeBalanceSnapshotResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.TakeBalanceSnapshot is not implemented"))
 }

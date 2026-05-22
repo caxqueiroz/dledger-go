@@ -815,6 +815,7 @@ type GetBalanceRequest struct {
 	TenantId      string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
 	AccountId     string                 `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
 	Currency      string                 `protobuf:"bytes,3,opt,name=currency,proto3" json:"currency,omitempty"`
+	AsOf          *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=as_of,json=asOf,proto3" json:"as_of,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -868,6 +869,13 @@ func (x *GetBalanceRequest) GetCurrency() string {
 		return x.Currency
 	}
 	return ""
+}
+
+func (x *GetBalanceRequest) GetAsOf() *timestamppb.Timestamp {
+	if x != nil {
+		return x.AsOf
+	}
+	return nil
 }
 
 type GetBalanceResponse struct {
@@ -1646,6 +1654,112 @@ func (x *ListAccountActivityResponse) GetNextPageToken() string {
 	return ""
 }
 
+type TakeBalanceSnapshotRequest struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	TenantId string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	// If account_id+currency are set, snapshot one row. Otherwise snapshot
+	// every account_balances row in the tenant.
+	AccountId     string `protobuf:"bytes,2,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	Currency      string `protobuf:"bytes,3,opt,name=currency,proto3" json:"currency,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TakeBalanceSnapshotRequest) Reset() {
+	*x = TakeBalanceSnapshotRequest{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TakeBalanceSnapshotRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TakeBalanceSnapshotRequest) ProtoMessage() {}
+
+func (x *TakeBalanceSnapshotRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TakeBalanceSnapshotRequest.ProtoReflect.Descriptor instead.
+func (*TakeBalanceSnapshotRequest) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *TakeBalanceSnapshotRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *TakeBalanceSnapshotRequest) GetAccountId() string {
+	if x != nil {
+		return x.AccountId
+	}
+	return ""
+}
+
+func (x *TakeBalanceSnapshotRequest) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+type TakeBalanceSnapshotResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	SnapshotsTaken int32                  `protobuf:"varint,1,opt,name=snapshots_taken,json=snapshotsTaken,proto3" json:"snapshots_taken,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *TakeBalanceSnapshotResponse) Reset() {
+	*x = TakeBalanceSnapshotResponse{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TakeBalanceSnapshotResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TakeBalanceSnapshotResponse) ProtoMessage() {}
+
+func (x *TakeBalanceSnapshotResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TakeBalanceSnapshotResponse.ProtoReflect.Descriptor instead.
+func (*TakeBalanceSnapshotResponse) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *TakeBalanceSnapshotResponse) GetSnapshotsTaken() int32 {
+	if x != nil {
+		return x.SnapshotsTaken
+	}
+	return 0
+}
+
 var File_ledger_v1_ledger_proto protoreflect.FileDescriptor
 
 const file_ledger_v1_ledger_proto_rawDesc = "" +
@@ -1705,12 +1819,13 @@ const file_ledger_v1_ledger_proto_rawDesc = "" +
 	"\n" +
 	"account_id\x18\x02 \x01(\tR\taccountId\"B\n" +
 	"\x12GetAccountResponse\x12,\n" +
-	"\aaccount\x18\x01 \x01(\v2\x12.ledger.v1.AccountR\aaccount\"k\n" +
+	"\aaccount\x18\x01 \x01(\v2\x12.ledger.v1.AccountR\aaccount\"\x9c\x01\n" +
 	"\x11GetBalanceRequest\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x02 \x01(\tR\taccountId\x12\x1a\n" +
-	"\bcurrency\x18\x03 \x01(\tR\bcurrency\"B\n" +
+	"\bcurrency\x18\x03 \x01(\tR\bcurrency\x12/\n" +
+	"\x05as_of\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04asOf\"B\n" +
 	"\x12GetBalanceResponse\x12,\n" +
 	"\abalance\x18\x01 \x01(\v2\x12.ledger.v1.BalanceR\abalance\"\xdc\x01\n" +
 	"\x12PostJournalRequest\x12$\n" +
@@ -1772,7 +1887,14 @@ const file_ledger_v1_ledger_proto_rawDesc = "" +
 	"\x0esource_service\x18\a \x01(\tR\rsourceService\"\x80\x01\n" +
 	"\x1bListAccountActivityResponse\x129\n" +
 	"\aentries\x18\x01 \x03(\v2\x1f.ledger.v1.AccountActivityEntryR\aentries\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken*Q\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"}\n" +
+	"\x1aTakeBalanceSnapshotRequest\x12$\n" +
+	"\ttenant_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\btenantId\x12\x1d\n" +
+	"\n" +
+	"account_id\x18\x02 \x01(\tR\taccountId\x12\x1a\n" +
+	"\bcurrency\x18\x03 \x01(\tR\bcurrency\"F\n" +
+	"\x1bTakeBalanceSnapshotResponse\x12'\n" +
+	"\x0fsnapshots_taken\x18\x01 \x01(\x05R\x0esnapshotsTaken*Q\n" +
 	"\tDirection\x12\x19\n" +
 	"\x15DIRECTION_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fDIRECTION_DEBIT\x10\x01\x12\x14\n" +
@@ -1791,7 +1913,7 @@ const file_ledger_v1_ledger_proto_rawDesc = "" +
 	"\x17FLOW_STATUS_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13FLOW_STATUS_RUNNING\x10\x01\x12\x19\n" +
 	"\x15FLOW_STATUS_COMPLETED\x10\x02\x12\x16\n" +
-	"\x12FLOW_STATUS_FAILED\x10\x032\xbd\x04\n" +
+	"\x12FLOW_STATUS_FAILED\x10\x032\xa3\x05\n" +
 	"\rLedgerService\x12R\n" +
 	"\rCreateAccount\x12\x1f.ledger.v1.CreateAccountRequest\x1a .ledger.v1.CreateAccountResponse\x12I\n" +
 	"\n" +
@@ -1801,7 +1923,8 @@ const file_ledger_v1_ledger_proto_rawDesc = "" +
 	"\vPostJournal\x12\x1d.ledger.v1.PostJournalRequest\x1a\x1e.ledger.v1.PostJournalResponse\x12L\n" +
 	"\vExecuteFlow\x12\x1d.ledger.v1.ExecuteFlowRequest\x1a\x1e.ledger.v1.ExecuteFlowResponse\x12@\n" +
 	"\aGetFlow\x12\x19.ledger.v1.GetFlowRequest\x1a\x1a.ledger.v1.GetFlowResponse\x12d\n" +
-	"\x13ListAccountActivity\x12%.ledger.v1.ListAccountActivityRequest\x1a&.ledger.v1.ListAccountActivityResponseB\xa2\x01\n" +
+	"\x13ListAccountActivity\x12%.ledger.v1.ListAccountActivityRequest\x1a&.ledger.v1.ListAccountActivityResponse\x12d\n" +
+	"\x13TakeBalanceSnapshot\x12%.ledger.v1.TakeBalanceSnapshotRequest\x1a&.ledger.v1.TakeBalanceSnapshotResponseB\xa2\x01\n" +
 	"\rcom.ledger.v1B\vLedgerProtoP\x01Z?github.com/caxqueiroz/doubleledger/gen/proto/ledger/v1;ledgerv1\xa2\x02\x03LXX\xaa\x02\tLedger.V1\xca\x02\tLedger\\V1\xe2\x02\x15Ledger\\V1\\GPBMetadata\xea\x02\n" +
 	"Ledger::V1b\x06proto3"
 
@@ -1818,7 +1941,7 @@ func file_ledger_v1_ledger_proto_rawDescGZIP() []byte {
 }
 
 var file_ledger_v1_ledger_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_ledger_v1_ledger_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_ledger_v1_ledger_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_ledger_v1_ledger_proto_goTypes = []any{
 	(Direction)(0),                      // 0: ledger.v1.Direction
 	(NormalBalance)(0),                  // 1: ledger.v1.NormalBalance
@@ -1845,51 +1968,56 @@ var file_ledger_v1_ledger_proto_goTypes = []any{
 	(*ListAccountActivityRequest)(nil),  // 22: ledger.v1.ListAccountActivityRequest
 	(*AccountActivityEntry)(nil),        // 23: ledger.v1.AccountActivityEntry
 	(*ListAccountActivityResponse)(nil), // 24: ledger.v1.ListAccountActivityResponse
-	(*structpb.Struct)(nil),             // 25: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil),       // 26: google.protobuf.Timestamp
+	(*TakeBalanceSnapshotRequest)(nil),  // 25: ledger.v1.TakeBalanceSnapshotRequest
+	(*TakeBalanceSnapshotResponse)(nil), // 26: ledger.v1.TakeBalanceSnapshotResponse
+	(*structpb.Struct)(nil),             // 27: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),       // 28: google.protobuf.Timestamp
 }
 var file_ledger_v1_ledger_proto_depIdxs = []int32{
 	0,  // 0: ledger.v1.Entry.direction:type_name -> ledger.v1.Direction
-	25, // 1: ledger.v1.Journal.metadata:type_name -> google.protobuf.Struct
+	27, // 1: ledger.v1.Journal.metadata:type_name -> google.protobuf.Struct
 	4,  // 2: ledger.v1.Journal.entries:type_name -> ledger.v1.Entry
 	1,  // 3: ledger.v1.Account.normal_balance:type_name -> ledger.v1.NormalBalance
 	2,  // 4: ledger.v1.Account.status:type_name -> ledger.v1.AccountStatus
-	26, // 5: ledger.v1.Account.created_at:type_name -> google.protobuf.Timestamp
+	28, // 5: ledger.v1.Account.created_at:type_name -> google.protobuf.Timestamp
 	1,  // 6: ledger.v1.CreateAccountRequest.normal_balance:type_name -> ledger.v1.NormalBalance
 	6,  // 7: ledger.v1.CreateAccountResponse.account:type_name -> ledger.v1.Account
 	6,  // 8: ledger.v1.GetAccountResponse.account:type_name -> ledger.v1.Account
-	7,  // 9: ledger.v1.GetBalanceResponse.balance:type_name -> ledger.v1.Balance
-	5,  // 10: ledger.v1.PostJournalRequest.journal:type_name -> ledger.v1.Journal
-	5,  // 11: ledger.v1.Step.journal:type_name -> ledger.v1.Journal
-	16, // 12: ledger.v1.ExecuteFlowRequest.steps:type_name -> ledger.v1.Step
-	25, // 13: ledger.v1.ExecuteFlowRequest.metadata:type_name -> google.protobuf.Struct
-	3,  // 14: ledger.v1.ExecuteFlowResponse.status:type_name -> ledger.v1.FlowStatus
-	18, // 15: ledger.v1.ExecuteFlowResponse.steps:type_name -> ledger.v1.FlowStepResult
-	19, // 16: ledger.v1.GetFlowResponse.flow:type_name -> ledger.v1.ExecuteFlowResponse
-	26, // 17: ledger.v1.ListAccountActivityRequest.since:type_name -> google.protobuf.Timestamp
-	26, // 18: ledger.v1.ListAccountActivityRequest.until:type_name -> google.protobuf.Timestamp
-	0,  // 19: ledger.v1.AccountActivityEntry.direction:type_name -> ledger.v1.Direction
-	26, // 20: ledger.v1.AccountActivityEntry.created_at:type_name -> google.protobuf.Timestamp
-	23, // 21: ledger.v1.ListAccountActivityResponse.entries:type_name -> ledger.v1.AccountActivityEntry
-	8,  // 22: ledger.v1.LedgerService.CreateAccount:input_type -> ledger.v1.CreateAccountRequest
-	10, // 23: ledger.v1.LedgerService.GetAccount:input_type -> ledger.v1.GetAccountRequest
-	12, // 24: ledger.v1.LedgerService.GetBalance:input_type -> ledger.v1.GetBalanceRequest
-	14, // 25: ledger.v1.LedgerService.PostJournal:input_type -> ledger.v1.PostJournalRequest
-	17, // 26: ledger.v1.LedgerService.ExecuteFlow:input_type -> ledger.v1.ExecuteFlowRequest
-	20, // 27: ledger.v1.LedgerService.GetFlow:input_type -> ledger.v1.GetFlowRequest
-	22, // 28: ledger.v1.LedgerService.ListAccountActivity:input_type -> ledger.v1.ListAccountActivityRequest
-	9,  // 29: ledger.v1.LedgerService.CreateAccount:output_type -> ledger.v1.CreateAccountResponse
-	11, // 30: ledger.v1.LedgerService.GetAccount:output_type -> ledger.v1.GetAccountResponse
-	13, // 31: ledger.v1.LedgerService.GetBalance:output_type -> ledger.v1.GetBalanceResponse
-	15, // 32: ledger.v1.LedgerService.PostJournal:output_type -> ledger.v1.PostJournalResponse
-	19, // 33: ledger.v1.LedgerService.ExecuteFlow:output_type -> ledger.v1.ExecuteFlowResponse
-	21, // 34: ledger.v1.LedgerService.GetFlow:output_type -> ledger.v1.GetFlowResponse
-	24, // 35: ledger.v1.LedgerService.ListAccountActivity:output_type -> ledger.v1.ListAccountActivityResponse
-	29, // [29:36] is the sub-list for method output_type
-	22, // [22:29] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	28, // 9: ledger.v1.GetBalanceRequest.as_of:type_name -> google.protobuf.Timestamp
+	7,  // 10: ledger.v1.GetBalanceResponse.balance:type_name -> ledger.v1.Balance
+	5,  // 11: ledger.v1.PostJournalRequest.journal:type_name -> ledger.v1.Journal
+	5,  // 12: ledger.v1.Step.journal:type_name -> ledger.v1.Journal
+	16, // 13: ledger.v1.ExecuteFlowRequest.steps:type_name -> ledger.v1.Step
+	27, // 14: ledger.v1.ExecuteFlowRequest.metadata:type_name -> google.protobuf.Struct
+	3,  // 15: ledger.v1.ExecuteFlowResponse.status:type_name -> ledger.v1.FlowStatus
+	18, // 16: ledger.v1.ExecuteFlowResponse.steps:type_name -> ledger.v1.FlowStepResult
+	19, // 17: ledger.v1.GetFlowResponse.flow:type_name -> ledger.v1.ExecuteFlowResponse
+	28, // 18: ledger.v1.ListAccountActivityRequest.since:type_name -> google.protobuf.Timestamp
+	28, // 19: ledger.v1.ListAccountActivityRequest.until:type_name -> google.protobuf.Timestamp
+	0,  // 20: ledger.v1.AccountActivityEntry.direction:type_name -> ledger.v1.Direction
+	28, // 21: ledger.v1.AccountActivityEntry.created_at:type_name -> google.protobuf.Timestamp
+	23, // 22: ledger.v1.ListAccountActivityResponse.entries:type_name -> ledger.v1.AccountActivityEntry
+	8,  // 23: ledger.v1.LedgerService.CreateAccount:input_type -> ledger.v1.CreateAccountRequest
+	10, // 24: ledger.v1.LedgerService.GetAccount:input_type -> ledger.v1.GetAccountRequest
+	12, // 25: ledger.v1.LedgerService.GetBalance:input_type -> ledger.v1.GetBalanceRequest
+	14, // 26: ledger.v1.LedgerService.PostJournal:input_type -> ledger.v1.PostJournalRequest
+	17, // 27: ledger.v1.LedgerService.ExecuteFlow:input_type -> ledger.v1.ExecuteFlowRequest
+	20, // 28: ledger.v1.LedgerService.GetFlow:input_type -> ledger.v1.GetFlowRequest
+	22, // 29: ledger.v1.LedgerService.ListAccountActivity:input_type -> ledger.v1.ListAccountActivityRequest
+	25, // 30: ledger.v1.LedgerService.TakeBalanceSnapshot:input_type -> ledger.v1.TakeBalanceSnapshotRequest
+	9,  // 31: ledger.v1.LedgerService.CreateAccount:output_type -> ledger.v1.CreateAccountResponse
+	11, // 32: ledger.v1.LedgerService.GetAccount:output_type -> ledger.v1.GetAccountResponse
+	13, // 33: ledger.v1.LedgerService.GetBalance:output_type -> ledger.v1.GetBalanceResponse
+	15, // 34: ledger.v1.LedgerService.PostJournal:output_type -> ledger.v1.PostJournalResponse
+	19, // 35: ledger.v1.LedgerService.ExecuteFlow:output_type -> ledger.v1.ExecuteFlowResponse
+	21, // 36: ledger.v1.LedgerService.GetFlow:output_type -> ledger.v1.GetFlowResponse
+	24, // 37: ledger.v1.LedgerService.ListAccountActivity:output_type -> ledger.v1.ListAccountActivityResponse
+	26, // 38: ledger.v1.LedgerService.TakeBalanceSnapshot:output_type -> ledger.v1.TakeBalanceSnapshotResponse
+	31, // [31:39] is the sub-list for method output_type
+	23, // [23:31] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_ledger_v1_ledger_proto_init() }
@@ -1903,7 +2031,7 @@ func file_ledger_v1_ledger_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_ledger_v1_ledger_proto_rawDesc), len(file_ledger_v1_ledger_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   21,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
