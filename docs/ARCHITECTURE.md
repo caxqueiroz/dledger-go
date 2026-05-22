@@ -76,6 +76,7 @@ Nine tables, all tenant-scoped. Each row has `tenant_id` and queries filter on i
 | `outbox_events` | Transactional event queue | `idempotency_key` UNIQUE. Index on `(publish_state, created_at)` for the dispatcher. |
 | `balance_snapshots` | Point-in-time `account_balances` captures | Index on `(tenant_id, account_id, currency, snapshot_at DESC)` for `as_of` queries. |
 | `reservations` | Held-fund objects | `idempotency_key` UNIQUE. `status` ∈ {HELD,PARTIAL,COMMITTED,RELEASED,EXPIRED}. Index on `(tenant_id, status, expires_at)` for expiry scans. |
+| `fx_rates` | FX rate history for ExecuteExchange | UNIQUE `(tenant_id, base_currency, quote_currency, effective_at, source)`; index on `(tenant_id, base, quote, effective_at DESC)`. |
 
 ## Key flows
 
@@ -136,6 +137,20 @@ CRDB-only: the whole orchestrator body is retried on SQLSTATE `40001` (`Serializ
 Every transition runs an internal `ExecuteFlow` against an existing tx (`executeFlowInTx`), then updates the reservation row in the same tx. Conservation invariant: `outstanding + committed + released == original`.
 
 Mixed terminal-state rule: when commits + releases together drive `outstanding → 0`, the status reflects the transition that finished it (`COMMITTED` if the last move was a commit; `RELEASED` for release; `EXPIRED` for scheduler-driven). `committed_amount` and `released_amount` remain on the row so callers can audit the breakdown.
+
+### FX — exchange and rate management
+
+`ExecuteExchange` runs a two-currency exchange as a single atomic flow:
+
+1. Read `from_account` and `to_account`, derive currencies.
+2. Either use the caller-supplied `rate` or look one up from `fx_rates` (most recent row with `effective_at ≤ now()`).
+3. Validate `from_amount × rate == to_amount`.
+4. Build a 4-entry journal — debit `from_counter` / credit `from_account` on the source side; debit `to_account` / credit `to_counter` on the target side. Each currency self-balances; the existing per-currency validator passes unchanged.
+5. Run the inner ExecuteFlow against the same tx — atomicity, locking, idempotency, and outbox are inherited.
+
+The `fx_rates` table is admin data with `UNIQUE (tenant, base, quote, effective_at, source)`. `PutFXRate` is upsert-on-conflict so re-posting the same rate is a no-op.
+
+**P&L pattern (documented, no enforcement)**: callers needing to record gain/loss — exchange-with-residual, end-of-day mark-to-market — use raw `ExecuteFlow` with an `fx_pnl:<currency>` account that absorbs the per-currency imbalance. The existing validator accepts any N-entry journal as long as each currency nets to zero. See `examples/go/fx_revaluation/` for both shapes.
 
 ### Balance snapshots
 
@@ -210,6 +225,8 @@ Domain code → Connect code mapping (in `internal/service/errors.go`):
 | `FLOW_ALREADY_COMPLETED` | `AlreadyExists` | |
 | `FLOW_CONFLICT` | `Aborted` | Idempotency key reused while original still RUNNING |
 | `SERIALIZATION_RETRY_EXHAUSTED` | `Aborted` | CRDB 40001 retried N times |
+| `FX_RATE_NOT_FOUND` | `NotFound` | `GetFXRate` or `ExecuteExchange` can't resolve a rate |
+| `FX_AMOUNT_MISMATCH` | `InvalidArgument` | `to_amount` differs from `from_amount × rate` |
 
 The Connect response includes a `ledger-error-code` header carrying the domain code, so clients can branch programmatically.
 
@@ -247,6 +264,5 @@ The service deliberately does **not** do:
 - Identity / KYC / PII tokenization.
 - Reconciliation against external sources.
 - Synchronous pre-transaction hooks (post-transaction hooks live in the outbox).
-- FX-specific flows. Multi-currency journals are supported; explicit FX conversion is a future feature.
 
 See `docs/superpowers/specs/` for the original design documents.
