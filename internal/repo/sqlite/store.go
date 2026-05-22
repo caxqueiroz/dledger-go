@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/shopspring/decimal"
+	// blank-import registers the modernc SQLite driver with database/sql.
 	_ "modernc.org/sqlite"
 
 	sqlitestore "github.com/caxqueiroz/dledger-go/gen/sqlite"
@@ -259,6 +260,18 @@ func (s *Store) ListTenantBalances(ctx context.Context, tenantID string) ([]repo
 		})
 	}
 	return out, nil
+}
+
+// ListTenantsDueForSnapshot returns up to limit tenant IDs that have no
+// balance_snapshots row newer than cutoff.
+func (s *Store) ListTenantsDueForSnapshot(ctx context.Context, cutoff time.Time, limit int) ([]string, error) {
+	if limit <= 0 {
+		limit = 100
+	}
+	return s.q.ListTenantsDueForSnapshot(ctx, sqlitestore.ListTenantsDueForSnapshotParams{
+		SnapshotAt: cutoff.UTC().Format(sqliteTimeFormat),
+		Limit:      int64(limit),
+	})
 }
 
 // GetReservation fetches a single reservation by tenant and reservation ID.

@@ -39,7 +39,7 @@ func (s *Server) ListAccountActivity(ctx context.Context, req *connect.Request[l
 		}
 		out.Entries = append(out.Entries, &ledgerv1.AccountActivityEntry{
 			JournalId: row.JournalID, EntryId: row.EntryID,
-			Currency:  row.Currency, Direction: dir, Amount: row.Amount.String(),
+			Currency: row.Currency, Direction: dir, Amount: row.Amount.String(),
 			CreatedAt: timestamppb.New(row.CreatedAt), SourceService: row.SourceService,
 		})
 	}

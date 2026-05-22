@@ -21,3 +21,12 @@ SELECT account_id, currency, posted_debits, posted_credits, version
 FROM account_balances
 WHERE tenant_id = $1
 ORDER BY account_id, currency;
+
+-- name: ListTenantsDueForSnapshot :many
+SELECT DISTINCT a.tenant_id
+FROM accounts a
+WHERE NOT EXISTS (
+    SELECT 1 FROM balance_snapshots bs
+    WHERE bs.tenant_id = a.tenant_id AND bs.snapshot_at > $1
+)
+LIMIT $2;

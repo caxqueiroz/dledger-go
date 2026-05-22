@@ -32,7 +32,6 @@ func openTempDB(t *testing.T) *Store {
 	return s
 }
 
-
 func TestInsertAndReadAccount(t *testing.T) {
 	s := openTempDB(t)
 	ctx := context.Background()
@@ -244,4 +243,3 @@ func TestIdempotencyLookup(t *testing.T) {
 		t.Fatal("expected nil for missing idempotency key")
 	}
 }
-

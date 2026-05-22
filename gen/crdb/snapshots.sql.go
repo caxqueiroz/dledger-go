@@ -119,6 +119,41 @@ func (q *Queries) ListAllBalancesForTenant(ctx context.Context, tenantID string)
 	return items, nil
 }
 
+const listTenantsDueForSnapshot = `-- name: ListTenantsDueForSnapshot :many
+SELECT DISTINCT a.tenant_id
+FROM accounts a
+WHERE NOT EXISTS (
+    SELECT 1 FROM balance_snapshots bs
+    WHERE bs.tenant_id = a.tenant_id AND bs.snapshot_at > $1
+)
+LIMIT $2
+`
+
+type ListTenantsDueForSnapshotParams struct {
+	SnapshotAt pgtype.Timestamptz `db:"snapshot_at"`
+	Limit      int32              `db:"limit"`
+}
+
+func (q *Queries) ListTenantsDueForSnapshot(ctx context.Context, arg ListTenantsDueForSnapshotParams) ([]string, error) {
+	rows, err := q.db.Query(ctx, listTenantsDueForSnapshot, arg.SnapshotAt, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var tenant_id string
+		if err := rows.Scan(&tenant_id); err != nil {
+			return nil, err
+		}
+		items = append(items, tenant_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const sumEntriesBetween = `-- name: SumEntriesBetween :one
 SELECT
     CAST(COALESCE(SUM(CASE WHEN direction = 'DEBIT'  THEN amount END), 0) AS DECIMAL(38, 18)) AS debits,

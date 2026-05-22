@@ -158,3 +158,45 @@ func TestScheduler_DoesNotExpireFutureReservation(t *testing.T) {
 		t.Fatalf("want HELD (not expired), got %s", got.Msg.GetReservation().GetStatus())
 	}
 }
+
+func TestScheduler_SnapshotsDueTenants(t *testing.T) {
+	srv, store, cleanup := setup(t)
+	defer cleanup()
+	ctx := context.Background()
+
+	// Touch a balance row so the bulk snapshot has something to capture.
+	avail := mkAccount(t, srv, "1", "cash_available", ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT, false)
+	src := mkAccount(t, srv, "0", "source", ledgerv1.NormalBalance_NORMAL_BALANCE_CREDIT, true)
+	if _, err := srv.PostJournal(ctx, connect.NewRequest(&ledgerv1.PostJournalRequest{
+		TenantId: "t1", IdempotencyKey: "snap-tick-seed", SourceService: "test",
+		Journal: &ledgerv1.Journal{EventId: "snap-tick-seed", Entries: []*ledgerv1.Entry{
+			{AccountId: avail, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "50"},
+			{AccountId: src, Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "50"},
+		}},
+	})); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	// Configure a near-zero snapshot interval so the tick fires immediately.
+	sched := scheduler.New(store, srv)
+	sched.Cfg.SnapshotTick = 50 * time.Millisecond
+	sched.Cfg.SnapshotInterval = 1 * time.Millisecond
+	sched.Cfg.ExpiryTick = time.Hour // disable in this test
+
+	runCtx, cancel := context.WithCancel(ctx)
+	go sched.Run(runCtx)
+	defer cancel()
+
+	deadline := time.Now().Add(3 * time.Second)
+	for time.Now().Before(deadline) {
+		snap, err := store.GetSnapshotBefore(ctx, "t1", avail, "USD", time.Now())
+		if err != nil {
+			t.Fatalf("get snapshot: %v", err)
+		}
+		if snap != nil {
+			return
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	t.Fatalf("snapshot tick never captured a snapshot for tenant t1")
+}

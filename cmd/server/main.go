@@ -57,7 +57,11 @@ func main() {
 		log.Error("open store", "err", err)
 		os.Exit(1)
 	}
-	defer store.Close()
+	defer func() {
+		if err := store.Close(); err != nil {
+			log.Warn("store.close", "err", err)
+		}
+	}()
 
 	srv := service.New(store)
 
@@ -84,9 +88,10 @@ func main() {
 	protocols.SetUnencryptedHTTP2(true)
 
 	httpSrv := &http.Server{
-		Addr:      *addr,
-		Handler:   mux,
-		Protocols: protocols,
+		Addr:              *addr,
+		Handler:           mux,
+		Protocols:         protocols,
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 	log.Info("server.start", "addr", *addr, "backend", *backend)
 	go func() {

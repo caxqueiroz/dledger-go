@@ -31,6 +31,7 @@ type Store interface {
 	GetSnapshotBefore(ctx context.Context, tenantID, accountID, currency string, at time.Time) (*ledger.BalanceSnapshot, error)
 	SumEntriesBetween(ctx context.Context, tenantID, accountID, currency string, after, until time.Time) (debits, credits decimal.Decimal, err error)
 	ListTenantBalances(ctx context.Context, tenantID string) ([]TenantBalanceRow, error)
+	ListTenantsDueForSnapshot(ctx context.Context, cutoff time.Time, limit int) ([]string, error)
 
 	// Reservations (read-only)
 	GetReservation(ctx context.Context, tenantID, reservationID string) (*ledger.Reservation, error)

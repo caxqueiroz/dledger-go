@@ -75,9 +75,23 @@ func (s *Scheduler) Run(ctx context.Context) {
 	}
 }
 
-func (s *Scheduler) snapshotTick(_ context.Context) {
-	// Phase A: tenant discovery / per-tenant scheduling lands in a follow-up.
-	// Operators trigger snapshots manually via the TakeBalanceSnapshot RPC.
+func (s *Scheduler) snapshotTick(ctx context.Context) {
+	cutoff := time.Now().Add(-s.Cfg.SnapshotInterval)
+	tenants, err := s.Store.ListTenantsDueForSnapshot(ctx, cutoff, s.Cfg.BatchN)
+	if err != nil {
+		s.Log.WarnContext(ctx, "scheduler.list_tenants_due", "err", err)
+		return
+	}
+	for _, tenantID := range tenants {
+		req := connect.NewRequest(&ledgerv1.TakeBalanceSnapshotRequest{TenantId: tenantID})
+		resp, err := s.Snapshotter.TakeBalanceSnapshot(ctx, req)
+		if err != nil {
+			s.Log.WarnContext(ctx, "scheduler.snapshot", "tenant_id", tenantID, "err", err)
+			continue
+		}
+		s.Log.InfoContext(ctx, "scheduler.snapshot.taken",
+			"tenant_id", tenantID, "count", resp.Msg.GetSnapshotsTaken())
+	}
 }
 
 func (s *Scheduler) expiryTick(ctx context.Context) {

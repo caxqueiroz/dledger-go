@@ -18,8 +18,7 @@ Then run any example below in another terminal.
 
 | Path | What it shows |
 |---|---|
-| [`go/client`](go/client/main.go) | Minimal smoke: create two accounts, post a balanced journal, read the balance. |
-| [`go/place_order`](go/place_order/main.go) | Canonical `PLACE_ORDER` flow — reserve 100 USD from cash_available into cash_reserved inside one atomic `ExecuteFlow`. |
+| [`go/place_order`](go/place_order/main.go) | Canonical `PLACE_ORDER` flow — reserve 100 USD from cash_available into cash_reserved inside one atomic `ExecuteFlow`. Also creates accounts, posts the seed journal, and reads back balances. |
 | [`go/reservations`](go/reservations/main.go) | Full reservation lifecycle: create → partial commit → partial release → final commit, plus idempotent replay. |
 | [`go/snapshots`](go/snapshots/main.go) | `TakeBalanceSnapshot` + `GetBalance(as_of=T)` historical reconstruction. |
 

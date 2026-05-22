@@ -239,6 +239,18 @@ func (s *Store) ListTenantBalances(ctx context.Context, tenantID string) ([]repo
 	return out, nil
 }
 
+// ListTenantsDueForSnapshot returns up to limit tenant IDs that have no
+// balance_snapshots row newer than cutoff.
+func (s *Store) ListTenantsDueForSnapshot(ctx context.Context, cutoff time.Time, limit int) ([]string, error) {
+	if limit <= 0 {
+		limit = 100
+	}
+	return s.q.ListTenantsDueForSnapshot(ctx, crdbstore.ListTenantsDueForSnapshotParams{
+		SnapshotAt: pgtype.Timestamptz{Time: cutoff.UTC(), Valid: true},
+		Limit:      int32(limit),
+	})
+}
+
 // GetReservation fetches a single reservation by tenant and reservation ID.
 func (s *Store) GetReservation(ctx context.Context, tenantID, reservationID string) (*ledger.Reservation, error) {
 	row, err := s.q.GetReservation(ctx, crdbstore.GetReservationParams{TenantID: tenantID, ID: reservationID})
