@@ -260,3 +260,35 @@ func (s *Store) ListTenantBalances(ctx context.Context, tenantID string) ([]repo
 	}
 	return out, nil
 }
+
+// GetReservation fetches a single reservation by tenant and reservation ID.
+func (s *Store) GetReservation(ctx context.Context, tenantID, reservationID string) (*ledger.Reservation, error) {
+	row, err := s.q.GetReservation(ctx, sqlitestore.GetReservationParams{TenantID: tenantID, ID: reservationID})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ledger.NewDomainError(ledger.CodeReservationNotFound, reservationID)
+		}
+		return nil, err
+	}
+	return rowToReservation(row), nil
+}
+
+// ListExpiredReservations returns up to limit reservations past their expiry time.
+func (s *Store) ListExpiredReservations(ctx context.Context, now time.Time, limit int) ([]repo.ExpiredReservation, error) {
+	if limit <= 0 {
+		limit = 100
+	}
+	ts := now.UTC().Format(sqliteTimeFormat)
+	rows, err := s.q.ListExpiredReservations(ctx, sqlitestore.ListExpiredReservationsParams{
+		ExpiresAt: &ts,
+		Limit:     int64(limit),
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]repo.ExpiredReservation, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, repo.ExpiredReservation{ID: r.ID, TenantID: r.TenantID})
+	}
+	return out, nil
+}

@@ -101,3 +101,37 @@ func rowToFlowStep(r crdbstore.FlowStep) *ledger.FlowStep {
 	}
 	return s
 }
+
+// rowToReservation converts a crdbstore.Reservation to a ledger.Reservation.
+func rowToReservation(r crdbstore.Reservation) *ledger.Reservation {
+	meta := map[string]any{}
+	if len(r.Metadata) > 0 {
+		_ = json.Unmarshal(r.Metadata, &meta)
+	}
+	res := &ledger.Reservation{
+		ID:                r.ID,
+		TenantID:          r.TenantID,
+		IdempotencyKey:    r.IdempotencyKey,
+		SourceAccountID:   r.SourceAccountID,
+		ReservedAccountID: r.ReservedAccountID,
+		Currency:          r.Currency,
+		OriginalAmount:    r.OriginalAmount,
+		OutstandingAmount: r.OutstandingAmount,
+		CommittedAmount:   r.CommittedAmount,
+		ReleasedAmount:    r.ReleasedAmount,
+		Status:            ledger.ReservationStatus(r.Status),
+		FlowRunID:         r.FlowRunID,
+		Metadata:          meta,
+	}
+	if r.ExpiresAt.Valid {
+		t := r.ExpiresAt.Time
+		res.ExpiresAt = &t
+	}
+	if r.CreatedAt.Valid {
+		res.CreatedAt = r.CreatedAt.Time
+	}
+	if r.UpdatedAt.Valid {
+		res.UpdatedAt = r.UpdatedAt.Time
+	}
+	return res
+}

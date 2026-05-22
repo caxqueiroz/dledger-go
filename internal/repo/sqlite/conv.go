@@ -94,3 +94,35 @@ func rowToFlowStep(r sqlitestore.FlowStep) *ledger.FlowStep {
 	}
 	return s
 }
+
+// rowToReservation converts a sqlitestore.Reservation to a ledger.Reservation.
+func rowToReservation(r sqlitestore.Reservation) *ledger.Reservation {
+	orig, _ := decimal.NewFromString(r.OriginalAmount)
+	out, _ := decimal.NewFromString(r.OutstandingAmount)
+	com, _ := decimal.NewFromString(r.CommittedAmount)
+	rel, _ := decimal.NewFromString(r.ReleasedAmount)
+	meta := map[string]any{}
+	_ = json.Unmarshal([]byte(r.Metadata), &meta)
+	res := &ledger.Reservation{
+		ID:                r.ID,
+		TenantID:          r.TenantID,
+		IdempotencyKey:    r.IdempotencyKey,
+		SourceAccountID:   r.SourceAccountID,
+		ReservedAccountID: r.ReservedAccountID,
+		Currency:          r.Currency,
+		OriginalAmount:    orig,
+		OutstandingAmount: out,
+		CommittedAmount:   com,
+		ReleasedAmount:    rel,
+		Status:            ledger.ReservationStatus(r.Status),
+		FlowRunID:         r.FlowRunID,
+		Metadata:          meta,
+		CreatedAt:         parseTime(r.CreatedAt),
+		UpdatedAt:         parseTime(r.UpdatedAt),
+	}
+	if r.ExpiresAt != nil {
+		t := parseTime(*r.ExpiresAt)
+		res.ExpiresAt = &t
+	}
+	return res
+}

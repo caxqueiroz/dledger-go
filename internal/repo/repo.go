@@ -32,6 +32,10 @@ type Store interface {
 	SumEntriesBetween(ctx context.Context, tenantID, accountID, currency string, after, until time.Time) (debits, credits decimal.Decimal, err error)
 	ListTenantBalances(ctx context.Context, tenantID string) ([]TenantBalanceRow, error)
 
+	// Reservations (read-only)
+	GetReservation(ctx context.Context, tenantID, reservationID string) (*ledger.Reservation, error)
+	ListExpiredReservations(ctx context.Context, now time.Time, limit int) ([]ExpiredReservation, error)
+
 	Close() error
 }
 
@@ -57,6 +61,12 @@ type Tx interface {
 
 	// Replay
 	GetFlowSteps(ctx context.Context, tenantID, flowRunID string) ([]ledger.FlowStep, error)
+
+	// Reservations
+	InsertReservation(ctx context.Context, r ledger.Reservation) error
+	LockReservation(ctx context.Context, tenantID, reservationID string) (*ledger.Reservation, error)
+	GetReservationByIdempotency(ctx context.Context, tenantID, key string) (*ledger.Reservation, error)
+	UpdateReservationAmounts(ctx context.Context, tenantID, reservationID string, outstanding, committed, released decimal.Decimal, status ledger.ReservationStatus) error
 
 	Commit() error
 	Rollback() error
@@ -89,6 +99,11 @@ type ActivityRow struct {
 	Amount        decimal.Decimal
 	CreatedAt     time.Time
 	SourceService string
+}
+
+type ExpiredReservation struct {
+	ID       string
+	TenantID string
 }
 
 type TenantBalanceRow struct {

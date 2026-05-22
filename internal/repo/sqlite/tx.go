@@ -225,6 +225,71 @@ func (t *Tx) GetFlowSteps(ctx context.Context, tenantID, flowRunID string) ([]le
 	return out, nil
 }
 
+// InsertReservation inserts a new reservation row.
+func (t *Tx) InsertReservation(ctx context.Context, r ledger.Reservation) error {
+	metaBytes, _ := json.Marshal(r.Metadata)
+	var expires *string
+	if r.ExpiresAt != nil {
+		v := r.ExpiresAt.UTC().Format(sqliteTimeFormat)
+		expires = &v
+	}
+	return t.q.InsertReservation(ctx, sqlitestore.InsertReservationParams{
+		ID:                r.ID,
+		TenantID:          r.TenantID,
+		IdempotencyKey:    r.IdempotencyKey,
+		SourceAccountID:   r.SourceAccountID,
+		ReservedAccountID: r.ReservedAccountID,
+		Currency:          r.Currency,
+		OriginalAmount:    r.OriginalAmount.String(),
+		OutstandingAmount: r.OutstandingAmount.String(),
+		Status:            string(r.Status),
+		ExpiresAt:         expires,
+		FlowRunID:         r.FlowRunID,
+		Metadata:          string(metaBytes),
+	})
+}
+
+// LockReservation fetches a reservation within the transaction.
+// SQLite: BEGIN IMMEDIATE serializes writes; a plain SELECT suffices.
+func (t *Tx) LockReservation(ctx context.Context, tenantID, reservationID string) (*ledger.Reservation, error) {
+	row, err := t.q.GetReservation(ctx, sqlitestore.GetReservationParams{TenantID: tenantID, ID: reservationID})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ledger.NewDomainError(ledger.CodeReservationNotFound, reservationID)
+		}
+		return nil, err
+	}
+	return rowToReservation(row), nil
+}
+
+// GetReservationByIdempotency looks up a reservation by idempotency key.
+// Returns nil, nil if not found.
+func (t *Tx) GetReservationByIdempotency(ctx context.Context, tenantID, key string) (*ledger.Reservation, error) {
+	row, err := t.q.GetReservationByIdempotency(ctx, sqlitestore.GetReservationByIdempotencyParams{
+		TenantID:       tenantID,
+		IdempotencyKey: key,
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return rowToReservation(row), nil
+}
+
+// UpdateReservationAmounts updates the amounts and status of a reservation.
+func (t *Tx) UpdateReservationAmounts(ctx context.Context, tenantID, reservationID string, outstanding, committed, released decimal.Decimal, status ledger.ReservationStatus) error {
+	return t.q.UpdateReservationAmounts(ctx, sqlitestore.UpdateReservationAmountsParams{
+		OutstandingAmount: outstanding.String(),
+		CommittedAmount:   committed.String(),
+		ReleasedAmount:    released.String(),
+		Status:            string(status),
+		TenantID:          tenantID,
+		ID:                reservationID,
+	})
+}
+
 // nullString converts an empty string to nil, otherwise returns a pointer to the value.
 func nullString(s string) *string {
 	if s == "" {
