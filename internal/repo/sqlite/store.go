@@ -15,6 +15,11 @@ import (
 	"github.com/caxqueiroz/doubleledger/internal/repo"
 )
 
+// sqliteTimeFormat matches SQLite's strftime('%Y-%m-%dT%H:%M:%fZ','now') output
+// (millisecond precision). All time comparisons against ledger_entries.created_at
+// and balance_snapshots.snapshot_at must use this format for correct string ordering.
+const sqliteTimeFormat = "2006-01-02T15:04:05.000Z"
+
 // Store wraps a single *sql.DB and implements repo.Store for SQLite.
 type Store struct {
 	db *sql.DB
@@ -113,10 +118,10 @@ func (s *Store) GetFlow(ctx context.Context, tenantID, flowRunID string) (*ledge
 func (s *Store) ListAccountActivity(ctx context.Context, in repo.ListActivityInput) ([]repo.ActivityRow, error) {
 	since, until := "", ""
 	if in.Since != nil {
-		since = in.Since.UTC().Format(time.RFC3339Nano)
+		since = in.Since.UTC().Format(sqliteTimeFormat)
 	}
 	if in.Until != nil {
-		until = in.Until.UTC().Format(time.RFC3339Nano)
+		until = in.Until.UTC().Format(sqliteTimeFormat)
 	}
 	limit := int64(in.Limit)
 	if limit <= 0 {
@@ -196,7 +201,7 @@ func (s *Store) InsertSnapshot(ctx context.Context, snap ledger.BalanceSnapshot)
 		PostedDebits:  snap.PostedDebits.String(),
 		PostedCredits: snap.PostedCredits.String(),
 		Version:       snap.Version,
-		SnapshotAt:    snap.SnapshotAt.UTC().Format(time.RFC3339Nano),
+		SnapshotAt:    snap.SnapshotAt.UTC().Format(sqliteTimeFormat),
 	})
 }
 
@@ -207,7 +212,7 @@ func (s *Store) GetSnapshotBefore(ctx context.Context, tenantID, accountID, curr
 		TenantID:   tenantID,
 		AccountID:  accountID,
 		Currency:   currency,
-		SnapshotAt: at.UTC().Format(time.RFC3339Nano),
+		SnapshotAt: at.UTC().Format(sqliteTimeFormat),
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -224,8 +229,8 @@ func (s *Store) SumEntriesBetween(ctx context.Context, tenantID, accountID, curr
 		TenantID:    tenantID,
 		AccountID:   accountID,
 		Currency:    currency,
-		CreatedAt:   after.UTC().Format(time.RFC3339Nano),
-		CreatedAt_2: until.UTC().Format(time.RFC3339Nano),
+		CreatedAt:   after.UTC().Format(sqliteTimeFormat),
+		CreatedAt_2: until.UTC().Format(sqliteTimeFormat),
 	})
 	if err != nil {
 		return decimal.Zero, decimal.Zero, err

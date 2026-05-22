@@ -23,16 +23,22 @@ func newServerWithStore(t *testing.T) (*service.Server, *sqlite.Store, func()) {
 	t.Helper()
 	dir := t.TempDir()
 	dsn := filepath.Join(dir, "test.db")
-	mig, err := os.ReadFile("../../sql/migrations/sqlite/0001_init.sql")
-	if err != nil {
-		t.Fatalf("read migration: %v", err)
-	}
 	st, err := sqlite.Open(context.Background(), dsn)
 	if err != nil {
 		t.Fatalf("open: %v", err)
 	}
-	if _, err := st.DB().Exec(sqlite.StripGoose(string(mig))); err != nil {
-		t.Fatalf("migrate: %v", err)
+	migrations := []string{
+		"../../sql/migrations/sqlite/0001_init.sql",
+		"../../sql/migrations/sqlite/0002_balance_snapshots.sql",
+	}
+	for _, path := range migrations {
+		mig, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("read migration %s: %v", path, err)
+		}
+		if _, err := st.DB().Exec(sqlite.StripGoose(string(mig))); err != nil {
+			t.Fatalf("migrate %s: %v", path, err)
+		}
 	}
 	return service.New(st), st, func() { _ = st.Close() }
 }
