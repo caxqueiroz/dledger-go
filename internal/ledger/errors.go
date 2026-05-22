@@ -14,6 +14,10 @@ const (
 	CodeFlowConflict                DomainCode = "FLOW_CONFLICT"
 	CodeInvalidAccountStatus        DomainCode = "INVALID_ACCOUNT_STATUS"
 	CodeSerializationRetryExhausted DomainCode = "SERIALIZATION_RETRY_EXHAUSTED"
+	CodeReservationNotFound         DomainCode = "RESERVATION_NOT_FOUND"
+	CodeReservationClosed           DomainCode = "RESERVATION_CLOSED"
+	CodeReservationAmountExceeds    DomainCode = "RESERVATION_AMOUNT_EXCEEDS"
+	CodeReservationCurrencyMismatch DomainCode = "RESERVATION_CURRENCY_MISMATCH"
 )
 
 type DomainError struct {
