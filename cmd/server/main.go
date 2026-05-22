@@ -19,6 +19,7 @@ import (
 	"github.com/caxqueiroz/doubleledger/internal/repo"
 	"github.com/caxqueiroz/doubleledger/internal/repo/crdb"
 	"github.com/caxqueiroz/doubleledger/internal/repo/sqlite"
+	"github.com/caxqueiroz/doubleledger/internal/scheduler"
 	"github.com/caxqueiroz/doubleledger/internal/service"
 	"github.com/caxqueiroz/doubleledger/internal/service/interceptors"
 )
@@ -74,6 +75,9 @@ func main() {
 		Interval: 250 * time.Millisecond, BatchSize: 100,
 	})
 	go disp.Run(ctx)
+
+	sched := scheduler.New(store, srv)
+	go sched.Run(ctx)
 
 	protocols := new(http.Protocols)
 	protocols.SetHTTP1(true)
