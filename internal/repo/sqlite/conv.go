@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/shopspring/decimal"
+
 	sqlitestore "github.com/caxqueiroz/doubleledger/gen/sqlite"
 	"github.com/caxqueiroz/doubleledger/internal/ledger"
 )
@@ -54,6 +56,23 @@ func rowToFlowRun(r sqlitestore.FlowRun) *ledger.FlowRun {
 		f.FailedAt = &t
 	}
 	return f
+}
+
+// rowToSnapshot converts a sqlitestore.BalanceSnapshot to a ledger.BalanceSnapshot.
+func rowToSnapshot(r sqlitestore.BalanceSnapshot) *ledger.BalanceSnapshot {
+	d, _ := decimal.NewFromString(r.PostedDebits)
+	c, _ := decimal.NewFromString(r.PostedCredits)
+	return &ledger.BalanceSnapshot{
+		ID:            r.ID,
+		TenantID:      r.TenantID,
+		AccountID:     r.AccountID,
+		Currency:      r.Currency,
+		PostedDebits:  d,
+		PostedCredits: c,
+		Version:       r.Version,
+		SnapshotAt:    parseTime(r.SnapshotAt),
+		CreatedAt:     parseTime(r.CreatedAt),
+	}
 }
 
 // rowToFlowStep converts a sqlitestore.FlowStep to a ledger.FlowStep.

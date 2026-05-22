@@ -26,6 +26,12 @@ type Store interface {
 	MarkOutboxPublished(ctx context.Context, id string) error
 	IncrementOutboxAttempts(ctx context.Context, id string) error
 
+	// Snapshots
+	InsertSnapshot(ctx context.Context, s ledger.BalanceSnapshot) error
+	GetSnapshotBefore(ctx context.Context, tenantID, accountID, currency string, at time.Time) (*ledger.BalanceSnapshot, error)
+	SumEntriesBetween(ctx context.Context, tenantID, accountID, currency string, after, until time.Time) (debits, credits decimal.Decimal, err error)
+	ListTenantBalances(ctx context.Context, tenantID string) ([]TenantBalanceRow, error)
+
 	Close() error
 }
 
@@ -83,4 +89,12 @@ type ActivityRow struct {
 	Amount        decimal.Decimal
 	CreatedAt     time.Time
 	SourceService string
+}
+
+type TenantBalanceRow struct {
+	AccountID     string
+	Currency      string
+	PostedDebits  decimal.Decimal
+	PostedCredits decimal.Decimal
+	Version       int64
 }

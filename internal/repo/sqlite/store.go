@@ -185,3 +185,73 @@ func (s *Store) MarkOutboxPublished(ctx context.Context, id string) error {
 func (s *Store) IncrementOutboxAttempts(ctx context.Context, id string) error {
 	return s.q.IncrementOutboxAttempts(ctx, id)
 }
+
+// InsertSnapshot persists a BalanceSnapshot.
+func (s *Store) InsertSnapshot(ctx context.Context, snap ledger.BalanceSnapshot) error {
+	return s.q.InsertSnapshot(ctx, sqlitestore.InsertSnapshotParams{
+		ID:            snap.ID,
+		TenantID:      snap.TenantID,
+		AccountID:     snap.AccountID,
+		Currency:      snap.Currency,
+		PostedDebits:  snap.PostedDebits.String(),
+		PostedCredits: snap.PostedCredits.String(),
+		Version:       snap.Version,
+		SnapshotAt:    snap.SnapshotAt.UTC().Format(time.RFC3339Nano),
+	})
+}
+
+// GetSnapshotBefore returns the latest snapshot for an account at or before at.
+// Returns nil, nil when no snapshot exists.
+func (s *Store) GetSnapshotBefore(ctx context.Context, tenantID, accountID, currency string, at time.Time) (*ledger.BalanceSnapshot, error) {
+	row, err := s.q.GetLatestSnapshotBefore(ctx, sqlitestore.GetLatestSnapshotBeforeParams{
+		TenantID:   tenantID,
+		AccountID:  accountID,
+		Currency:   currency,
+		SnapshotAt: at.UTC().Format(time.RFC3339Nano),
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return rowToSnapshot(row), nil
+}
+
+// SumEntriesBetween sums debit and credit entries for an account in (after, until].
+func (s *Store) SumEntriesBetween(ctx context.Context, tenantID, accountID, currency string, after, until time.Time) (decimal.Decimal, decimal.Decimal, error) {
+	row, err := s.q.SumEntriesBetween(ctx, sqlitestore.SumEntriesBetweenParams{
+		TenantID:    tenantID,
+		AccountID:   accountID,
+		Currency:    currency,
+		CreatedAt:   after.UTC().Format(time.RFC3339Nano),
+		CreatedAt_2: until.UTC().Format(time.RFC3339Nano),
+	})
+	if err != nil {
+		return decimal.Zero, decimal.Zero, err
+	}
+	d := decimal.NewFromFloat(row.Debits)
+	c := decimal.NewFromFloat(row.Credits)
+	return d, c, nil
+}
+
+// ListTenantBalances returns all balance rows for a tenant.
+func (s *Store) ListTenantBalances(ctx context.Context, tenantID string) ([]repo.TenantBalanceRow, error) {
+	rows, err := s.q.ListAllBalancesForTenant(ctx, tenantID)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]repo.TenantBalanceRow, 0, len(rows))
+	for _, r := range rows {
+		d, _ := decimal.NewFromString(r.PostedDebits)
+		c, _ := decimal.NewFromString(r.PostedCredits)
+		out = append(out, repo.TenantBalanceRow{
+			AccountID:     r.AccountID,
+			Currency:      r.Currency,
+			PostedDebits:  d,
+			PostedCredits: c,
+			Version:       r.Version,
+		})
+	}
+	return out, nil
+}

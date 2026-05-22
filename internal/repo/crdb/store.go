@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -170,4 +171,70 @@ func (s *Store) MarkOutboxPublished(ctx context.Context, id string) error {
 // IncrementOutboxAttempts increments the attempt count for an outbox event.
 func (s *Store) IncrementOutboxAttempts(ctx context.Context, id string) error {
 	return s.q.IncrementOutboxAttempts(ctx, id)
+}
+
+// InsertSnapshot persists a BalanceSnapshot.
+func (s *Store) InsertSnapshot(ctx context.Context, snap ledger.BalanceSnapshot) error {
+	return s.q.InsertSnapshot(ctx, crdbstore.InsertSnapshotParams{
+		ID:            snap.ID,
+		TenantID:      snap.TenantID,
+		AccountID:     snap.AccountID,
+		Currency:      snap.Currency,
+		PostedDebits:  snap.PostedDebits,
+		PostedCredits: snap.PostedCredits,
+		Version:       snap.Version,
+		SnapshotAt:    pgtype.Timestamptz{Time: snap.SnapshotAt.UTC(), Valid: true},
+	})
+}
+
+// GetSnapshotBefore returns the latest snapshot for an account at or before at.
+// Returns nil, nil when no snapshot exists.
+func (s *Store) GetSnapshotBefore(ctx context.Context, tenantID, accountID, currency string, at time.Time) (*ledger.BalanceSnapshot, error) {
+	row, err := s.q.GetLatestSnapshotBefore(ctx, crdbstore.GetLatestSnapshotBeforeParams{
+		TenantID:   tenantID,
+		AccountID:  accountID,
+		Currency:   currency,
+		SnapshotAt: pgtype.Timestamptz{Time: at.UTC(), Valid: true},
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return rowToSnapshot(row), nil
+}
+
+// SumEntriesBetween sums debit and credit entries for an account in (after, until].
+func (s *Store) SumEntriesBetween(ctx context.Context, tenantID, accountID, currency string, after, until time.Time) (decimal.Decimal, decimal.Decimal, error) {
+	row, err := s.q.SumEntriesBetween(ctx, crdbstore.SumEntriesBetweenParams{
+		TenantID:    tenantID,
+		AccountID:   accountID,
+		Currency:    currency,
+		CreatedAt:   pgtype.Timestamptz{Time: after.UTC(), Valid: true},
+		CreatedAt_2: pgtype.Timestamptz{Time: until.UTC(), Valid: true},
+	})
+	if err != nil {
+		return decimal.Zero, decimal.Zero, err
+	}
+	return row.Debits, row.Credits, nil
+}
+
+// ListTenantBalances returns all balance rows for a tenant.
+func (s *Store) ListTenantBalances(ctx context.Context, tenantID string) ([]repo.TenantBalanceRow, error) {
+	rows, err := s.q.ListAllBalancesForTenant(ctx, tenantID)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]repo.TenantBalanceRow, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, repo.TenantBalanceRow{
+			AccountID:     r.AccountID,
+			Currency:      r.Currency,
+			PostedDebits:  r.PostedDebits,
+			PostedCredits: r.PostedCredits,
+			Version:       r.Version,
+		})
+	}
+	return out, nil
 }

@@ -29,6 +29,26 @@ func timestamptzToTimePtr(ts pgtype.Timestamptz) *time.Time {
 	return &t
 }
 
+// rowToSnapshot converts a crdbstore.BalanceSnapshot to a ledger.BalanceSnapshot.
+func rowToSnapshot(r crdbstore.BalanceSnapshot) *ledger.BalanceSnapshot {
+	s := &ledger.BalanceSnapshot{
+		ID:            r.ID,
+		TenantID:      r.TenantID,
+		AccountID:     r.AccountID,
+		Currency:      r.Currency,
+		PostedDebits:  r.PostedDebits,
+		PostedCredits: r.PostedCredits,
+		Version:       r.Version,
+	}
+	if r.SnapshotAt.Valid {
+		s.SnapshotAt = r.SnapshotAt.Time
+	}
+	if r.CreatedAt.Valid {
+		s.CreatedAt = r.CreatedAt.Time
+	}
+	return s
+}
+
 func rowToAccount(r crdbstore.Account) *ledger.Account {
 	return &ledger.Account{
 		ID:            r.ID,
