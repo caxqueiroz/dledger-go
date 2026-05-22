@@ -21,6 +21,8 @@ Then run any example below in another terminal.
 | [`go/place_order`](go/place_order/main.go) | Canonical `PLACE_ORDER` flow — reserve 100 USD from cash_available into cash_reserved inside one atomic `ExecuteFlow`. Also creates accounts, posts the seed journal, and reads back balances. |
 | [`go/reservations`](go/reservations/main.go) | Full reservation lifecycle: create → partial commit → partial release → final commit, plus idempotent replay. |
 | [`go/snapshots`](go/snapshots/main.go) | `TakeBalanceSnapshot` + `GetBalance(as_of=T)` historical reconstruction. |
+| [`go/fx_exchange`](go/fx_exchange/main.go) | `ExecuteExchange` walkthrough — record a USD/EUR rate, exchange 100 USD for 89.50 EUR via the platform's FX desk. |
+| [`go/fx_revaluation`](go/fx_revaluation/main.go) | Documented `fx_pnl` pattern via raw `ExecuteFlow`: exchange-with-residual and end-of-day mark-to-market. |
 
 Run with:
 
