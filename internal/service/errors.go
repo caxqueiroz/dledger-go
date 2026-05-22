@@ -20,10 +20,11 @@ func ToConnectError(err error) error {
 		switch de.Code {
 		case ledger.CodeInsufficientFunds, ledger.CodeInvalidAccountStatus, ledger.CodeReservationClosed:
 			code = connect.CodeFailedPrecondition
-		case ledger.CodeAccountNotFound, ledger.CodeReservationNotFound:
+		case ledger.CodeAccountNotFound, ledger.CodeReservationNotFound, ledger.CodeFXRateNotFound:
 			code = connect.CodeNotFound
 		case ledger.CodeAccountCurrencyMismatch, ledger.CodeUnbalancedJournal,
-			ledger.CodeReservationAmountExceeds, ledger.CodeReservationCurrencyMismatch:
+			ledger.CodeReservationAmountExceeds, ledger.CodeReservationCurrencyMismatch,
+			ledger.CodeFXAmountMismatch:
 			code = connect.CodeInvalidArgument
 		case ledger.CodeDuplicateIdempotencyKey, ledger.CodeFlowAlreadyCompleted:
 			code = connect.CodeAlreadyExists
