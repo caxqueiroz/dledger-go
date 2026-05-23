@@ -32,6 +32,7 @@ type Store interface {
 	SumEntriesBetween(ctx context.Context, tenantID, accountID, currency string, after, until time.Time) (debits, credits decimal.Decimal, err error)
 	ListTenantBalances(ctx context.Context, tenantID string) ([]TenantBalanceRow, error)
 	ListTenantsDueForSnapshot(ctx context.Context, cutoff time.Time, limit int) ([]string, error)
+	PruneSnapshotsOlderThan(ctx context.Context, cutoff time.Time, limit int) (int64, error)
 
 	// FX rates
 	UpsertFXRate(ctx context.Context, r ledger.FXRate) (*ledger.FXRate, error)

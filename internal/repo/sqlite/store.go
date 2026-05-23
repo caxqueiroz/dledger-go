@@ -372,3 +372,16 @@ func (s *Store) ListFXRates(ctx context.Context, in repo.ListFXRatesInput) ([]le
 	}
 	return out, nil
 }
+
+// PruneSnapshotsOlderThan deletes up to limit snapshots with snapshot_at < cutoff,
+// preserving the most-recent snapshot per (tenant, account, currency).
+// Returns the number of rows deleted.
+func (s *Store) PruneSnapshotsOlderThan(ctx context.Context, cutoff time.Time, limit int) (int64, error) {
+	if limit <= 0 {
+		limit = 100
+	}
+	return s.q.PruneSnapshotsOlderThan(ctx, sqlitestore.PruneSnapshotsOlderThanParams{
+		SnapshotAt: cutoff.UTC().Format(sqliteTimeFormat),
+		Limit:      int64(limit),
+	})
+}
