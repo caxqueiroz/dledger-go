@@ -157,6 +157,35 @@ func (q *Queries) ListTenantsDueForSnapshot(ctx context.Context, arg ListTenants
 	return items, nil
 }
 
+const pruneSnapshotsOlderThan = `-- name: PruneSnapshotsOlderThan :execrows
+DELETE FROM balance_snapshots
+WHERE id IN (
+  SELECT bs.id FROM balance_snapshots bs
+  WHERE bs.snapshot_at < ?
+    AND EXISTS (
+      SELECT 1 FROM balance_snapshots bs2
+      WHERE bs2.tenant_id = bs.tenant_id
+        AND bs2.account_id = bs.account_id
+        AND bs2.currency = bs.currency
+        AND bs2.snapshot_at > bs.snapshot_at
+    )
+  LIMIT ?
+)
+`
+
+type PruneSnapshotsOlderThanParams struct {
+	SnapshotAt string `db:"snapshot_at"`
+	Limit      int64  `db:"limit"`
+}
+
+func (q *Queries) PruneSnapshotsOlderThan(ctx context.Context, arg PruneSnapshotsOlderThanParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, pruneSnapshotsOlderThan, arg.SnapshotAt, arg.Limit)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const sumEntriesBetween = `-- name: SumEntriesBetween :one
 SELECT
     CAST(COALESCE(SUM(CASE WHEN direction = 'DEBIT'  THEN CAST(amount AS REAL) END), 0.0) AS REAL) AS debits,
