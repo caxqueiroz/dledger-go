@@ -3,15 +3,18 @@ package scheduler_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/shopspring/decimal"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	ledgerv1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
+	"github.com/caxqueiroz/dledger-go/internal/ledger"
 	"github.com/caxqueiroz/dledger-go/internal/repo/sqlite"
 	"github.com/caxqueiroz/dledger-go/internal/scheduler"
 	"github.com/caxqueiroz/dledger-go/internal/service"
@@ -200,4 +203,138 @@ func TestScheduler_SnapshotsDueTenants(t *testing.T) {
 		time.Sleep(50 * time.Millisecond)
 	}
 	t.Fatalf("snapshot tick never captured a snapshot for tenant t1")
+}
+
+func TestRetention_DeletesOldNonLatestSnapshot(t *testing.T) {
+	srv, store, cleanup := setup(t)
+	defer cleanup()
+	ctx := context.Background()
+
+	acct := mkAccount(t, srv, "1", "cash_available", ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT, false)
+
+	old := ledger.BalanceSnapshot{
+		ID: "snap-old", TenantID: "t1", AccountID: acct, Currency: "USD",
+		PostedDebits: decimal.Zero, PostedCredits: decimal.Zero, Version: 0,
+		SnapshotAt: time.Now().Add(-48 * time.Hour),
+	}
+	if err := store.InsertSnapshot(ctx, old); err != nil {
+		t.Fatalf("insert old: %v", err)
+	}
+	newer := ledger.BalanceSnapshot{
+		ID: "snap-new", TenantID: "t1", AccountID: acct, Currency: "USD",
+		PostedDebits: decimal.Zero, PostedCredits: decimal.Zero, Version: 1,
+		SnapshotAt: time.Now().Add(-1 * time.Hour),
+	}
+	if err := store.InsertSnapshot(ctx, newer); err != nil {
+		t.Fatalf("insert new: %v", err)
+	}
+
+	sched := scheduler.New(store, srv)
+	sched.Cfg.RetentionAge = 24 * time.Hour
+	sched.Cfg.BatchN = 100
+	sched.RetentionTickForTest(ctx)
+
+	got, err := store.GetSnapshotBefore(ctx, "t1", acct, "USD", time.Now().Add(-25*time.Hour))
+	if err != nil {
+		t.Fatalf("get old: %v", err)
+	}
+	if got != nil {
+		t.Fatalf("old snapshot was not deleted: %+v", got)
+	}
+	newest, err := store.GetSnapshotBefore(ctx, "t1", acct, "USD", time.Now())
+	if err != nil {
+		t.Fatalf("get newest: %v", err)
+	}
+	if newest == nil || newest.ID != "snap-new" {
+		t.Fatalf("newest snapshot missing; want snap-new")
+	}
+}
+
+func TestRetention_PreservesMostRecentEvenWhenOlder(t *testing.T) {
+	srv, store, cleanup := setup(t)
+	defer cleanup()
+	ctx := context.Background()
+
+	acct := mkAccount(t, srv, "1", "cash_available", ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT, false)
+
+	only := ledger.BalanceSnapshot{
+		ID: "snap-only", TenantID: "t1", AccountID: acct, Currency: "USD",
+		PostedDebits: decimal.Zero, PostedCredits: decimal.Zero, Version: 0,
+		SnapshotAt: time.Now().Add(-365 * 24 * time.Hour),
+	}
+	if err := store.InsertSnapshot(ctx, only); err != nil {
+		t.Fatalf("insert only: %v", err)
+	}
+
+	sched := scheduler.New(store, srv)
+	sched.Cfg.RetentionAge = 30 * 24 * time.Hour
+	sched.Cfg.BatchN = 100
+	sched.RetentionTickForTest(ctx)
+
+	got, err := store.GetSnapshotBefore(ctx, "t1", acct, "USD", time.Now())
+	if err != nil {
+		t.Fatalf("get: %v", err)
+	}
+	if got == nil || got.ID != "snap-only" {
+		t.Fatalf("only snapshot was deleted despite being the most-recent for its key")
+	}
+}
+
+func TestRetention_RespectsBatchLimit(t *testing.T) {
+	srv, store, cleanup := setup(t)
+	defer cleanup()
+	ctx := context.Background()
+
+	acct := mkAccount(t, srv, "1", "cash_available", ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT, false)
+
+	// 1 fresh + 5 old. The fresh is the most-recent and is always preserved;
+	// the 5 olds are all eligible because a newer one (the fresh one) exists.
+	fresh := ledger.BalanceSnapshot{
+		ID: "snap-fresh", TenantID: "t1", AccountID: acct, Currency: "USD",
+		PostedDebits: decimal.Zero, PostedCredits: decimal.Zero, Version: 999,
+		SnapshotAt: time.Now().Add(-1 * time.Hour),
+	}
+	if err := store.InsertSnapshot(ctx, fresh); err != nil {
+		t.Fatalf("insert fresh: %v", err)
+	}
+	for i := range 5 {
+		old := ledger.BalanceSnapshot{
+			ID:           fmt.Sprintf("snap-old-%d", i),
+			TenantID:     "t1",
+			AccountID:    acct,
+			Currency:     "USD",
+			PostedDebits: decimal.Zero, PostedCredits: decimal.Zero, Version: int64(i),
+			SnapshotAt: time.Now().Add(time.Duration(-(48 + i)) * time.Hour),
+		}
+		if err := store.InsertSnapshot(ctx, old); err != nil {
+			t.Fatalf("insert old %d: %v", i, err)
+		}
+	}
+
+	sched := scheduler.New(store, srv)
+	sched.Cfg.RetentionAge = 24 * time.Hour
+	sched.Cfg.BatchN = 2
+
+	sched.RetentionTickForTest(ctx)
+	if remaining := countSnapshots(t, store, acct); remaining != 4 {
+		t.Fatalf("after one tick: want 4 snapshots remaining, got %d", remaining)
+	}
+
+	sched.RetentionTickForTest(ctx)
+	if remaining := countSnapshots(t, store, acct); remaining != 2 {
+		t.Fatalf("after two ticks: want 2 remaining, got %d", remaining)
+	}
+}
+
+func countSnapshots(t *testing.T, store *sqlite.Store, accountID string) int {
+	t.Helper()
+	row := store.DB().QueryRow(
+		"SELECT COUNT(*) FROM balance_snapshots WHERE tenant_id = ? AND account_id = ?",
+		"t1", accountID,
+	)
+	var n int
+	if err := row.Scan(&n); err != nil {
+		t.Fatalf("count: %v", err)
+	}
+	return n
 }
