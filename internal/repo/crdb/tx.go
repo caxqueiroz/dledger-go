@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -273,6 +274,44 @@ func nullString(s string) *string {
 	}
 	v := s
 	return &v
+}
+
+// ListExternalRecordsForRecon returns UNMATCHED external records for the given
+// source within the time window, executed inside the current transaction.
+func (t *Tx) ListExternalRecordsForRecon(ctx context.Context, tenantID, source string, windowStart, windowEnd time.Time) ([]ledger.ExternalRecord, error) {
+	rows, err := t.q.ListExternalRecordsForRecon(ctx, crdbstore.ListExternalRecordsForReconParams{
+		TenantID:     tenantID,
+		Source:       source,
+		OccurredAt:   pgtype.Timestamptz{Time: windowStart.UTC(), Valid: true},
+		OccurredAt_2: pgtype.Timestamptz{Time: windowEnd.UTC(), Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ledger.ExternalRecord, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, *rowToExternalRecord(r))
+	}
+	return out, nil
+}
+
+// ListJournalsForRecon returns ledger journals for the given source_service within
+// the time window, executed inside the current transaction.
+func (t *Tx) ListJournalsForRecon(ctx context.Context, tenantID, source string, windowStart, windowEnd time.Time) ([]ledger.Journal, error) {
+	rows, err := t.q.ListJournalsForRecon(ctx, crdbstore.ListJournalsForReconParams{
+		TenantID:      tenantID,
+		SourceService: source,
+		CreatedAt:     pgtype.Timestamptz{Time: windowStart.UTC(), Valid: true},
+		CreatedAt_2:   pgtype.Timestamptz{Time: windowEnd.UTC(), Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ledger.Journal, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, *rowToJournal(r))
+	}
+	return out, nil
 }
 
 // GetReconBatchByIdempotency looks up a reconciliation batch by idempotency key within

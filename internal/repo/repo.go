@@ -87,6 +87,11 @@ type Tx interface {
 	GetReconBatchByIdempotency(ctx context.Context, tenantID, key string) (*ledger.ReconciliationBatch, error)
 	InsertReconBatch(ctx context.Context, b ledger.ReconciliationBatch) error
 	CompleteReconBatch(ctx context.Context, b ledger.ReconciliationBatch) error
+	// ListExternalRecordsForRecon and ListJournalsForRecon are read inside the
+	// flow tx so that SQLite (single-writer, MaxOpenConns=1) does not deadlock
+	// when the tx holds the only connection via BEGIN IMMEDIATE.
+	ListExternalRecordsForRecon(ctx context.Context, tenantID, source string, windowStart, windowEnd time.Time) ([]ledger.ExternalRecord, error)
+	ListJournalsForRecon(ctx context.Context, tenantID, source string, windowStart, windowEnd time.Time) ([]ledger.Journal, error)
 	UpdateExternalRecordMatch(ctx context.Context, tenantID, id string, status ledger.ExternalRecordStatus, journalID string) error
 	SumJournalEntries(ctx context.Context, tenantID, journalID, accountID, currency string) (debits, credits decimal.Decimal, err error)
 	InsertDiscrepancy(ctx context.Context, d ledger.Discrepancy) error

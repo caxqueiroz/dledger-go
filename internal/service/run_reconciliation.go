@@ -67,7 +67,7 @@ func (s *Server) RunReconciliation(ctx context.Context, req *connect.Request[led
 	}
 
 	// Matcher does the heavy lifting.
-	res, err := recon.Run(ctx, tx, s.Store, r.GetTenantId(), r.GetSource(), windowStart, windowEnd)
+	res, err := recon.Run(ctx, tx, r.GetTenantId(), r.GetSource(), windowStart, windowEnd)
 	if err != nil {
 		return nil, ToConnectError(err)
 	}

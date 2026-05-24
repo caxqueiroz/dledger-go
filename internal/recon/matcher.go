@@ -25,18 +25,21 @@ type MatchResult struct {
 // produces a MatchResult. It updates each external record's match_status
 // (and matched_journal_id) inside tx. Discrepancy rows are NOT inserted here —
 // the caller writes them after assigning batch_id and persisting.
+//
+// All reads are performed through tx so that SQLite (MaxOpenConns=1, BEGIN
+// IMMEDIATE) does not deadlock trying to acquire a second connection while tx
+// already holds the only one.
 func Run(
 	ctx context.Context,
 	tx repo.Tx,
-	store repo.Store,
 	tenantID, source string,
 	windowStart, windowEnd time.Time,
 ) (MatchResult, error) {
-	ext, err := store.ListExternalRecordsForRecon(ctx, tenantID, source, windowStart, windowEnd)
+	ext, err := tx.ListExternalRecordsForRecon(ctx, tenantID, source, windowStart, windowEnd)
 	if err != nil {
 		return MatchResult{}, err
 	}
-	journals, err := store.ListJournalsForRecon(ctx, tenantID, source, windowStart, windowEnd)
+	journals, err := tx.ListJournalsForRecon(ctx, tenantID, source, windowStart, windowEnd)
 	if err != nil {
 		return MatchResult{}, err
 	}
