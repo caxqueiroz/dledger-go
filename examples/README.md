@@ -23,6 +23,7 @@ Then run any example below in another terminal.
 | [`go/snapshots`](go/snapshots/main.go) | `TakeBalanceSnapshot` + `GetBalance(as_of=T)` historical reconstruction. |
 | [`go/fx_exchange`](go/fx_exchange/main.go) | `ExecuteExchange` walkthrough — record a USD/EUR rate, exchange 100 USD for 89.50 EUR via the platform's FX desk. |
 | [`go/fx_revaluation`](go/fx_revaluation/main.go) | Documented `fx_pnl` pattern via raw `ExecuteFlow`: exchange-with-residual and end-of-day mark-to-market. |
+| [`go/reconciliation`](go/reconciliation/main.go) | Ingest external records, run reconciliation, list discrepancies, resolve one with an adjustment journal. |
 
 Run with:
 

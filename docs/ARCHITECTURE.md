@@ -77,6 +77,9 @@ Nine tables, all tenant-scoped. Each row has `tenant_id` and queries filter on i
 | `balance_snapshots` | Point-in-time `account_balances` captures | Index on `(tenant_id, account_id, currency, snapshot_at DESC)` for `as_of` queries. |
 | `reservations` | Held-fund objects | `idempotency_key` UNIQUE. `status` ∈ {HELD,PARTIAL,COMMITTED,RELEASED,EXPIRED}. Index on `(tenant_id, status, expires_at)` for expiry scans. |
 | `fx_rates` | FX rate history for ExecuteExchange | UNIQUE `(tenant_id, base_currency, quote_currency, effective_at, source)`; index on `(tenant_id, base, quote, effective_at DESC)`. |
+| `external_records` | Ingested external transaction records | UNIQUE `(tenant_id, source, external_ref)`; indexes on `(tenant, source, occurred_at)` and `(tenant, source, match_status)`. |
+| `reconciliation_batches` | One row per `RunReconciliation` call | UNIQUE `idempotency_key`. `status` ∈ {RUNNING, COMPLETED, FAILED}. Summary counts populated on completion. |
+| `discrepancies` | Surfaces of unmatched/mismatched pairs | `type` ∈ {MISSING_IN_LEDGER, MISSING_IN_EXTERNAL, AMOUNT_MISMATCH}; `status` ∈ {OPEN, RESOLVED, IGNORED}. Index on `(tenant, status, batch_id)`. |
 
 ## Key flows
 
@@ -151,6 +154,20 @@ Mixed terminal-state rule: when commits + releases together drive `outstanding �
 The `fx_rates` table is admin data with `UNIQUE (tenant, base, quote, effective_at, source)`. `PutFXRate` is upsert-on-conflict so re-posting the same rate is a no-op.
 
 **P&L pattern (documented, no enforcement)**: callers needing to record gain/loss — exchange-with-residual, end-of-day mark-to-market — use raw `ExecuteFlow` with an `fx_pnl:<currency>` account that absorbs the per-currency imbalance. The existing validator accepts any N-entry journal as long as each currency nets to zero. See `examples/go/fx_revaluation/` for both shapes.
+
+### Reconciliation — match, surface, resolve
+
+`IngestExternalRecords` writes external-source transaction records (idempotent on `(tenant, source, external_ref)`). `RunReconciliation` opens one flow tx and:
+
+1. Loads external records and ledger journals for `(tenant, source, window)` via the transactional `Tx` interface (avoids deadlocking against the open SQLite tx).
+2. Indexes journals by `event_id`.
+3. For each external record: if a journal with `event_id == external_ref` exists, optionally verifies the amount against `sum(debit-credit) on entries(journal) WHERE account_id = external.account_id` (when an anchor account was supplied). Match → `MATCHED`. Amount diverges → `MISMATCHED` + `AMOUNT_MISMATCH` discrepancy. No journal → `MISSING_IN_LEDGER` discrepancy.
+4. Journals not seen in step 3 become `MISSING_IN_EXTERNAL` discrepancies.
+5. Writes the batch summary, all discrepancy rows, and outbox events in the same tx → commit.
+
+`ResolveDiscrepancy` takes a discrepancy from `OPEN` to `RESOLVED` or `IGNORED`. When `RESOLVED` with an embedded `ExecuteFlowRequest`, the adjustment flow runs in the same tx via `executeFlowInTx`, and its `journal_id` is linked into `resolution_journal_id`.
+
+All money movement still flows through `ExecuteFlow` — recon never writes ledger entries directly.
 
 ### Balance snapshots
 
@@ -227,6 +244,9 @@ Domain code → Connect code mapping (in `internal/service/errors.go`):
 | `SERIALIZATION_RETRY_EXHAUSTED` | `Aborted` | CRDB 40001 retried N times |
 | `FX_RATE_NOT_FOUND` | `NotFound` | `GetFXRate` or `ExecuteExchange` can't resolve a rate |
 | `FX_AMOUNT_MISMATCH` | `InvalidArgument` | `to_amount` differs from `from_amount × rate` |
+| `DISCREPANCY_NOT_FOUND` | `NotFound` | `ResolveDiscrepancy` on unknown id |
+| `DISCREPANCY_CLOSED` | `FailedPrecondition` | Resolving an already-closed discrepancy |
+| `RECON_BATCH_NOT_FOUND` | `NotFound` | `GetReconciliationBatch` on unknown id |
 
 The Connect response includes a `ledger-error-code` header carrying the domain code, so clients can branch programmatically.
 
@@ -262,7 +282,6 @@ The service deliberately does **not** do:
 
 - Payment-rail integration. The outbox is the integration point.
 - Identity / KYC / PII tokenization.
-- Reconciliation against external sources.
 - Synchronous pre-transaction hooks (post-transaction hooks live in the outbox).
 
 See `docs/superpowers/specs/` for the original design documents.
