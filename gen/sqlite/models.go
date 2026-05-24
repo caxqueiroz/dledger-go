@@ -39,6 +39,36 @@ type BalanceSnapshot struct {
 	CreatedAt     string `db:"created_at"`
 }
 
+type Discrepancy struct {
+	ID                  string  `db:"id"`
+	TenantID            string  `db:"tenant_id"`
+	BatchID             string  `db:"batch_id"`
+	Type                string  `db:"type"`
+	ExternalRecordID    *string `db:"external_record_id"`
+	JournalID           *string `db:"journal_id"`
+	Status              string  `db:"status"`
+	ResolutionJournalID *string `db:"resolution_journal_id"`
+	ResolutionNote      string  `db:"resolution_note"`
+	ResolvedBy          string  `db:"resolved_by"`
+	ResolvedAt          *string `db:"resolved_at"`
+	CreatedAt           string  `db:"created_at"`
+}
+
+type ExternalRecord struct {
+	ID               string  `db:"id"`
+	TenantID         string  `db:"tenant_id"`
+	Source           string  `db:"source"`
+	ExternalRef      string  `db:"external_ref"`
+	Amount           string  `db:"amount"`
+	Currency         string  `db:"currency"`
+	OccurredAt       string  `db:"occurred_at"`
+	AccountID        *string `db:"account_id"`
+	RawPayload       string  `db:"raw_payload"`
+	MatchStatus      string  `db:"match_status"`
+	MatchedJournalID *string `db:"matched_journal_id"`
+	CreatedAt        string  `db:"created_at"`
+}
+
 type FlowRun struct {
 	ID             string  `db:"id"`
 	TenantID       string  `db:"tenant_id"`
@@ -109,6 +139,24 @@ type OutboxEvent struct {
 	Attempts       int64   `db:"attempts"`
 	CreatedAt      string  `db:"created_at"`
 	PublishedAt    *string `db:"published_at"`
+}
+
+type ReconciliationBatch struct {
+	ID                     string  `db:"id"`
+	TenantID               string  `db:"tenant_id"`
+	IdempotencyKey         string  `db:"idempotency_key"`
+	Source                 string  `db:"source"`
+	WindowStart            string  `db:"window_start"`
+	WindowEnd              string  `db:"window_end"`
+	Status                 string  `db:"status"`
+	IngestedCount          int64   `db:"ingested_count"`
+	MatchedCount           int64   `db:"matched_count"`
+	MismatchedCount        int64   `db:"mismatched_count"`
+	MissingInLedgerCount   int64   `db:"missing_in_ledger_count"`
+	MissingInExternalCount int64   `db:"missing_in_external_count"`
+	StartedAt              string  `db:"started_at"`
+	CompletedAt            *string `db:"completed_at"`
+	ActorID                string  `db:"actor_id"`
 }
 
 type Reservation struct {

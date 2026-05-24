@@ -44,6 +44,36 @@ type BalanceSnapshot struct {
 	CreatedAt     pgtype.Timestamptz `db:"created_at"`
 }
 
+type Discrepancy struct {
+	ID                  string             `db:"id"`
+	TenantID            string             `db:"tenant_id"`
+	BatchID             string             `db:"batch_id"`
+	Type                string             `db:"type"`
+	ExternalRecordID    *string            `db:"external_record_id"`
+	JournalID           *string            `db:"journal_id"`
+	Status              string             `db:"status"`
+	ResolutionJournalID *string            `db:"resolution_journal_id"`
+	ResolutionNote      string             `db:"resolution_note"`
+	ResolvedBy          string             `db:"resolved_by"`
+	ResolvedAt          pgtype.Timestamptz `db:"resolved_at"`
+	CreatedAt           pgtype.Timestamptz `db:"created_at"`
+}
+
+type ExternalRecord struct {
+	ID               string             `db:"id"`
+	TenantID         string             `db:"tenant_id"`
+	Source           string             `db:"source"`
+	ExternalRef      string             `db:"external_ref"`
+	Amount           decimal.Decimal    `db:"amount"`
+	Currency         string             `db:"currency"`
+	OccurredAt       pgtype.Timestamptz `db:"occurred_at"`
+	AccountID        *string            `db:"account_id"`
+	RawPayload       []byte             `db:"raw_payload"`
+	MatchStatus      string             `db:"match_status"`
+	MatchedJournalID *string            `db:"matched_journal_id"`
+	CreatedAt        pgtype.Timestamptz `db:"created_at"`
+}
+
 type FlowRun struct {
 	ID             string             `db:"id"`
 	TenantID       string             `db:"tenant_id"`
@@ -114,6 +144,24 @@ type OutboxEvent struct {
 	Attempts       int64              `db:"attempts"`
 	CreatedAt      pgtype.Timestamptz `db:"created_at"`
 	PublishedAt    pgtype.Timestamptz `db:"published_at"`
+}
+
+type ReconciliationBatch struct {
+	ID                     string             `db:"id"`
+	TenantID               string             `db:"tenant_id"`
+	IdempotencyKey         string             `db:"idempotency_key"`
+	Source                 string             `db:"source"`
+	WindowStart            pgtype.Timestamptz `db:"window_start"`
+	WindowEnd              pgtype.Timestamptz `db:"window_end"`
+	Status                 string             `db:"status"`
+	IngestedCount          int64              `db:"ingested_count"`
+	MatchedCount           int64              `db:"matched_count"`
+	MismatchedCount        int64              `db:"mismatched_count"`
+	MissingInLedgerCount   int64              `db:"missing_in_ledger_count"`
+	MissingInExternalCount int64              `db:"missing_in_external_count"`
+	StartedAt              pgtype.Timestamptz `db:"started_at"`
+	CompletedAt            pgtype.Timestamptz `db:"completed_at"`
+	ActorID                string             `db:"actor_id"`
 }
 
 type Reservation struct {
