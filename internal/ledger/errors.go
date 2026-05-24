@@ -20,6 +20,9 @@ const (
 	CodeReservationCurrencyMismatch DomainCode = "RESERVATION_CURRENCY_MISMATCH"
 	CodeFXRateNotFound              DomainCode = "FX_RATE_NOT_FOUND"
 	CodeFXAmountMismatch            DomainCode = "FX_AMOUNT_MISMATCH"
+	CodeDiscrepancyNotFound         DomainCode = "DISCREPANCY_NOT_FOUND"
+	CodeDiscrepancyClosed           DomainCode = "DISCREPANCY_CLOSED"
+	CodeReconBatchNotFound          DomainCode = "RECON_BATCH_NOT_FOUND"
 )
 
 type DomainError struct {
