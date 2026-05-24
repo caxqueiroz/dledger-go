@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CommitReservationRequest, CommitReservationResponse, CreateAccountRequest, CreateAccountResponse, CreateReservationRequest, CreateReservationResponse, ExecuteExchangeRequest, ExecuteExchangeResponse, ExecuteFlowRequest, ExecuteFlowResponse, GetAccountRequest, GetAccountResponse, GetBalanceRequest, GetBalanceResponse, GetFlowRequest, GetFlowResponse, GetFXRateRequest, GetFXRateResponse, GetReservationRequest, GetReservationResponse, ListAccountActivityRequest, ListAccountActivityResponse, ListFXRatesRequest, ListFXRatesResponse, PostJournalRequest, PostJournalResponse, PutFXRateRequest, PutFXRateResponse, ReleaseReservationRequest, ReleaseReservationResponse, TakeBalanceSnapshotRequest, TakeBalanceSnapshotResponse } from "./ledger_pb.js";
+import { CommitReservationRequest, CommitReservationResponse, CreateAccountRequest, CreateAccountResponse, CreateReservationRequest, CreateReservationResponse, ExecuteExchangeRequest, ExecuteExchangeResponse, ExecuteFlowRequest, ExecuteFlowResponse, GetAccountRequest, GetAccountResponse, GetBalanceRequest, GetBalanceResponse, GetFlowRequest, GetFlowResponse, GetFXRateRequest, GetFXRateResponse, GetReconciliationBatchRequest, GetReconciliationBatchResponse, GetReservationRequest, GetReservationResponse, IngestExternalRecordsRequest, IngestExternalRecordsResponse, ListAccountActivityRequest, ListAccountActivityResponse, ListDiscrepanciesRequest, ListDiscrepanciesResponse, ListFXRatesRequest, ListFXRatesResponse, PostJournalRequest, PostJournalResponse, PutFXRateRequest, PutFXRateResponse, ReleaseReservationRequest, ReleaseReservationResponse, ResolveDiscrepancyRequest, ResolveDiscrepancyResponse, RunReconciliationRequest, RunReconciliationResponse, TakeBalanceSnapshotRequest, TakeBalanceSnapshotResponse } from "./ledger_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -154,6 +154,51 @@ export const LedgerService = {
       name: "ListFXRates",
       I: ListFXRatesRequest,
       O: ListFXRatesResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.IngestExternalRecords
+     */
+    ingestExternalRecords: {
+      name: "IngestExternalRecords",
+      I: IngestExternalRecordsRequest,
+      O: IngestExternalRecordsResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.RunReconciliation
+     */
+    runReconciliation: {
+      name: "RunReconciliation",
+      I: RunReconciliationRequest,
+      O: RunReconciliationResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.GetReconciliationBatch
+     */
+    getReconciliationBatch: {
+      name: "GetReconciliationBatch",
+      I: GetReconciliationBatchRequest,
+      O: GetReconciliationBatchResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.ListDiscrepancies
+     */
+    listDiscrepancies: {
+      name: "ListDiscrepancies",
+      I: ListDiscrepanciesRequest,
+      O: ListDiscrepanciesResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.ResolveDiscrepancy
+     */
+    resolveDiscrepancy: {
+      name: "ResolveDiscrepancy",
+      I: ResolveDiscrepancyRequest,
+      O: ResolveDiscrepancyResponse,
       kind: MethodKind.Unary,
     },
   }

@@ -2446,3 +2446,869 @@ export class ListFXRatesResponse extends Message<ListFXRatesResponse> {
   }
 }
 
+/**
+ * @generated from message ledger.v1.ExternalRecord
+ */
+export class ExternalRecord extends Message<ExternalRecord> {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id = "";
+
+  /**
+   * @generated from field: string tenant_id = 2;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string source = 3;
+   */
+  source = "";
+
+  /**
+   * @generated from field: string external_ref = 4;
+   */
+  externalRef = "";
+
+  /**
+   * @generated from field: string amount = 5;
+   */
+  amount = "";
+
+  /**
+   * @generated from field: string currency = 6;
+   */
+  currency = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp occurred_at = 7;
+   */
+  occurredAt?: Timestamp;
+
+  /**
+   * @generated from field: string account_id = 8;
+   */
+  accountId = "";
+
+  /**
+   * @generated from field: google.protobuf.Struct raw_payload = 9;
+   */
+  rawPayload?: Struct;
+
+  /**
+   * @generated from field: string match_status = 10;
+   */
+  matchStatus = "";
+
+  /**
+   * @generated from field: string matched_journal_id = 11;
+   */
+  matchedJournalId = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp created_at = 12;
+   */
+  createdAt?: Timestamp;
+
+  constructor(data?: PartialMessage<ExternalRecord>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ExternalRecord";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "source", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "external_ref", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "occurred_at", kind: "message", T: Timestamp },
+    { no: 8, name: "account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 9, name: "raw_payload", kind: "message", T: Struct },
+    { no: 10, name: "match_status", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 11, name: "matched_journal_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 12, name: "created_at", kind: "message", T: Timestamp },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ExternalRecord {
+    return new ExternalRecord().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ExternalRecord {
+    return new ExternalRecord().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ExternalRecord {
+    return new ExternalRecord().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ExternalRecord | PlainMessage<ExternalRecord> | undefined, b: ExternalRecord | PlainMessage<ExternalRecord> | undefined): boolean {
+    return proto3.util.equals(ExternalRecord, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ExternalRecordInput
+ */
+export class ExternalRecordInput extends Message<ExternalRecordInput> {
+  /**
+   * @generated from field: string source = 1;
+   */
+  source = "";
+
+  /**
+   * @generated from field: string external_ref = 2;
+   */
+  externalRef = "";
+
+  /**
+   * @generated from field: string amount = 3;
+   */
+  amount = "";
+
+  /**
+   * @generated from field: string currency = 4;
+   */
+  currency = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp occurred_at = 5;
+   */
+  occurredAt?: Timestamp;
+
+  /**
+   * @generated from field: string account_id = 6;
+   */
+  accountId = "";
+
+  /**
+   * @generated from field: google.protobuf.Struct raw_payload = 7;
+   */
+  rawPayload?: Struct;
+
+  constructor(data?: PartialMessage<ExternalRecordInput>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ExternalRecordInput";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "source", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "external_ref", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "occurred_at", kind: "message", T: Timestamp },
+    { no: 6, name: "account_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "raw_payload", kind: "message", T: Struct },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ExternalRecordInput {
+    return new ExternalRecordInput().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ExternalRecordInput {
+    return new ExternalRecordInput().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ExternalRecordInput {
+    return new ExternalRecordInput().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ExternalRecordInput | PlainMessage<ExternalRecordInput> | undefined, b: ExternalRecordInput | PlainMessage<ExternalRecordInput> | undefined): boolean {
+    return proto3.util.equals(ExternalRecordInput, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.IngestExternalRecordsRequest
+ */
+export class IngestExternalRecordsRequest extends Message<IngestExternalRecordsRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: repeated ledger.v1.ExternalRecordInput records = 2;
+   */
+  records: ExternalRecordInput[] = [];
+
+  constructor(data?: PartialMessage<IngestExternalRecordsRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.IngestExternalRecordsRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "records", kind: "message", T: ExternalRecordInput, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): IngestExternalRecordsRequest {
+    return new IngestExternalRecordsRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): IngestExternalRecordsRequest {
+    return new IngestExternalRecordsRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): IngestExternalRecordsRequest {
+    return new IngestExternalRecordsRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: IngestExternalRecordsRequest | PlainMessage<IngestExternalRecordsRequest> | undefined, b: IngestExternalRecordsRequest | PlainMessage<IngestExternalRecordsRequest> | undefined): boolean {
+    return proto3.util.equals(IngestExternalRecordsRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.IngestExternalRecordsResponse
+ */
+export class IngestExternalRecordsResponse extends Message<IngestExternalRecordsResponse> {
+  /**
+   * @generated from field: int32 inserted = 1;
+   */
+  inserted = 0;
+
+  /**
+   * @generated from field: int32 skipped = 2;
+   */
+  skipped = 0;
+
+  constructor(data?: PartialMessage<IngestExternalRecordsResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.IngestExternalRecordsResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "inserted", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 2, name: "skipped", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): IngestExternalRecordsResponse {
+    return new IngestExternalRecordsResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): IngestExternalRecordsResponse {
+    return new IngestExternalRecordsResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): IngestExternalRecordsResponse {
+    return new IngestExternalRecordsResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: IngestExternalRecordsResponse | PlainMessage<IngestExternalRecordsResponse> | undefined, b: IngestExternalRecordsResponse | PlainMessage<IngestExternalRecordsResponse> | undefined): boolean {
+    return proto3.util.equals(IngestExternalRecordsResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.RunReconciliationRequest
+ */
+export class RunReconciliationRequest extends Message<RunReconciliationRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string idempotency_key = 2;
+   */
+  idempotencyKey = "";
+
+  /**
+   * @generated from field: string source = 3;
+   */
+  source = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp window_start = 4;
+   */
+  windowStart?: Timestamp;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp window_end = 5;
+   */
+  windowEnd?: Timestamp;
+
+  /**
+   * @generated from field: string actor_id = 6;
+   */
+  actorId = "";
+
+  constructor(data?: PartialMessage<RunReconciliationRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.RunReconciliationRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "idempotency_key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "source", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "window_start", kind: "message", T: Timestamp },
+    { no: 5, name: "window_end", kind: "message", T: Timestamp },
+    { no: 6, name: "actor_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RunReconciliationRequest {
+    return new RunReconciliationRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RunReconciliationRequest {
+    return new RunReconciliationRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RunReconciliationRequest {
+    return new RunReconciliationRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RunReconciliationRequest | PlainMessage<RunReconciliationRequest> | undefined, b: RunReconciliationRequest | PlainMessage<RunReconciliationRequest> | undefined): boolean {
+    return proto3.util.equals(RunReconciliationRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ReconciliationBatch
+ */
+export class ReconciliationBatch extends Message<ReconciliationBatch> {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id = "";
+
+  /**
+   * @generated from field: string tenant_id = 2;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string source = 3;
+   */
+  source = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp window_start = 4;
+   */
+  windowStart?: Timestamp;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp window_end = 5;
+   */
+  windowEnd?: Timestamp;
+
+  /**
+   * @generated from field: string status = 6;
+   */
+  status = "";
+
+  /**
+   * @generated from field: int32 ingested_count = 7;
+   */
+  ingestedCount = 0;
+
+  /**
+   * @generated from field: int32 matched_count = 8;
+   */
+  matchedCount = 0;
+
+  /**
+   * @generated from field: int32 mismatched_count = 9;
+   */
+  mismatchedCount = 0;
+
+  /**
+   * @generated from field: int32 missing_in_ledger_count = 10;
+   */
+  missingInLedgerCount = 0;
+
+  /**
+   * @generated from field: int32 missing_in_external_count = 11;
+   */
+  missingInExternalCount = 0;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp started_at = 12;
+   */
+  startedAt?: Timestamp;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp completed_at = 13;
+   */
+  completedAt?: Timestamp;
+
+  /**
+   * @generated from field: string actor_id = 14;
+   */
+  actorId = "";
+
+  constructor(data?: PartialMessage<ReconciliationBatch>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ReconciliationBatch";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "source", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "window_start", kind: "message", T: Timestamp },
+    { no: 5, name: "window_end", kind: "message", T: Timestamp },
+    { no: 6, name: "status", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "ingested_count", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 8, name: "matched_count", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 9, name: "mismatched_count", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 10, name: "missing_in_ledger_count", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 11, name: "missing_in_external_count", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 12, name: "started_at", kind: "message", T: Timestamp },
+    { no: 13, name: "completed_at", kind: "message", T: Timestamp },
+    { no: 14, name: "actor_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ReconciliationBatch {
+    return new ReconciliationBatch().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ReconciliationBatch {
+    return new ReconciliationBatch().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ReconciliationBatch {
+    return new ReconciliationBatch().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ReconciliationBatch | PlainMessage<ReconciliationBatch> | undefined, b: ReconciliationBatch | PlainMessage<ReconciliationBatch> | undefined): boolean {
+    return proto3.util.equals(ReconciliationBatch, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.RunReconciliationResponse
+ */
+export class RunReconciliationResponse extends Message<RunReconciliationResponse> {
+  /**
+   * @generated from field: ledger.v1.ReconciliationBatch batch = 1;
+   */
+  batch?: ReconciliationBatch;
+
+  constructor(data?: PartialMessage<RunReconciliationResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.RunReconciliationResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "batch", kind: "message", T: ReconciliationBatch },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RunReconciliationResponse {
+    return new RunReconciliationResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RunReconciliationResponse {
+    return new RunReconciliationResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RunReconciliationResponse {
+    return new RunReconciliationResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RunReconciliationResponse | PlainMessage<RunReconciliationResponse> | undefined, b: RunReconciliationResponse | PlainMessage<RunReconciliationResponse> | undefined): boolean {
+    return proto3.util.equals(RunReconciliationResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.GetReconciliationBatchRequest
+ */
+export class GetReconciliationBatchRequest extends Message<GetReconciliationBatchRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string batch_id = 2;
+   */
+  batchId = "";
+
+  constructor(data?: PartialMessage<GetReconciliationBatchRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.GetReconciliationBatchRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "batch_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetReconciliationBatchRequest {
+    return new GetReconciliationBatchRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetReconciliationBatchRequest {
+    return new GetReconciliationBatchRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetReconciliationBatchRequest {
+    return new GetReconciliationBatchRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetReconciliationBatchRequest | PlainMessage<GetReconciliationBatchRequest> | undefined, b: GetReconciliationBatchRequest | PlainMessage<GetReconciliationBatchRequest> | undefined): boolean {
+    return proto3.util.equals(GetReconciliationBatchRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.GetReconciliationBatchResponse
+ */
+export class GetReconciliationBatchResponse extends Message<GetReconciliationBatchResponse> {
+  /**
+   * @generated from field: ledger.v1.ReconciliationBatch batch = 1;
+   */
+  batch?: ReconciliationBatch;
+
+  constructor(data?: PartialMessage<GetReconciliationBatchResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.GetReconciliationBatchResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "batch", kind: "message", T: ReconciliationBatch },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetReconciliationBatchResponse {
+    return new GetReconciliationBatchResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetReconciliationBatchResponse {
+    return new GetReconciliationBatchResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetReconciliationBatchResponse {
+    return new GetReconciliationBatchResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: GetReconciliationBatchResponse | PlainMessage<GetReconciliationBatchResponse> | undefined, b: GetReconciliationBatchResponse | PlainMessage<GetReconciliationBatchResponse> | undefined): boolean {
+    return proto3.util.equals(GetReconciliationBatchResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.Discrepancy
+ */
+export class Discrepancy extends Message<Discrepancy> {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id = "";
+
+  /**
+   * @generated from field: string tenant_id = 2;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string batch_id = 3;
+   */
+  batchId = "";
+
+  /**
+   * @generated from field: string type = 4;
+   */
+  type = "";
+
+  /**
+   * @generated from field: string external_record_id = 5;
+   */
+  externalRecordId = "";
+
+  /**
+   * @generated from field: string journal_id = 6;
+   */
+  journalId = "";
+
+  /**
+   * @generated from field: string status = 7;
+   */
+  status = "";
+
+  /**
+   * @generated from field: string resolution_journal_id = 8;
+   */
+  resolutionJournalId = "";
+
+  /**
+   * @generated from field: string resolution_note = 9;
+   */
+  resolutionNote = "";
+
+  /**
+   * @generated from field: string resolved_by = 10;
+   */
+  resolvedBy = "";
+
+  /**
+   * @generated from field: google.protobuf.Timestamp resolved_at = 11;
+   */
+  resolvedAt?: Timestamp;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp created_at = 12;
+   */
+  createdAt?: Timestamp;
+
+  constructor(data?: PartialMessage<Discrepancy>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.Discrepancy";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "batch_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "type", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "external_record_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "journal_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "status", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 8, name: "resolution_journal_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 9, name: "resolution_note", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 10, name: "resolved_by", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 11, name: "resolved_at", kind: "message", T: Timestamp },
+    { no: 12, name: "created_at", kind: "message", T: Timestamp },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Discrepancy {
+    return new Discrepancy().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Discrepancy {
+    return new Discrepancy().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Discrepancy {
+    return new Discrepancy().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: Discrepancy | PlainMessage<Discrepancy> | undefined, b: Discrepancy | PlainMessage<Discrepancy> | undefined): boolean {
+    return proto3.util.equals(Discrepancy, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ListDiscrepanciesRequest
+ */
+export class ListDiscrepanciesRequest extends Message<ListDiscrepanciesRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string batch_id = 2;
+   */
+  batchId = "";
+
+  /**
+   * @generated from field: string status = 3;
+   */
+  status = "";
+
+  /**
+   * @generated from field: int32 page_size = 4;
+   */
+  pageSize = 0;
+
+  constructor(data?: PartialMessage<ListDiscrepanciesRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ListDiscrepanciesRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "batch_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "status", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "page_size", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListDiscrepanciesRequest {
+    return new ListDiscrepanciesRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ListDiscrepanciesRequest {
+    return new ListDiscrepanciesRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ListDiscrepanciesRequest {
+    return new ListDiscrepanciesRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ListDiscrepanciesRequest | PlainMessage<ListDiscrepanciesRequest> | undefined, b: ListDiscrepanciesRequest | PlainMessage<ListDiscrepanciesRequest> | undefined): boolean {
+    return proto3.util.equals(ListDiscrepanciesRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ListDiscrepanciesResponse
+ */
+export class ListDiscrepanciesResponse extends Message<ListDiscrepanciesResponse> {
+  /**
+   * @generated from field: repeated ledger.v1.Discrepancy discrepancies = 1;
+   */
+  discrepancies: Discrepancy[] = [];
+
+  constructor(data?: PartialMessage<ListDiscrepanciesResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ListDiscrepanciesResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "discrepancies", kind: "message", T: Discrepancy, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListDiscrepanciesResponse {
+    return new ListDiscrepanciesResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ListDiscrepanciesResponse {
+    return new ListDiscrepanciesResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ListDiscrepanciesResponse {
+    return new ListDiscrepanciesResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ListDiscrepanciesResponse | PlainMessage<ListDiscrepanciesResponse> | undefined, b: ListDiscrepanciesResponse | PlainMessage<ListDiscrepanciesResponse> | undefined): boolean {
+    return proto3.util.equals(ListDiscrepanciesResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ResolveDiscrepancyRequest
+ */
+export class ResolveDiscrepancyRequest extends Message<ResolveDiscrepancyRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * @generated from field: string discrepancy_id = 2;
+   */
+  discrepancyId = "";
+
+  /**
+   * @generated from field: string resolution = 3;
+   */
+  resolution = "";
+
+  /**
+   * @generated from field: ledger.v1.ExecuteFlowRequest adjustment = 4;
+   */
+  adjustment?: ExecuteFlowRequest;
+
+  /**
+   * @generated from field: string note = 5;
+   */
+  note = "";
+
+  /**
+   * @generated from field: string idempotency_key = 6;
+   */
+  idempotencyKey = "";
+
+  /**
+   * @generated from field: string actor_id = 7;
+   */
+  actorId = "";
+
+  constructor(data?: PartialMessage<ResolveDiscrepancyRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ResolveDiscrepancyRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "discrepancy_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "resolution", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "adjustment", kind: "message", T: ExecuteFlowRequest },
+    { no: 5, name: "note", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "idempotency_key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "actor_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ResolveDiscrepancyRequest {
+    return new ResolveDiscrepancyRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ResolveDiscrepancyRequest {
+    return new ResolveDiscrepancyRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ResolveDiscrepancyRequest {
+    return new ResolveDiscrepancyRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ResolveDiscrepancyRequest | PlainMessage<ResolveDiscrepancyRequest> | undefined, b: ResolveDiscrepancyRequest | PlainMessage<ResolveDiscrepancyRequest> | undefined): boolean {
+    return proto3.util.equals(ResolveDiscrepancyRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ResolveDiscrepancyResponse
+ */
+export class ResolveDiscrepancyResponse extends Message<ResolveDiscrepancyResponse> {
+  /**
+   * @generated from field: ledger.v1.Discrepancy discrepancy = 1;
+   */
+  discrepancy?: Discrepancy;
+
+  constructor(data?: PartialMessage<ResolveDiscrepancyResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ResolveDiscrepancyResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "discrepancy", kind: "message", T: Discrepancy },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ResolveDiscrepancyResponse {
+    return new ResolveDiscrepancyResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ResolveDiscrepancyResponse {
+    return new ResolveDiscrepancyResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ResolveDiscrepancyResponse {
+    return new ResolveDiscrepancyResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ResolveDiscrepancyResponse | PlainMessage<ResolveDiscrepancyResponse> | undefined, b: ResolveDiscrepancyResponse | PlainMessage<ResolveDiscrepancyResponse> | undefined): boolean {
+    return proto3.util.equals(ResolveDiscrepancyResponse, a, b);
+  }
+}
+

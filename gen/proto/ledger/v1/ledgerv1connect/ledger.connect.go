@@ -78,6 +78,21 @@ const (
 	// LedgerServiceListFXRatesProcedure is the fully-qualified name of the LedgerService's ListFXRates
 	// RPC.
 	LedgerServiceListFXRatesProcedure = "/ledger.v1.LedgerService/ListFXRates"
+	// LedgerServiceIngestExternalRecordsProcedure is the fully-qualified name of the LedgerService's
+	// IngestExternalRecords RPC.
+	LedgerServiceIngestExternalRecordsProcedure = "/ledger.v1.LedgerService/IngestExternalRecords"
+	// LedgerServiceRunReconciliationProcedure is the fully-qualified name of the LedgerService's
+	// RunReconciliation RPC.
+	LedgerServiceRunReconciliationProcedure = "/ledger.v1.LedgerService/RunReconciliation"
+	// LedgerServiceGetReconciliationBatchProcedure is the fully-qualified name of the LedgerService's
+	// GetReconciliationBatch RPC.
+	LedgerServiceGetReconciliationBatchProcedure = "/ledger.v1.LedgerService/GetReconciliationBatch"
+	// LedgerServiceListDiscrepanciesProcedure is the fully-qualified name of the LedgerService's
+	// ListDiscrepancies RPC.
+	LedgerServiceListDiscrepanciesProcedure = "/ledger.v1.LedgerService/ListDiscrepancies"
+	// LedgerServiceResolveDiscrepancyProcedure is the fully-qualified name of the LedgerService's
+	// ResolveDiscrepancy RPC.
+	LedgerServiceResolveDiscrepancyProcedure = "/ledger.v1.LedgerService/ResolveDiscrepancy"
 )
 
 // LedgerServiceClient is a client for the ledger.v1.LedgerService service.
@@ -98,6 +113,11 @@ type LedgerServiceClient interface {
 	PutFXRate(context.Context, *connect.Request[v1.PutFXRateRequest]) (*connect.Response[v1.PutFXRateResponse], error)
 	GetFXRate(context.Context, *connect.Request[v1.GetFXRateRequest]) (*connect.Response[v1.GetFXRateResponse], error)
 	ListFXRates(context.Context, *connect.Request[v1.ListFXRatesRequest]) (*connect.Response[v1.ListFXRatesResponse], error)
+	IngestExternalRecords(context.Context, *connect.Request[v1.IngestExternalRecordsRequest]) (*connect.Response[v1.IngestExternalRecordsResponse], error)
+	RunReconciliation(context.Context, *connect.Request[v1.RunReconciliationRequest]) (*connect.Response[v1.RunReconciliationResponse], error)
+	GetReconciliationBatch(context.Context, *connect.Request[v1.GetReconciliationBatchRequest]) (*connect.Response[v1.GetReconciliationBatchResponse], error)
+	ListDiscrepancies(context.Context, *connect.Request[v1.ListDiscrepanciesRequest]) (*connect.Response[v1.ListDiscrepanciesResponse], error)
+	ResolveDiscrepancy(context.Context, *connect.Request[v1.ResolveDiscrepancyRequest]) (*connect.Response[v1.ResolveDiscrepancyResponse], error)
 }
 
 // NewLedgerServiceClient constructs a client for the ledger.v1.LedgerService service. By default,
@@ -207,27 +227,62 @@ func NewLedgerServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(ledgerServiceMethods.ByName("ListFXRates")),
 			connect.WithClientOptions(opts...),
 		),
+		ingestExternalRecords: connect.NewClient[v1.IngestExternalRecordsRequest, v1.IngestExternalRecordsResponse](
+			httpClient,
+			baseURL+LedgerServiceIngestExternalRecordsProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("IngestExternalRecords")),
+			connect.WithClientOptions(opts...),
+		),
+		runReconciliation: connect.NewClient[v1.RunReconciliationRequest, v1.RunReconciliationResponse](
+			httpClient,
+			baseURL+LedgerServiceRunReconciliationProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("RunReconciliation")),
+			connect.WithClientOptions(opts...),
+		),
+		getReconciliationBatch: connect.NewClient[v1.GetReconciliationBatchRequest, v1.GetReconciliationBatchResponse](
+			httpClient,
+			baseURL+LedgerServiceGetReconciliationBatchProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("GetReconciliationBatch")),
+			connect.WithClientOptions(opts...),
+		),
+		listDiscrepancies: connect.NewClient[v1.ListDiscrepanciesRequest, v1.ListDiscrepanciesResponse](
+			httpClient,
+			baseURL+LedgerServiceListDiscrepanciesProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("ListDiscrepancies")),
+			connect.WithClientOptions(opts...),
+		),
+		resolveDiscrepancy: connect.NewClient[v1.ResolveDiscrepancyRequest, v1.ResolveDiscrepancyResponse](
+			httpClient,
+			baseURL+LedgerServiceResolveDiscrepancyProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("ResolveDiscrepancy")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // ledgerServiceClient implements LedgerServiceClient.
 type ledgerServiceClient struct {
-	createAccount       *connect.Client[v1.CreateAccountRequest, v1.CreateAccountResponse]
-	getAccount          *connect.Client[v1.GetAccountRequest, v1.GetAccountResponse]
-	getBalance          *connect.Client[v1.GetBalanceRequest, v1.GetBalanceResponse]
-	postJournal         *connect.Client[v1.PostJournalRequest, v1.PostJournalResponse]
-	executeFlow         *connect.Client[v1.ExecuteFlowRequest, v1.ExecuteFlowResponse]
-	getFlow             *connect.Client[v1.GetFlowRequest, v1.GetFlowResponse]
-	listAccountActivity *connect.Client[v1.ListAccountActivityRequest, v1.ListAccountActivityResponse]
-	takeBalanceSnapshot *connect.Client[v1.TakeBalanceSnapshotRequest, v1.TakeBalanceSnapshotResponse]
-	createReservation   *connect.Client[v1.CreateReservationRequest, v1.CreateReservationResponse]
-	commitReservation   *connect.Client[v1.CommitReservationRequest, v1.CommitReservationResponse]
-	releaseReservation  *connect.Client[v1.ReleaseReservationRequest, v1.ReleaseReservationResponse]
-	getReservation      *connect.Client[v1.GetReservationRequest, v1.GetReservationResponse]
-	executeExchange     *connect.Client[v1.ExecuteExchangeRequest, v1.ExecuteExchangeResponse]
-	putFXRate           *connect.Client[v1.PutFXRateRequest, v1.PutFXRateResponse]
-	getFXRate           *connect.Client[v1.GetFXRateRequest, v1.GetFXRateResponse]
-	listFXRates         *connect.Client[v1.ListFXRatesRequest, v1.ListFXRatesResponse]
+	createAccount          *connect.Client[v1.CreateAccountRequest, v1.CreateAccountResponse]
+	getAccount             *connect.Client[v1.GetAccountRequest, v1.GetAccountResponse]
+	getBalance             *connect.Client[v1.GetBalanceRequest, v1.GetBalanceResponse]
+	postJournal            *connect.Client[v1.PostJournalRequest, v1.PostJournalResponse]
+	executeFlow            *connect.Client[v1.ExecuteFlowRequest, v1.ExecuteFlowResponse]
+	getFlow                *connect.Client[v1.GetFlowRequest, v1.GetFlowResponse]
+	listAccountActivity    *connect.Client[v1.ListAccountActivityRequest, v1.ListAccountActivityResponse]
+	takeBalanceSnapshot    *connect.Client[v1.TakeBalanceSnapshotRequest, v1.TakeBalanceSnapshotResponse]
+	createReservation      *connect.Client[v1.CreateReservationRequest, v1.CreateReservationResponse]
+	commitReservation      *connect.Client[v1.CommitReservationRequest, v1.CommitReservationResponse]
+	releaseReservation     *connect.Client[v1.ReleaseReservationRequest, v1.ReleaseReservationResponse]
+	getReservation         *connect.Client[v1.GetReservationRequest, v1.GetReservationResponse]
+	executeExchange        *connect.Client[v1.ExecuteExchangeRequest, v1.ExecuteExchangeResponse]
+	putFXRate              *connect.Client[v1.PutFXRateRequest, v1.PutFXRateResponse]
+	getFXRate              *connect.Client[v1.GetFXRateRequest, v1.GetFXRateResponse]
+	listFXRates            *connect.Client[v1.ListFXRatesRequest, v1.ListFXRatesResponse]
+	ingestExternalRecords  *connect.Client[v1.IngestExternalRecordsRequest, v1.IngestExternalRecordsResponse]
+	runReconciliation      *connect.Client[v1.RunReconciliationRequest, v1.RunReconciliationResponse]
+	getReconciliationBatch *connect.Client[v1.GetReconciliationBatchRequest, v1.GetReconciliationBatchResponse]
+	listDiscrepancies      *connect.Client[v1.ListDiscrepanciesRequest, v1.ListDiscrepanciesResponse]
+	resolveDiscrepancy     *connect.Client[v1.ResolveDiscrepancyRequest, v1.ResolveDiscrepancyResponse]
 }
 
 // CreateAccount calls ledger.v1.LedgerService.CreateAccount.
@@ -310,6 +365,31 @@ func (c *ledgerServiceClient) ListFXRates(ctx context.Context, req *connect.Requ
 	return c.listFXRates.CallUnary(ctx, req)
 }
 
+// IngestExternalRecords calls ledger.v1.LedgerService.IngestExternalRecords.
+func (c *ledgerServiceClient) IngestExternalRecords(ctx context.Context, req *connect.Request[v1.IngestExternalRecordsRequest]) (*connect.Response[v1.IngestExternalRecordsResponse], error) {
+	return c.ingestExternalRecords.CallUnary(ctx, req)
+}
+
+// RunReconciliation calls ledger.v1.LedgerService.RunReconciliation.
+func (c *ledgerServiceClient) RunReconciliation(ctx context.Context, req *connect.Request[v1.RunReconciliationRequest]) (*connect.Response[v1.RunReconciliationResponse], error) {
+	return c.runReconciliation.CallUnary(ctx, req)
+}
+
+// GetReconciliationBatch calls ledger.v1.LedgerService.GetReconciliationBatch.
+func (c *ledgerServiceClient) GetReconciliationBatch(ctx context.Context, req *connect.Request[v1.GetReconciliationBatchRequest]) (*connect.Response[v1.GetReconciliationBatchResponse], error) {
+	return c.getReconciliationBatch.CallUnary(ctx, req)
+}
+
+// ListDiscrepancies calls ledger.v1.LedgerService.ListDiscrepancies.
+func (c *ledgerServiceClient) ListDiscrepancies(ctx context.Context, req *connect.Request[v1.ListDiscrepanciesRequest]) (*connect.Response[v1.ListDiscrepanciesResponse], error) {
+	return c.listDiscrepancies.CallUnary(ctx, req)
+}
+
+// ResolveDiscrepancy calls ledger.v1.LedgerService.ResolveDiscrepancy.
+func (c *ledgerServiceClient) ResolveDiscrepancy(ctx context.Context, req *connect.Request[v1.ResolveDiscrepancyRequest]) (*connect.Response[v1.ResolveDiscrepancyResponse], error) {
+	return c.resolveDiscrepancy.CallUnary(ctx, req)
+}
+
 // LedgerServiceHandler is an implementation of the ledger.v1.LedgerService service.
 type LedgerServiceHandler interface {
 	CreateAccount(context.Context, *connect.Request[v1.CreateAccountRequest]) (*connect.Response[v1.CreateAccountResponse], error)
@@ -328,6 +408,11 @@ type LedgerServiceHandler interface {
 	PutFXRate(context.Context, *connect.Request[v1.PutFXRateRequest]) (*connect.Response[v1.PutFXRateResponse], error)
 	GetFXRate(context.Context, *connect.Request[v1.GetFXRateRequest]) (*connect.Response[v1.GetFXRateResponse], error)
 	ListFXRates(context.Context, *connect.Request[v1.ListFXRatesRequest]) (*connect.Response[v1.ListFXRatesResponse], error)
+	IngestExternalRecords(context.Context, *connect.Request[v1.IngestExternalRecordsRequest]) (*connect.Response[v1.IngestExternalRecordsResponse], error)
+	RunReconciliation(context.Context, *connect.Request[v1.RunReconciliationRequest]) (*connect.Response[v1.RunReconciliationResponse], error)
+	GetReconciliationBatch(context.Context, *connect.Request[v1.GetReconciliationBatchRequest]) (*connect.Response[v1.GetReconciliationBatchResponse], error)
+	ListDiscrepancies(context.Context, *connect.Request[v1.ListDiscrepanciesRequest]) (*connect.Response[v1.ListDiscrepanciesResponse], error)
+	ResolveDiscrepancy(context.Context, *connect.Request[v1.ResolveDiscrepancyRequest]) (*connect.Response[v1.ResolveDiscrepancyResponse], error)
 }
 
 // NewLedgerServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -433,6 +518,36 @@ func NewLedgerServiceHandler(svc LedgerServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(ledgerServiceMethods.ByName("ListFXRates")),
 		connect.WithHandlerOptions(opts...),
 	)
+	ledgerServiceIngestExternalRecordsHandler := connect.NewUnaryHandler(
+		LedgerServiceIngestExternalRecordsProcedure,
+		svc.IngestExternalRecords,
+		connect.WithSchema(ledgerServiceMethods.ByName("IngestExternalRecords")),
+		connect.WithHandlerOptions(opts...),
+	)
+	ledgerServiceRunReconciliationHandler := connect.NewUnaryHandler(
+		LedgerServiceRunReconciliationProcedure,
+		svc.RunReconciliation,
+		connect.WithSchema(ledgerServiceMethods.ByName("RunReconciliation")),
+		connect.WithHandlerOptions(opts...),
+	)
+	ledgerServiceGetReconciliationBatchHandler := connect.NewUnaryHandler(
+		LedgerServiceGetReconciliationBatchProcedure,
+		svc.GetReconciliationBatch,
+		connect.WithSchema(ledgerServiceMethods.ByName("GetReconciliationBatch")),
+		connect.WithHandlerOptions(opts...),
+	)
+	ledgerServiceListDiscrepanciesHandler := connect.NewUnaryHandler(
+		LedgerServiceListDiscrepanciesProcedure,
+		svc.ListDiscrepancies,
+		connect.WithSchema(ledgerServiceMethods.ByName("ListDiscrepancies")),
+		connect.WithHandlerOptions(opts...),
+	)
+	ledgerServiceResolveDiscrepancyHandler := connect.NewUnaryHandler(
+		LedgerServiceResolveDiscrepancyProcedure,
+		svc.ResolveDiscrepancy,
+		connect.WithSchema(ledgerServiceMethods.ByName("ResolveDiscrepancy")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/ledger.v1.LedgerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case LedgerServiceCreateAccountProcedure:
@@ -467,6 +582,16 @@ func NewLedgerServiceHandler(svc LedgerServiceHandler, opts ...connect.HandlerOp
 			ledgerServiceGetFXRateHandler.ServeHTTP(w, r)
 		case LedgerServiceListFXRatesProcedure:
 			ledgerServiceListFXRatesHandler.ServeHTTP(w, r)
+		case LedgerServiceIngestExternalRecordsProcedure:
+			ledgerServiceIngestExternalRecordsHandler.ServeHTTP(w, r)
+		case LedgerServiceRunReconciliationProcedure:
+			ledgerServiceRunReconciliationHandler.ServeHTTP(w, r)
+		case LedgerServiceGetReconciliationBatchProcedure:
+			ledgerServiceGetReconciliationBatchHandler.ServeHTTP(w, r)
+		case LedgerServiceListDiscrepanciesProcedure:
+			ledgerServiceListDiscrepanciesHandler.ServeHTTP(w, r)
+		case LedgerServiceResolveDiscrepancyProcedure:
+			ledgerServiceResolveDiscrepancyHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -538,4 +663,24 @@ func (UnimplementedLedgerServiceHandler) GetFXRate(context.Context, *connect.Req
 
 func (UnimplementedLedgerServiceHandler) ListFXRates(context.Context, *connect.Request[v1.ListFXRatesRequest]) (*connect.Response[v1.ListFXRatesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.ListFXRates is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) IngestExternalRecords(context.Context, *connect.Request[v1.IngestExternalRecordsRequest]) (*connect.Response[v1.IngestExternalRecordsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.IngestExternalRecords is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) RunReconciliation(context.Context, *connect.Request[v1.RunReconciliationRequest]) (*connect.Response[v1.RunReconciliationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.RunReconciliation is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) GetReconciliationBatch(context.Context, *connect.Request[v1.GetReconciliationBatchRequest]) (*connect.Response[v1.GetReconciliationBatchResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.GetReconciliationBatch is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) ListDiscrepancies(context.Context, *connect.Request[v1.ListDiscrepanciesRequest]) (*connect.Response[v1.ListDiscrepanciesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.ListDiscrepancies is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) ResolveDiscrepancy(context.Context, *connect.Request[v1.ResolveDiscrepancyRequest]) (*connect.Response[v1.ResolveDiscrepancyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.ResolveDiscrepancy is not implemented"))
 }

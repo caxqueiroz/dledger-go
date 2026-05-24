@@ -23,6 +23,11 @@ service LedgerService {
   rpc PutFXRate(PutFXRateRequest) returns (PutFXRateResponse);
   rpc GetFXRate(GetFXRateRequest) returns (GetFXRateResponse);
   rpc ListFXRates(ListFXRatesRequest) returns (ListFXRatesResponse);
+  rpc IngestExternalRecords(IngestExternalRecordsRequest) returns (IngestExternalRecordsResponse);
+  rpc RunReconciliation(RunReconciliationRequest) returns (RunReconciliationResponse);
+  rpc GetReconciliationBatch(GetReconciliationBatchRequest) returns (GetReconciliationBatchResponse);
+  rpc ListDiscrepancies(ListDiscrepanciesRequest) returns (ListDiscrepanciesResponse);
+  rpc ResolveDiscrepancy(ResolveDiscrepancyRequest) returns (ResolveDiscrepancyResponse);
 }
 
 enum Direction {
@@ -303,3 +308,103 @@ message ListFXRatesRequest {
   int32  page_size      = 6;
 }
 message ListFXRatesResponse { repeated FXRate rates = 1; }
+
+message ExternalRecord {
+  string id              = 1;
+  string tenant_id       = 2;
+  string source          = 3;
+  string external_ref    = 4;
+  string amount          = 5;
+  string currency        = 6;
+  google.protobuf.Timestamp occurred_at = 7;
+  string account_id      = 8;
+  google.protobuf.Struct raw_payload = 9;
+  string match_status    = 10;
+  string matched_journal_id = 11;
+  google.protobuf.Timestamp created_at = 12;
+}
+
+message ExternalRecordInput {
+  string source          = 1 [(buf.validate.field).string.min_len = 1];
+  string external_ref    = 2 [(buf.validate.field).string.min_len = 1];
+  string amount          = 3 [(buf.validate.field).string.pattern = "^[0-9]+(\\.[0-9]+)?$"];
+  string currency        = 4 [(buf.validate.field).string.min_len = 3];
+  google.protobuf.Timestamp occurred_at = 5;
+  string account_id      = 6;
+  google.protobuf.Struct raw_payload = 7;
+}
+
+message IngestExternalRecordsRequest {
+  string tenant_id                       = 1 [(buf.validate.field).string.min_len = 1];
+  repeated ExternalRecordInput records   = 2 [(buf.validate.field).repeated.min_items = 1];
+}
+message IngestExternalRecordsResponse {
+  int32 inserted = 1;
+  int32 skipped  = 2;
+}
+
+message RunReconciliationRequest {
+  string tenant_id       = 1 [(buf.validate.field).string.min_len = 1];
+  string idempotency_key = 2 [(buf.validate.field).string.min_len = 1];
+  string source          = 3 [(buf.validate.field).string.min_len = 1];
+  google.protobuf.Timestamp window_start = 4;
+  google.protobuf.Timestamp window_end   = 5;
+  string actor_id        = 6;
+}
+
+message ReconciliationBatch {
+  string id              = 1;
+  string tenant_id       = 2;
+  string source          = 3;
+  google.protobuf.Timestamp window_start = 4;
+  google.protobuf.Timestamp window_end   = 5;
+  string status          = 6;
+  int32  ingested_count  = 7;
+  int32  matched_count   = 8;
+  int32  mismatched_count = 9;
+  int32  missing_in_ledger_count   = 10;
+  int32  missing_in_external_count = 11;
+  google.protobuf.Timestamp started_at   = 12;
+  google.protobuf.Timestamp completed_at = 13;
+  string actor_id        = 14;
+}
+message RunReconciliationResponse { ReconciliationBatch batch = 1; }
+
+message GetReconciliationBatchRequest  { string tenant_id = 1; string batch_id = 2; }
+message GetReconciliationBatchResponse { ReconciliationBatch batch = 1; }
+
+message Discrepancy {
+  string id                       = 1;
+  string tenant_id                = 2;
+  string batch_id                 = 3;
+  string type                     = 4;
+  string external_record_id       = 5;
+  string journal_id               = 6;
+  string status                   = 7;
+  string resolution_journal_id    = 8;
+  string resolution_note          = 9;
+  string resolved_by              = 10;
+  google.protobuf.Timestamp resolved_at = 11;
+  google.protobuf.Timestamp created_at  = 12;
+}
+
+message ListDiscrepanciesRequest {
+  string tenant_id  = 1;
+  string batch_id   = 2;
+  string status     = 3;
+  int32  page_size  = 4;
+}
+message ListDiscrepanciesResponse {
+  repeated Discrepancy discrepancies = 1;
+}
+
+message ResolveDiscrepancyRequest {
+  string tenant_id              = 1 [(buf.validate.field).string.min_len = 1];
+  string discrepancy_id         = 2 [(buf.validate.field).string.min_len = 1];
+  string resolution             = 3 [(buf.validate.field).string.min_len = 1];
+  ExecuteFlowRequest adjustment = 4;
+  string note                   = 5;
+  string idempotency_key        = 6 [(buf.validate.field).string.min_len = 1];
+  string actor_id               = 7;
+}
+message ResolveDiscrepancyResponse { Discrepancy discrepancy = 1; }
