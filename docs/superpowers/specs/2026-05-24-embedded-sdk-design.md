@@ -83,6 +83,7 @@ type Client interface {
     CommitReservation(context.Context, *connect.Request[v1.CommitReservationRequest])   (*connect.Response[v1.CommitReservationResponse], error)
     ReleaseReservation(context.Context, *connect.Request[v1.ReleaseReservationRequest]) (*connect.Response[v1.ReleaseReservationResponse], error)
     GetReservation(context.Context, *connect.Request[v1.GetReservationRequest])         (*connect.Response[v1.GetReservationResponse], error)
+    ListReservations(context.Context, *connect.Request[v1.ListReservationsRequest])     (*connect.Response[v1.ListReservationsResponse], error)
 
     // Snapshots
     TakeBalanceSnapshot(context.Context, *connect.Request[v1.TakeBalanceSnapshotRequest]) (*connect.Response[v1.TakeBalanceSnapshotResponse], error)
@@ -343,9 +344,7 @@ func (w *Wallet) GetWallet(ctx context.Context, playerID, currency string) (Wall
 Returns:
 - `Available` from `GetBalance` on `user:<id>:cash_available:<ccy>`.
 - `Reserved` from `GetBalance` on `user:<id>:cash_reserved:<ccy>`.
-- `OpenReservations` — for v1, returns an empty slice. The full implementation requires a per-player reservation index. Listed as a known limitation; a follow-up adds `ListReservations(filter)` to the proto and surfaces it here.
-
-(Adding `ListReservations` to the proto in this PR is also acceptable if we want full functionality on day 1 — it's a small one-RPC addition. Listed as a stretch goal in §10.)
+- `OpenReservations` from a new `ListReservations` RPC (added in this PR — see §10) filtered by `owner_type=user, owner_id=playerID, status in (HELD,PARTIAL)`.
 
 ## 6. Error model
 
@@ -439,11 +438,29 @@ remoteClient.Close():
 `pkg/dledger/errors_test.go`:
 - **`TestIsErrCode_EmbeddedAndRemote`** — using a Wallet-driven INSUFFICIENT_FUNDS scenario, assert `IsErrCode` returns true for both an embedded Client and a remote Client (httptest server wrapping the same embedded Server).
 
-## 10. Stretch goal (decide at plan time)
+## 10. `ListReservations` (in scope)
 
-Adding `ListReservations(tenant, owner_type, owner_id, status, page)` to the proto + repo + handler + Wallet. ~+0.5 day. Required to fully populate `WalletSnapshot.OpenReservations`. If we defer it, document the field as "always empty in v1".
+To populate `WalletSnapshot.OpenReservations`, the SDK plan also adds a new RPC:
 
-**Recommendation**: include it. The `WalletSnapshot` value collapses without it.
+```proto
+message ListReservationsRequest {
+  string tenant_id  = 1 [(buf.validate.field).string.min_len = 1];
+  string owner_type = 2;          // optional filter, e.g. "user"
+  string owner_id   = 3;          // optional filter
+  string status     = 4;          // optional: HELD|PARTIAL|COMMITTED|RELEASED|EXPIRED
+  int32  page_size  = 5;
+}
+message ListReservationsResponse { repeated Reservation reservations = 1; }
+```
+
+Implementation touchpoints:
+
+- `sql/queries/{sqlite,crdb}/reservations.sql` — new `ListReservations` query joining accounts to derive owner_type/owner_id from the reservation's source account.
+- `internal/repo` — `Store.ListReservations(ctx, ListReservationsInput) ([]Reservation, error)`.
+- `internal/service/list_reservations.go` — handler.
+- Maps `owner_type`/`owner_id` filters by joining `reservations.source_account_id → accounts.{owner_type, owner_id}`.
+
+Adds ~0.5 day. Replaces the v1 "always empty" workaround.
 
 ## 11. Outbox events
 
