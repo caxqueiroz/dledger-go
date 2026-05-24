@@ -18,9 +18,11 @@ func ToConnectError(err error) error {
 	if de, ok := errors.AsType[*ledger.DomainError](err); ok {
 		code := connect.CodeInternal
 		switch de.Code {
-		case ledger.CodeInsufficientFunds, ledger.CodeInvalidAccountStatus, ledger.CodeReservationClosed:
+		case ledger.CodeInsufficientFunds, ledger.CodeInvalidAccountStatus, ledger.CodeReservationClosed,
+			ledger.CodeDiscrepancyClosed:
 			code = connect.CodeFailedPrecondition
-		case ledger.CodeAccountNotFound, ledger.CodeReservationNotFound, ledger.CodeFXRateNotFound:
+		case ledger.CodeAccountNotFound, ledger.CodeReservationNotFound, ledger.CodeFXRateNotFound,
+			ledger.CodeDiscrepancyNotFound, ledger.CodeReconBatchNotFound:
 			code = connect.CodeNotFound
 		case ledger.CodeAccountCurrencyMismatch, ledger.CodeUnbalancedJournal,
 			ledger.CodeReservationAmountExceeds, ledger.CodeReservationCurrencyMismatch,
