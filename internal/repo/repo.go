@@ -43,6 +43,14 @@ type Store interface {
 	GetReservation(ctx context.Context, tenantID, reservationID string) (*ledger.Reservation, error)
 	ListExpiredReservations(ctx context.Context, now time.Time, limit int) ([]ExpiredReservation, error)
 
+	// Reconciliation (read + write outside flow tx)
+	InsertExternalRecord(ctx context.Context, r ledger.ExternalRecord) (inserted bool, err error)
+	ListExternalRecordsForRecon(ctx context.Context, tenantID, source string, windowStart, windowEnd time.Time) ([]ledger.ExternalRecord, error)
+	ListJournalsForRecon(ctx context.Context, tenantID, source string, windowStart, windowEnd time.Time) ([]ledger.Journal, error)
+	GetReconBatch(ctx context.Context, tenantID, batchID string) (*ledger.ReconciliationBatch, error)
+	ListDiscrepancies(ctx context.Context, in ListDiscrepanciesInput) ([]ledger.Discrepancy, error)
+	GetDiscrepancy(ctx context.Context, tenantID, discrepancyID string) (*ledger.Discrepancy, error)
+
 	Close() error
 }
 
@@ -75,6 +83,16 @@ type Tx interface {
 	GetReservationByIdempotency(ctx context.Context, tenantID, key string) (*ledger.Reservation, error)
 	UpdateReservationAmounts(ctx context.Context, tenantID, reservationID string, outstanding, committed, released decimal.Decimal, status ledger.ReservationStatus) error
 
+	// Reconciliation (transactional)
+	GetReconBatchByIdempotency(ctx context.Context, tenantID, key string) (*ledger.ReconciliationBatch, error)
+	InsertReconBatch(ctx context.Context, b ledger.ReconciliationBatch) error
+	CompleteReconBatch(ctx context.Context, b ledger.ReconciliationBatch) error
+	UpdateExternalRecordMatch(ctx context.Context, tenantID, id string, status ledger.ExternalRecordStatus, journalID string) error
+	SumJournalEntries(ctx context.Context, tenantID, journalID, accountID, currency string) (debits, credits decimal.Decimal, err error)
+	InsertDiscrepancy(ctx context.Context, d ledger.Discrepancy) error
+	LockDiscrepancy(ctx context.Context, tenantID, id string) (*ledger.Discrepancy, error)
+	ResolveDiscrepancyRow(ctx context.Context, d ledger.Discrepancy) error
+
 	Commit() error
 	Rollback() error
 }
@@ -105,6 +123,13 @@ type ListFXRatesInput struct {
 	Since         *time.Time
 	Until         *time.Time
 	Limit         int
+}
+
+type ListDiscrepanciesInput struct {
+	TenantID string
+	BatchID  string // optional ("" = no filter)
+	Status   string // optional ("" = no filter)
+	Limit    int
 }
 
 type ActivityRow struct {

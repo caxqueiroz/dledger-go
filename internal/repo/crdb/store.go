@@ -2,6 +2,7 @@ package crdb
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -354,4 +355,111 @@ func (s *Store) PruneSnapshotsOlderThan(ctx context.Context, cutoff time.Time, l
 		SnapshotAt: pgtype.Timestamptz{Time: cutoff.UTC(), Valid: true},
 		Limit:      int32(limit),
 	})
+}
+
+// InsertExternalRecord inserts a record; returns (true, nil) when the row was
+// newly inserted, (false, nil) on UNIQUE conflict (already exists).
+func (s *Store) InsertExternalRecord(ctx context.Context, r ledger.ExternalRecord) (bool, error) {
+	payload, _ := json.Marshal(r.RawPayload)
+	var acct *string
+	if r.AccountID != "" {
+		v := r.AccountID
+		acct = &v
+	}
+	n, err := s.q.InsertExternalRecord(ctx, crdbstore.InsertExternalRecordParams{
+		ID: r.ID, TenantID: r.TenantID,
+		Source: r.Source, ExternalRef: r.ExternalRef,
+		Amount: r.Amount, Currency: r.Currency,
+		OccurredAt: pgtype.Timestamptz{Time: r.OccurredAt.UTC(), Valid: true},
+		AccountID:  acct,
+		RawPayload: payload,
+	})
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
+}
+
+// ListExternalRecordsForRecon returns UNMATCHED external records for the given
+// source within the time window.
+func (s *Store) ListExternalRecordsForRecon(ctx context.Context, tenantID, source string, windowStart, windowEnd time.Time) ([]ledger.ExternalRecord, error) {
+	rows, err := s.q.ListExternalRecordsForRecon(ctx, crdbstore.ListExternalRecordsForReconParams{
+		TenantID:     tenantID,
+		Source:       source,
+		OccurredAt:   pgtype.Timestamptz{Time: windowStart.UTC(), Valid: true},
+		OccurredAt_2: pgtype.Timestamptz{Time: windowEnd.UTC(), Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ledger.ExternalRecord, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, *rowToExternalRecord(r))
+	}
+	return out, nil
+}
+
+// ListJournalsForRecon returns ledger journals for the given source_service within
+// the time window.
+func (s *Store) ListJournalsForRecon(ctx context.Context, tenantID, source string, windowStart, windowEnd time.Time) ([]ledger.Journal, error) {
+	rows, err := s.q.ListJournalsForRecon(ctx, crdbstore.ListJournalsForReconParams{
+		TenantID:      tenantID,
+		SourceService: source,
+		CreatedAt:     pgtype.Timestamptz{Time: windowStart.UTC(), Valid: true},
+		CreatedAt_2:   pgtype.Timestamptz{Time: windowEnd.UTC(), Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ledger.Journal, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, *rowToJournal(r))
+	}
+	return out, nil
+}
+
+// GetReconBatch fetches a reconciliation batch by ID.
+func (s *Store) GetReconBatch(ctx context.Context, tenantID, batchID string) (*ledger.ReconciliationBatch, error) {
+	row, err := s.q.GetReconBatch(ctx, crdbstore.GetReconBatchParams{TenantID: tenantID, ID: batchID})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ledger.NewDomainError(ledger.CodeReconBatchNotFound, batchID)
+		}
+		return nil, err
+	}
+	return rowToReconBatch(row), nil
+}
+
+// ListDiscrepancies returns discrepancies optionally filtered by batch_id and status.
+func (s *Store) ListDiscrepancies(ctx context.Context, in repo.ListDiscrepanciesInput) ([]ledger.Discrepancy, error) {
+	limit := int32(in.Limit)
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	rows, err := s.q.ListDiscrepancies(ctx, crdbstore.ListDiscrepanciesParams{
+		TenantID: in.TenantID,
+		Column2:  in.BatchID,
+		Column3:  in.Status,
+		Limit:    limit,
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ledger.Discrepancy, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, *rowToDiscrepancy(r))
+	}
+	return out, nil
+}
+
+// GetDiscrepancy fetches a single discrepancy by ID.
+func (s *Store) GetDiscrepancy(ctx context.Context, tenantID, discrepancyID string) (*ledger.Discrepancy, error) {
+	row, err := s.q.GetDiscrepancy(ctx, crdbstore.GetDiscrepancyParams{TenantID: tenantID, ID: discrepancyID})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ledger.NewDomainError(ledger.CodeDiscrepancyNotFound, discrepancyID)
+		}
+		return nil, err
+	}
+	return rowToDiscrepancy(row), nil
 }

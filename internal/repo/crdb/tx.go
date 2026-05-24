@@ -275,6 +275,108 @@ func nullString(s string) *string {
 	return &v
 }
 
+// GetReconBatchByIdempotency looks up a reconciliation batch by idempotency key within
+// the transaction (FOR UPDATE in the underlying query). Returns nil if not found.
+func (t *Tx) GetReconBatchByIdempotency(ctx context.Context, tenantID, key string) (*ledger.ReconciliationBatch, error) {
+	row, err := t.q.GetReconBatchByIdempotency(ctx, crdbstore.GetReconBatchByIdempotencyParams{
+		TenantID:       tenantID,
+		IdempotencyKey: key,
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return rowToReconBatch(row), nil
+}
+
+// InsertReconBatch inserts a new reconciliation batch in RUNNING state.
+func (t *Tx) InsertReconBatch(ctx context.Context, b ledger.ReconciliationBatch) error {
+	return t.q.InsertReconBatch(ctx, crdbstore.InsertReconBatchParams{
+		ID:             b.ID,
+		TenantID:       b.TenantID,
+		IdempotencyKey: b.IdempotencyKey,
+		Source:         b.Source,
+		WindowStart:    pgtype.Timestamptz{Time: b.WindowStart.UTC(), Valid: true},
+		WindowEnd:      pgtype.Timestamptz{Time: b.WindowEnd.UTC(), Valid: true},
+		ActorID:        b.ActorID,
+	})
+}
+
+// CompleteReconBatch marks a batch as COMPLETED and writes the final counts.
+func (t *Tx) CompleteReconBatch(ctx context.Context, b ledger.ReconciliationBatch) error {
+	return t.q.CompleteReconBatch(ctx, crdbstore.CompleteReconBatchParams{
+		IngestedCount:          int64(b.IngestedCount),
+		MatchedCount:           int64(b.MatchedCount),
+		MismatchedCount:        int64(b.MismatchedCount),
+		MissingInLedgerCount:   int64(b.MissingInLedgerCount),
+		MissingInExternalCount: int64(b.MissingInExternalCount),
+		ID:                     b.ID,
+		TenantID:               b.TenantID,
+	})
+}
+
+// UpdateExternalRecordMatch updates the match status (and optional journal ID) for an external record.
+func (t *Tx) UpdateExternalRecordMatch(ctx context.Context, tenantID, id string, status ledger.ExternalRecordStatus, journalID string) error {
+	return t.q.UpdateExternalRecordMatch(ctx, crdbstore.UpdateExternalRecordMatchParams{
+		MatchStatus:      string(status),
+		MatchedJournalID: nullString(journalID),
+		ID:               id,
+		TenantID:         tenantID,
+	})
+}
+
+// SumJournalEntries returns the total debits and credits for a journal scoped by account and currency.
+func (t *Tx) SumJournalEntries(ctx context.Context, tenantID, journalID, accountID, currency string) (decimal.Decimal, decimal.Decimal, error) {
+	row, err := t.q.SumJournalEntries(ctx, crdbstore.SumJournalEntriesParams{
+		TenantID:  tenantID,
+		JournalID: journalID,
+		AccountID: accountID,
+		Currency:  currency,
+	})
+	if err != nil {
+		return decimal.Zero, decimal.Zero, err
+	}
+	return row.Debits, row.Credits, nil
+}
+
+// InsertDiscrepancy inserts a new discrepancy row.
+func (t *Tx) InsertDiscrepancy(ctx context.Context, d ledger.Discrepancy) error {
+	return t.q.InsertDiscrepancy(ctx, crdbstore.InsertDiscrepancyParams{
+		ID:               d.ID,
+		TenantID:         d.TenantID,
+		BatchID:          d.BatchID,
+		Type:             string(d.Type),
+		ExternalRecordID: nullString(d.ExternalRecordID),
+		JournalID:        nullString(d.JournalID),
+	})
+}
+
+// LockDiscrepancy fetches a discrepancy with a FOR UPDATE lock within the transaction.
+func (t *Tx) LockDiscrepancy(ctx context.Context, tenantID, id string) (*ledger.Discrepancy, error) {
+	row, err := t.q.LockDiscrepancy(ctx, crdbstore.LockDiscrepancyParams{TenantID: tenantID, ID: id})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ledger.NewDomainError(ledger.CodeDiscrepancyNotFound, id)
+		}
+		return nil, err
+	}
+	return rowToDiscrepancy(row), nil
+}
+
+// ResolveDiscrepancyRow updates a discrepancy to a resolved/ignored state.
+func (t *Tx) ResolveDiscrepancyRow(ctx context.Context, d ledger.Discrepancy) error {
+	return t.q.ResolveDiscrepancyRow(ctx, crdbstore.ResolveDiscrepancyRowParams{
+		Status:              string(d.Status),
+		ResolutionJournalID: nullString(d.ResolutionJournalID),
+		ResolutionNote:      d.ResolutionNote,
+		ResolvedBy:          d.ResolvedBy,
+		ID:                  d.ID,
+		TenantID:            d.TenantID,
+	})
+}
+
 // parseUUID parses a UUID string (with or without hyphens) into pgtype.UUID.
 func parseUUID(s string) (pgtype.UUID, error) {
 	// Remove hyphens to get 32 hex chars.

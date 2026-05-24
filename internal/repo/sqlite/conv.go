@@ -10,6 +10,88 @@ import (
 	"github.com/caxqueiroz/dledger-go/internal/ledger"
 )
 
+func rowToExternalRecord(r sqlitestore.ExternalRecord) *ledger.ExternalRecord {
+	amt, _ := decimal.NewFromString(r.Amount)
+	meta := map[string]any{}
+	_ = json.Unmarshal([]byte(r.RawPayload), &meta)
+	res := &ledger.ExternalRecord{
+		ID: r.ID, TenantID: r.TenantID,
+		Source: r.Source, ExternalRef: r.ExternalRef,
+		Amount: amt, Currency: r.Currency,
+		OccurredAt:  parseTime(r.OccurredAt),
+		RawPayload:  meta,
+		MatchStatus: ledger.ExternalRecordStatus(r.MatchStatus),
+		CreatedAt:   parseTime(r.CreatedAt),
+	}
+	if r.AccountID != nil {
+		res.AccountID = *r.AccountID
+	}
+	if r.MatchedJournalID != nil {
+		res.MatchedJournalID = *r.MatchedJournalID
+	}
+	return res
+}
+
+func rowToReconBatch(r sqlitestore.ReconciliationBatch) *ledger.ReconciliationBatch {
+	b := &ledger.ReconciliationBatch{
+		ID: r.ID, TenantID: r.TenantID, IdempotencyKey: r.IdempotencyKey,
+		Source:                 r.Source,
+		WindowStart:            parseTime(r.WindowStart),
+		WindowEnd:              parseTime(r.WindowEnd),
+		Status:                 ledger.BatchStatus(r.Status),
+		IngestedCount:          int32(r.IngestedCount),
+		MatchedCount:           int32(r.MatchedCount),
+		MismatchedCount:        int32(r.MismatchedCount),
+		MissingInLedgerCount:   int32(r.MissingInLedgerCount),
+		MissingInExternalCount: int32(r.MissingInExternalCount),
+		StartedAt:              parseTime(r.StartedAt),
+		ActorID:                r.ActorID,
+	}
+	if r.CompletedAt != nil {
+		b.CompletedAt = parseTime(*r.CompletedAt)
+	}
+	return b
+}
+
+func rowToDiscrepancy(r sqlitestore.Discrepancy) *ledger.Discrepancy {
+	d := &ledger.Discrepancy{
+		ID: r.ID, TenantID: r.TenantID, BatchID: r.BatchID,
+		Type:           ledger.DiscrepancyType(r.Type),
+		Status:         ledger.DiscrepancyStatus(r.Status),
+		ResolutionNote: r.ResolutionNote,
+		ResolvedBy:     r.ResolvedBy,
+		CreatedAt:      parseTime(r.CreatedAt),
+	}
+	if r.ExternalRecordID != nil {
+		d.ExternalRecordID = *r.ExternalRecordID
+	}
+	if r.JournalID != nil {
+		d.JournalID = *r.JournalID
+	}
+	if r.ResolutionJournalID != nil {
+		d.ResolutionJournalID = *r.ResolutionJournalID
+	}
+	if r.ResolvedAt != nil {
+		d.ResolvedAt = parseTime(*r.ResolvedAt)
+	}
+	return d
+}
+
+func rowToJournal(r sqlitestore.LedgerJournal) *ledger.Journal {
+	meta := map[string]any{}
+	_ = json.Unmarshal([]byte(r.Metadata), &meta)
+	j := &ledger.Journal{
+		ID: r.ID, TenantID: r.TenantID,
+		EventID: r.EventID, SourceService: r.SourceService, SourceType: r.SourceType,
+		ActorID: r.ActorID, Metadata: meta,
+		CreatedAt: parseTime(r.CreatedAt),
+	}
+	if r.FlowRunID != nil {
+		j.FlowRunID = *r.FlowRunID
+	}
+	return j
+}
+
 // parseTime parses an RFC3339Nano timestamp string, returning zero time on failure.
 func parseTime(s string) time.Time {
 	t, _ := time.Parse(time.RFC3339Nano, s)

@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -384,4 +385,113 @@ func (s *Store) PruneSnapshotsOlderThan(ctx context.Context, cutoff time.Time, l
 		SnapshotAt: cutoff.UTC().Format(sqliteTimeFormat),
 		Limit:      int64(limit),
 	})
+}
+
+// InsertExternalRecord inserts a record; returns (true, nil) when the row was
+// newly inserted, (false, nil) on UNIQUE conflict (already exists).
+func (s *Store) InsertExternalRecord(ctx context.Context, r ledger.ExternalRecord) (bool, error) {
+	payload, _ := json.Marshal(r.RawPayload)
+	var acct *string
+	if r.AccountID != "" {
+		v := r.AccountID
+		acct = &v
+	}
+	n, err := s.q.InsertExternalRecord(ctx, sqlitestore.InsertExternalRecordParams{
+		ID: r.ID, TenantID: r.TenantID,
+		Source: r.Source, ExternalRef: r.ExternalRef,
+		Amount: r.Amount.String(), Currency: r.Currency,
+		OccurredAt: r.OccurredAt.UTC().Format(sqliteTimeFormat),
+		AccountID:  acct,
+		RawPayload: string(payload),
+	})
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
+}
+
+// ListExternalRecordsForRecon returns UNMATCHED external records for the given
+// source within the time window.
+func (s *Store) ListExternalRecordsForRecon(ctx context.Context, tenantID, source string, windowStart, windowEnd time.Time) ([]ledger.ExternalRecord, error) {
+	rows, err := s.q.ListExternalRecordsForRecon(ctx, sqlitestore.ListExternalRecordsForReconParams{
+		TenantID:     tenantID,
+		Source:       source,
+		OccurredAt:   windowStart.UTC().Format(sqliteTimeFormat),
+		OccurredAt_2: windowEnd.UTC().Format(sqliteTimeFormat),
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ledger.ExternalRecord, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, *rowToExternalRecord(r))
+	}
+	return out, nil
+}
+
+// ListJournalsForRecon returns ledger journals for the given source_service within
+// the time window.
+func (s *Store) ListJournalsForRecon(ctx context.Context, tenantID, source string, windowStart, windowEnd time.Time) ([]ledger.Journal, error) {
+	rows, err := s.q.ListJournalsForRecon(ctx, sqlitestore.ListJournalsForReconParams{
+		TenantID:      tenantID,
+		SourceService: source,
+		CreatedAt:     windowStart.UTC().Format(sqliteTimeFormat),
+		CreatedAt_2:   windowEnd.UTC().Format(sqliteTimeFormat),
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ledger.Journal, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, *rowToJournal(r))
+	}
+	return out, nil
+}
+
+// GetReconBatch fetches a reconciliation batch by ID.
+func (s *Store) GetReconBatch(ctx context.Context, tenantID, batchID string) (*ledger.ReconciliationBatch, error) {
+	row, err := s.q.GetReconBatch(ctx, sqlitestore.GetReconBatchParams{TenantID: tenantID, ID: batchID})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ledger.NewDomainError(ledger.CodeReconBatchNotFound, batchID)
+		}
+		return nil, err
+	}
+	return rowToReconBatch(row), nil
+}
+
+// ListDiscrepancies returns discrepancies optionally filtered by batch_id and status.
+func (s *Store) ListDiscrepancies(ctx context.Context, in repo.ListDiscrepanciesInput) ([]ledger.Discrepancy, error) {
+	limit := int64(in.Limit)
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	rows, err := s.q.ListDiscrepancies(ctx, sqlitestore.ListDiscrepanciesParams{
+		TenantID: in.TenantID,
+		BatchID:  in.BatchID,
+		Column3:  in.BatchID,
+		Status:   in.Status,
+		Column5:  in.Status,
+		Limit:    limit,
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ledger.Discrepancy, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, *rowToDiscrepancy(r))
+	}
+	return out, nil
+}
+
+// GetDiscrepancy fetches a single discrepancy by ID.
+func (s *Store) GetDiscrepancy(ctx context.Context, tenantID, discrepancyID string) (*ledger.Discrepancy, error) {
+	row, err := s.q.GetDiscrepancy(ctx, sqlitestore.GetDiscrepancyParams{TenantID: tenantID, ID: discrepancyID})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ledger.NewDomainError(ledger.CodeDiscrepancyNotFound, discrepancyID)
+		}
+		return nil, err
+	}
+	return rowToDiscrepancy(row), nil
 }

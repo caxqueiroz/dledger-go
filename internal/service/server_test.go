@@ -32,6 +32,7 @@ func newServerWithStore(t *testing.T) (*service.Server, *sqlite.Store, func()) {
 		"../../sql/migrations/sqlite/0002_balance_snapshots.sql",
 		"../../sql/migrations/sqlite/0003_reservations.sql",
 		"../../sql/migrations/sqlite/0004_fx_rates.sql",
+		"../../sql/migrations/sqlite/0005_reconciliation.sql",
 	}
 	for _, path := range migrations {
 		mig, err := os.ReadFile(path)

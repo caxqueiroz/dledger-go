@@ -33,6 +33,7 @@ func setup(t *testing.T) (*service.Server, *sqlite.Store, func()) {
 		"0002_balance_snapshots.sql",
 		"0003_reservations.sql",
 		"0004_fx_rates.sql",
+		"0005_reconciliation.sql",
 	} {
 		mig, err := os.ReadFile(filepath.Join("../../sql/migrations/sqlite", name))
 		if err != nil {
