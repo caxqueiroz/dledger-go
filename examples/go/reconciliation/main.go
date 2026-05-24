@@ -1,9 +1,9 @@
 // Reconciliation walkthrough:
-//   1. Create user + source accounts.
-//   2. Post two "stripe" journals (event_id = tx ref).
-//   3. Ingest three external records: two matching, one missing-in-ledger.
-//   4. Run reconciliation: expect 2 matched, 1 missing-in-ledger.
-//   5. Resolve the missing one by posting an adjustment journal.
+//  1. Create user + source accounts.
+//  2. Post two "stripe" journals (event_id = tx ref).
+//  3. Ingest three external records: two matching, one missing-in-ledger.
+//  4. Run reconciliation: expect 2 matched, 1 missing-in-ledger.
+//  5. Resolve the missing one by posting an adjustment journal.
 //
 // Run the server first; see ../place_order/main.go for setup.
 package main
