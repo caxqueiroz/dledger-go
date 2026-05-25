@@ -254,7 +254,7 @@ func (s *Store) ListReservations(ctx context.Context, in repo.ListReservationsIn
 		OwnerType: in.OwnerType,
 		OwnerID:   in.OwnerID,
 		Status:    in.Status,
-		Limit:     int64(limit),
+		Limit:     limit,
 	})
 	if err != nil {
 		return nil, err
@@ -267,7 +267,7 @@ func (s *Store) ListReservations(ctx context.Context, in repo.ListReservationsIn
 }
 ```
 
-If pgx-generated `ListReservationsParams` fields use sqlc's autonaming for the dollar-sign duplicate binds, follow what `gen/crdb/reservations.sql.go::ListReservationsParams` actually declares (the second `$2` is typically deduplicated by sqlc on postgres). Build to confirm the exact field names.
+The CRDB `ListReservationsParams.Limit` is `int32` (sqlc deduplicates the `$N` binds for Postgres so the struct has only 5 fields, including `Limit int32`). Pass the local `int32` directly.
 
 - [ ] **Step 4: Verify both backends build**
 

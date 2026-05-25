@@ -24,6 +24,8 @@ Then run any example below in another terminal.
 | [`go/fx_exchange`](go/fx_exchange/main.go) | `ExecuteExchange` walkthrough — record a USD/EUR rate, exchange 100 USD for 89.50 EUR via the platform's FX desk. |
 | [`go/fx_revaluation`](go/fx_revaluation/main.go) | Documented `fx_pnl` pattern via raw `ExecuteFlow`: exchange-with-residual and end-of-day mark-to-market. |
 | [`go/reconciliation`](go/reconciliation/main.go) | Ingest external records, run reconciliation, list discrepancies, resolve one with an adjustment journal. |
+| [`go/sdk_embedded`](go/sdk_embedded/main.go) | `pkg/dledger` SDK in embedded mode — boots an in-process ledger over a temp SQLite file, drives a `Wallet` through deposit → reserve → commit. No server required. |
+| [`go/sdk_remote`](go/sdk_remote/main.go) | Same `Wallet` code path as `sdk_embedded`, constructed via `NewRemote` against a running server. Demonstrates the swap-mode property. |
 
 Run with:
 

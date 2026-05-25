@@ -4,6 +4,8 @@
 /server
 /client
 /migrate
+/sdk_embedded
+/sdk_remote
 *.test
 *.out
 coverage.txt
