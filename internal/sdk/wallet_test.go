@@ -165,3 +165,46 @@ func TestWallet_Reserve_Commit_Release(t *testing.T) {
 		t.Fatalf("unexpected after release: %+v", r)
 	}
 }
+
+func TestWallet_Settle_PaysWinner(t *testing.T) {
+	c, w := newWalletWithEmbedded(t)
+	ctx := context.Background()
+	if _, err := w.EnsurePlayerAccounts(ctx, "winner", "USD"); err != nil {
+		t.Fatalf("ensure: %v", err)
+	}
+	// Seed the pool with funds via a balanced posting from a credit-normal source.
+	mustCreate(t, c, "t1", "market", "42", "collateral_pool", "USD", ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
+	mustCreate(t, c, "t1", "platform", "0", "funding", "USD", ledgerv1.NormalBalance_NORMAL_BALANCE_CREDIT)
+	if _, err := c.PostJournal(ctx, connect.NewRequest(&ledgerv1.PostJournalRequest{
+		TenantId: "t1", IdempotencyKey: "seed-pool", SourceService: "test",
+		Journal: &ledgerv1.Journal{
+			EventId: "seed-pool",
+			Entries: []*ledgerv1.Entry{
+				{AccountId: "market:42:collateral_pool:USD", Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "200"},
+				{AccountId: "platform:0:funding:USD", Currency: "USD", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "200"},
+			},
+		},
+	})); err != nil {
+		t.Fatalf("seed pool: %v", err)
+	}
+
+	if _, err := w.Settle(ctx, dledger.SettleInput{
+		PlayerID: "winner", Currency: "USD", Amount: "150",
+		PoolAccountID:  "market:42:collateral_pool:USD",
+		ExternalRef:    "resolution-1",
+		IdempotencyKey: "settle-1",
+		SourceService:  "market_resolver",
+	}); err != nil {
+		t.Fatalf("Settle: %v", err)
+	}
+
+	bal, err := c.GetBalance(ctx, connect.NewRequest(&ledgerv1.GetBalanceRequest{
+		TenantId: "t1", AccountId: "user:winner:cash_available:USD", Currency: "USD",
+	}))
+	if err != nil {
+		t.Fatalf("GetBalance: %v", err)
+	}
+	if got := bal.Msg.GetBalance().GetNormalized(); got != "150" {
+		t.Fatalf("want 150 got %q", got)
+	}
+}

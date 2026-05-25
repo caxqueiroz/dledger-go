@@ -194,6 +194,21 @@ func resvToSDK(p *v1.Reservation) Reservation {
 	return r
 }
 
+// Settle credits a winner from a market collateral pool.
+//
+//	DEBIT  user:<winner>:cash_available:<ccy>   amount
+//	CREDIT pool_account                          amount
+func (w *Wallet) Settle(ctx context.Context, in SettleInput) (Receipt, error) {
+	avail := w.accountID(in.PlayerID, "cash_available", in.Currency)
+	return w.postJournal(ctx, postJournalArgs{
+		IdempotencyKey: in.IdempotencyKey,
+		SourceService:  in.SourceService,
+		EventID:        in.ExternalRef,
+		Debit:          accountAmount{accountID: avail, currency: in.Currency, amount: in.Amount},
+		Credit:         accountAmount{accountID: in.PoolAccountID, currency: in.Currency, amount: in.Amount},
+	})
+}
+
 func (w *Wallet) postJournal(ctx context.Context, a postJournalArgs) (Receipt, error) {
 	resp, err := w.client.PostJournal(ctx, connect.NewRequest(&v1.PostJournalRequest{
 		TenantId: w.tenant, IdempotencyKey: a.IdempotencyKey, SourceService: a.SourceService,
