@@ -16,7 +16,7 @@ func openTempDB(t *testing.T) *Store {
 	dir := t.TempDir()
 	dsn := filepath.Join(dir, "test.db")
 
-	mig, err := os.ReadFile("../../../sql/migrations/sqlite/0001_init.sql")
+	mig, err := os.ReadFile("../../sdk/migrations/sqlite/0001_init.sql")
 	if err != nil {
 		t.Fatalf("read migration: %v", err)
 	}

@@ -1,7 +1,7 @@
 version: "2"
 sql:
   - engine: sqlite
-    schema: sql/migrations/sqlite
+    schema: internal/sdk/migrations/sqlite
     queries: sql/queries/sqlite
     gen:
       go:
@@ -12,7 +12,7 @@ sql:
         emit_interface: false
         emit_db_tags: true
   - engine: postgresql
-    schema: sql/migrations/crdb
+    schema: internal/sdk/migrations/crdb
     queries: sql/queries/crdb
     gen:
       go:

@@ -28,11 +28,11 @@ func newServerWithStore(t *testing.T) (*service.Server, *sqlite.Store, func()) {
 		t.Fatalf("open: %v", err)
 	}
 	migrations := []string{
-		"../../sql/migrations/sqlite/0001_init.sql",
-		"../../sql/migrations/sqlite/0002_balance_snapshots.sql",
-		"../../sql/migrations/sqlite/0003_reservations.sql",
-		"../../sql/migrations/sqlite/0004_fx_rates.sql",
-		"../../sql/migrations/sqlite/0005_reconciliation.sql",
+		"../sdk/migrations/sqlite/0001_init.sql",
+		"../sdk/migrations/sqlite/0002_balance_snapshots.sql",
+		"../sdk/migrations/sqlite/0003_reservations.sql",
+		"../sdk/migrations/sqlite/0004_fx_rates.sql",
+		"../sdk/migrations/sqlite/0005_reconciliation.sql",
 	}
 	for _, path := range migrations {
 		mig, err := os.ReadFile(path)

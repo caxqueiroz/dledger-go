@@ -35,7 +35,7 @@ func setup(t *testing.T) (*service.Server, *sqlite.Store, func()) {
 		"0004_fx_rates.sql",
 		"0005_reconciliation.sql",
 	} {
-		mig, err := os.ReadFile(filepath.Join("../../sql/migrations/sqlite", name))
+		mig, err := os.ReadFile(filepath.Join("../sdk/migrations/sqlite", name))
 		if err != nil {
 			t.Fatalf("read migration %s: %v", name, err)
 		}

@@ -47,7 +47,7 @@ func startCRDB(t *testing.T) string {
 	}
 	defer db.Close()
 	_ = goose.SetDialect("postgres")
-	if err := goose.Up(db, "../../sql/migrations/crdb"); err != nil {
+	if err := goose.Up(db, "../sdk/migrations/crdb"); err != nil {
 		t.Fatalf("migrate: %v", err)
 	}
 	return dsn

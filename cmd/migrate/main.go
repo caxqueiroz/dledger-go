@@ -16,7 +16,7 @@ import (
 
 func main() {
 	backend := flag.String("backend", "sqlite", "sqlite|crdb")
-	dir := flag.String("dir", "sql/migrations", "migrations root")
+	dir := flag.String("dir", "internal/sdk/migrations", "migrations root")
 	dsn := flag.String("dsn", "", "database DSN (defaults: sqlite=./ledger.db, crdb=$DATABASE_URL)")
 	flag.Parse()
 
