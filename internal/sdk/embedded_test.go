@@ -4,6 +4,7 @@ package sdk_test
 import (
 	"context"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 
@@ -80,14 +81,14 @@ func TestNewEmbedded_Close_IsIdempotent(t *testing.T) {
 // goroutine actually runs by setting up a reservation that expired in the
 // past and polling until it transitions to EXPIRED.
 //
-// The scheduler's expiry tick defaults to 30s, so the polling deadline
-// must be at least one tick. We use 2 minutes to keep the test stable
-// under load.
+// SchedulerExpiryTick is set to 500ms so the test finishes in ~1s instead
+// of waiting for the 30s default tick.
 func TestNewEmbedded_Scheduler_ExpiresReservation(t *testing.T) {
 	ctx := context.Background()
 	dsn := filepath.Join(t.TempDir(), "sdk.db")
 	c, err := dledger.NewEmbedded(ctx, dledger.Options{
 		Backend: dledger.SQLite, DSN: dsn,
+		SchedulerExpiryTick: 500 * time.Millisecond,
 	})
 	if err != nil {
 		t.Fatalf("NewEmbedded: %v", err)
@@ -126,8 +127,8 @@ func TestNewEmbedded_Scheduler_ExpiresReservation(t *testing.T) {
 		t.Fatalf("CreateReservation: %v", err)
 	}
 
-	// Poll for up to 2 minutes (expiry tick = 30s default).
-	deadline := time.Now().Add(2 * time.Minute)
+	// Poll for up to 10 seconds (expiry tick = 500ms via SchedulerExpiryTick).
+	deadline := time.Now().Add(10 * time.Second)
 	for time.Now().Before(deadline) {
 		got, err := c.GetReservation(ctx, connect.NewRequest(&ledgerv1.GetReservationRequest{
 			TenantId: tenant, ReservationId: resv.Msg.GetReservation().GetId(),
@@ -141,4 +142,30 @@ func TestNewEmbedded_Scheduler_ExpiresReservation(t *testing.T) {
 		time.Sleep(2 * time.Second)
 	}
 	t.Fatalf("reservation did not transition to EXPIRED within deadline")
+}
+
+func TestNewEmbedded_Close_StopsBackgroundGoroutines(t *testing.T) {
+	ctx := context.Background()
+	before := runtime.NumGoroutine()
+
+	c, err := dledger.NewEmbedded(ctx, dledger.Options{
+		Backend: dledger.SQLite, DSN: filepath.Join(t.TempDir(), "sdk.db"),
+		SchedulerExpiryTick: 50 * time.Millisecond,
+	})
+	if err != nil {
+		t.Fatalf("NewEmbedded: %v", err)
+	}
+	// Give the scheduler + dispatcher goroutines a tick to start.
+	time.Sleep(100 * time.Millisecond)
+	if d := runtime.NumGoroutine() - before; d < 2 {
+		t.Fatalf("expected scheduler + dispatcher goroutines to be running, delta=%d", d)
+	}
+	if err := c.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+	// Allow the goroutines to drain.
+	time.Sleep(500 * time.Millisecond)
+	if d := runtime.NumGoroutine() - before; d > 0 {
+		t.Fatalf("expected goroutines to drain after Close, delta=%d", d)
+	}
 }

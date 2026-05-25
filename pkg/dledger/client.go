@@ -47,7 +47,8 @@ type Client interface {
 	ListDiscrepancies(context.Context, *connect.Request[v1.ListDiscrepanciesRequest]) (*connect.Response[v1.ListDiscrepanciesResponse], error)
 	ResolveDiscrepancy(context.Context, *connect.Request[v1.ResolveDiscrepancyRequest]) (*connect.Response[v1.ResolveDiscrepancyResponse], error)
 
-	// Close releases any background resources (scheduler, dispatcher, DB).
-	// Safe to call exactly once; subsequent calls return nil.
+	// Close releases background resources (scheduler, dispatcher, DB connections).
+	// Idempotent — safe to call multiple times. Not safe to call concurrently
+	// with in-flight requests; callers should drain pending requests first.
 	Close() error
 }

@@ -4,6 +4,7 @@ package dledger
 import (
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/caxqueiroz/dledger-go/internal/outbox"
 )
@@ -40,6 +41,9 @@ type Options struct {
 	OutboxSink       Sink
 	DisableScheduler bool
 	Logger           *slog.Logger // default slog.Default()
+	// SchedulerExpiryTick overrides the scheduler's expiry tick interval.
+	// Zero uses the default (30s). Useful in tests.
+	SchedulerExpiryTick time.Duration
 }
 
 // Option is a functional option for NewRemote. For NewEmbedded configuration,
@@ -48,16 +52,10 @@ type Option func(*remoteOptions)
 
 type remoteOptions struct {
 	httpClient *http.Client
-	logger     *slog.Logger
 }
 
 // WithHTTPClient overrides the http.Client used by NewRemote.
 // Set this to configure TLS, timeouts, or proxies.
 func WithHTTPClient(c *http.Client) Option {
 	return func(o *remoteOptions) { o.httpClient = c }
-}
-
-// WithLogger overrides the logger used by NewRemote. Defaults to slog.Default().
-func WithLogger(l *slog.Logger) Option {
-	return func(o *remoteOptions) { o.logger = l }
 }

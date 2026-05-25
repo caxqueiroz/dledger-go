@@ -87,6 +87,9 @@ func NewEmbedded(ctx context.Context, opts Options) (Client, error) {
 	if !opts.DisableScheduler {
 		sched := scheduler.New(store, srv)
 		sched.Log = logger
+		if opts.SchedulerExpiryTick > 0 {
+			sched.Cfg.ExpiryTick = opts.SchedulerExpiryTick
+		}
 		go sched.Run(bgCtx)
 	}
 

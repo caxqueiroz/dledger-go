@@ -3,7 +3,6 @@ package dledger
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 
 	"connectrpc.com/connect"
@@ -15,7 +14,7 @@ import (
 // NewRemote returns a Client that talks to a hosted dledger server.
 // tenantID is injected as the X-Tenant-Id header on every request.
 func NewRemote(serverURL, tenantID string, opts ...Option) Client {
-	o := &remoteOptions{httpClient: http.DefaultClient, logger: slog.Default()}
+	o := &remoteOptions{httpClient: http.DefaultClient}
 	for _, fn := range opts {
 		fn(o)
 	}
