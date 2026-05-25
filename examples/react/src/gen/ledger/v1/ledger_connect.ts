@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CommitReservationRequest, CommitReservationResponse, CreateAccountRequest, CreateAccountResponse, CreateReservationRequest, CreateReservationResponse, ExecuteExchangeRequest, ExecuteExchangeResponse, ExecuteFlowRequest, ExecuteFlowResponse, GetAccountRequest, GetAccountResponse, GetBalanceRequest, GetBalanceResponse, GetFlowRequest, GetFlowResponse, GetFXRateRequest, GetFXRateResponse, GetReconciliationBatchRequest, GetReconciliationBatchResponse, GetReservationRequest, GetReservationResponse, IngestExternalRecordsRequest, IngestExternalRecordsResponse, ListAccountActivityRequest, ListAccountActivityResponse, ListDiscrepanciesRequest, ListDiscrepanciesResponse, ListFXRatesRequest, ListFXRatesResponse, PostJournalRequest, PostJournalResponse, PutFXRateRequest, PutFXRateResponse, ReleaseReservationRequest, ReleaseReservationResponse, ResolveDiscrepancyRequest, ResolveDiscrepancyResponse, RunReconciliationRequest, RunReconciliationResponse, TakeBalanceSnapshotRequest, TakeBalanceSnapshotResponse } from "./ledger_pb.js";
+import { CommitReservationRequest, CommitReservationResponse, CreateAccountRequest, CreateAccountResponse, CreateReservationRequest, CreateReservationResponse, ExecuteExchangeRequest, ExecuteExchangeResponse, ExecuteFlowRequest, ExecuteFlowResponse, GetAccountRequest, GetAccountResponse, GetBalanceRequest, GetBalanceResponse, GetFlowRequest, GetFlowResponse, GetFXRateRequest, GetFXRateResponse, GetReconciliationBatchRequest, GetReconciliationBatchResponse, GetReservationRequest, GetReservationResponse, IngestExternalRecordsRequest, IngestExternalRecordsResponse, ListAccountActivityRequest, ListAccountActivityResponse, ListDiscrepanciesRequest, ListDiscrepanciesResponse, ListFXRatesRequest, ListFXRatesResponse, ListReservationsRequest, ListReservationsResponse, PostJournalRequest, PostJournalResponse, PutFXRateRequest, PutFXRateResponse, ReleaseReservationRequest, ReleaseReservationResponse, ResolveDiscrepancyRequest, ResolveDiscrepancyResponse, RunReconciliationRequest, RunReconciliationResponse, TakeBalanceSnapshotRequest, TakeBalanceSnapshotResponse } from "./ledger_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -118,6 +118,15 @@ export const LedgerService = {
       name: "GetReservation",
       I: GetReservationRequest,
       O: GetReservationResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc ledger.v1.LedgerService.ListReservations
+     */
+    listReservations: {
+      name: "ListReservations",
+      I: ListReservationsRequest,
+      O: ListReservationsResponse,
       kind: MethodKind.Unary,
     },
     /**

@@ -1904,6 +1904,112 @@ export class GetReservationResponse extends Message<GetReservationResponse> {
 }
 
 /**
+ * @generated from message ledger.v1.ListReservationsRequest
+ */
+export class ListReservationsRequest extends Message<ListReservationsRequest> {
+  /**
+   * @generated from field: string tenant_id = 1;
+   */
+  tenantId = "";
+
+  /**
+   * optional filter (e.g. "user")
+   *
+   * @generated from field: string owner_type = 2;
+   */
+  ownerType = "";
+
+  /**
+   * optional filter
+   *
+   * @generated from field: string owner_id = 3;
+   */
+  ownerId = "";
+
+  /**
+   * optional: HELD|PARTIAL|COMMITTED|RELEASED|EXPIRED
+   *
+   * @generated from field: string status = 4;
+   */
+  status = "";
+
+  /**
+   * 1..500; 0 → 100
+   *
+   * @generated from field: int32 page_size = 5;
+   */
+  pageSize = 0;
+
+  constructor(data?: PartialMessage<ListReservationsRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ListReservationsRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "tenant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "owner_type", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "owner_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "status", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "page_size", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListReservationsRequest {
+    return new ListReservationsRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ListReservationsRequest {
+    return new ListReservationsRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ListReservationsRequest {
+    return new ListReservationsRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ListReservationsRequest | PlainMessage<ListReservationsRequest> | undefined, b: ListReservationsRequest | PlainMessage<ListReservationsRequest> | undefined): boolean {
+    return proto3.util.equals(ListReservationsRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message ledger.v1.ListReservationsResponse
+ */
+export class ListReservationsResponse extends Message<ListReservationsResponse> {
+  /**
+   * @generated from field: repeated ledger.v1.Reservation reservations = 1;
+   */
+  reservations: Reservation[] = [];
+
+  constructor(data?: PartialMessage<ListReservationsResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "ledger.v1.ListReservationsResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "reservations", kind: "message", T: Reservation, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListReservationsResponse {
+    return new ListReservationsResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ListReservationsResponse {
+    return new ListReservationsResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ListReservationsResponse {
+    return new ListReservationsResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ListReservationsResponse | PlainMessage<ListReservationsResponse> | undefined, b: ListReservationsResponse | PlainMessage<ListReservationsResponse> | undefined): boolean {
+    return proto3.util.equals(ListReservationsResponse, a, b);
+  }
+}
+
+/**
  * @generated from message ledger.v1.FXRate
  */
 export class FXRate extends Message<FXRate> {
