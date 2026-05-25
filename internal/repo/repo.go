@@ -42,6 +42,7 @@ type Store interface {
 	// Reservations (read-only)
 	GetReservation(ctx context.Context, tenantID, reservationID string) (*ledger.Reservation, error)
 	ListExpiredReservations(ctx context.Context, now time.Time, limit int) ([]ExpiredReservation, error)
+	ListReservations(ctx context.Context, in ListReservationsInput) ([]ledger.Reservation, error)
 
 	// Reconciliation (read + write outside flow tx)
 	InsertExternalRecord(ctx context.Context, r ledger.ExternalRecord) (inserted bool, err error)
@@ -128,6 +129,16 @@ type ListFXRatesInput struct {
 	Since         *time.Time
 	Until         *time.Time
 	Limit         int
+}
+
+// ListReservationsInput filters reservations by tenant and optionally by
+// owner (derived from the source account), status, and page size.
+type ListReservationsInput struct {
+	TenantID  string
+	OwnerType string // optional
+	OwnerID   string // optional
+	Status    string // optional: HELD|PARTIAL|COMMITTED|RELEASED|EXPIRED
+	Limit     int    // 1..500; 0 → 100
 }
 
 type ListDiscrepanciesInput struct {

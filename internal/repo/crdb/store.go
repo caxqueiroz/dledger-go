@@ -283,6 +283,30 @@ func (s *Store) ListExpiredReservations(ctx context.Context, now time.Time, limi
 	return out, nil
 }
 
+// ListReservations returns reservations filtered by tenant and optional
+// owner/status/limit.
+func (s *Store) ListReservations(ctx context.Context, in repo.ListReservationsInput) ([]ledger.Reservation, error) {
+	limit := int32(in.Limit)
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	rows, err := s.q.ListReservations(ctx, crdbstore.ListReservationsParams{
+		TenantID:  in.TenantID,
+		OwnerType: in.OwnerType,
+		OwnerID:   in.OwnerID,
+		Status:    in.Status,
+		Limit:     limit,
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ledger.Reservation, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, *rowToReservation(r))
+	}
+	return out, nil
+}
+
 // UpsertFXRate inserts or updates an FX rate row by the unique tuple.
 func (s *Store) UpsertFXRate(ctx context.Context, r ledger.FXRate) (*ledger.FXRate, error) {
 	row, err := s.q.UpsertFXRate(ctx, crdbstore.UpsertFXRateParams{

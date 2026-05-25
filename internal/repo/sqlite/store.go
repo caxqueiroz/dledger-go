@@ -307,6 +307,34 @@ func (s *Store) ListExpiredReservations(ctx context.Context, now time.Time, limi
 	return out, nil
 }
 
+// ListReservations returns reservations filtered by tenant and optional
+// owner/status/limit. Filters use the dual-bind empty-string-sentinel pattern
+// (see ListFXRates) so an empty value disables the filter at the SQL level.
+func (s *Store) ListReservations(ctx context.Context, in repo.ListReservationsInput) ([]ledger.Reservation, error) {
+	limit := int64(in.Limit)
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	rows, err := s.q.ListReservations(ctx, sqlitestore.ListReservationsParams{
+		TenantID:  in.TenantID,
+		OwnerType: in.OwnerType,
+		Column3:   in.OwnerType,
+		OwnerID:   in.OwnerID,
+		Column5:   in.OwnerID,
+		Status:    in.Status,
+		Column7:   in.Status,
+		Limit:     limit,
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := make([]ledger.Reservation, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, *rowToReservation(r))
+	}
+	return out, nil
+}
+
 // UpsertFXRate inserts or updates an FX rate row by the unique tuple.
 func (s *Store) UpsertFXRate(ctx context.Context, r ledger.FXRate) (*ledger.FXRate, error) {
 	row, err := s.q.UpsertFXRate(ctx, sqlitestore.UpsertFXRateParams{
