@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"connectrpc.com/connect"
+	"github.com/shopspring/decimal"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -207,6 +208,54 @@ func (w *Wallet) Settle(ctx context.Context, in SettleInput) (Receipt, error) {
 		Debit:          accountAmount{accountID: avail, currency: in.Currency, amount: in.Amount},
 		Credit:         accountAmount{accountID: in.PoolAccountID, currency: in.Currency, amount: in.Amount},
 	})
+}
+
+// GetWallet returns a snapshot of the player's available/reserved balances
+// plus any open reservations (HELD or PARTIAL).
+func (w *Wallet) GetWallet(ctx context.Context, playerID, currency string) (WalletSnapshot, error) {
+	avail, err := w.balance(ctx, w.accountID(playerID, "cash_available", currency), currency)
+	if err != nil {
+		return WalletSnapshot{}, fmt.Errorf("available: %w", err)
+	}
+	resv, err := w.balance(ctx, w.accountID(playerID, "cash_reserved", currency), currency)
+	if err != nil {
+		return WalletSnapshot{}, fmt.Errorf("reserved: %w", err)
+	}
+
+	open := make([]Reservation, 0)
+	for _, status := range []string{"HELD", "PARTIAL"} {
+		lr, err := w.client.ListReservations(ctx, connect.NewRequest(&v1.ListReservationsRequest{
+			TenantId: w.tenant, OwnerType: w.ownerType, OwnerId: playerID, Status: status,
+		}))
+		if err != nil {
+			return WalletSnapshot{}, fmt.Errorf("list reservations %s: %w", status, err)
+		}
+		for _, p := range lr.Msg.GetReservations() {
+			if p.GetCurrency() != currency {
+				continue
+			}
+			open = append(open, resvToSDK(p))
+		}
+	}
+
+	return WalletSnapshot{
+		PlayerID: playerID, Currency: currency,
+		Available: avail, Reserved: resv, OpenReservations: open,
+	}, nil
+}
+
+func (w *Wallet) balance(ctx context.Context, accountID, currency string) (decimal.Decimal, error) {
+	resp, err := w.client.GetBalance(ctx, connect.NewRequest(&v1.GetBalanceRequest{
+		TenantId: w.tenant, AccountId: accountID, Currency: currency,
+	}))
+	if err != nil {
+		return decimal.Zero, err
+	}
+	d, err := decimal.NewFromString(resp.Msg.GetBalance().GetNormalized())
+	if err != nil {
+		return decimal.Zero, fmt.Errorf("parse balance %q: %w", resp.Msg.GetBalance().GetNormalized(), err)
+	}
+	return d, nil
 }
 
 func (w *Wallet) postJournal(ctx context.Context, a postJournalArgs) (Receipt, error) {

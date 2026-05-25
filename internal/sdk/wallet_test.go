@@ -208,3 +208,43 @@ func TestWallet_Settle_PaysWinner(t *testing.T) {
 		t.Fatalf("want 150 got %q", got)
 	}
 }
+
+func TestWallet_GetWallet_AvailableReservedAndOpen(t *testing.T) {
+	c, w := newWalletWithEmbedded(t)
+	ctx := context.Background()
+	if _, err := w.EnsurePlayerAccounts(ctx, "p1", "USD"); err != nil {
+		t.Fatalf("ensure: %v", err)
+	}
+	mustCreate(t, c, "t1", "platform", "0", "funding", "USD", ledgerv1.NormalBalance_NORMAL_BALANCE_CREDIT)
+
+	if _, err := w.Deposit(ctx, dledger.DepositInput{
+		PlayerID: "p1", Currency: "USD", Amount: "100",
+		FundingAccountID: "platform:0:funding:USD",
+		ExternalRef:      "ev", IdempotencyKey: "d", SourceService: "stripe",
+	}); err != nil {
+		t.Fatalf("Deposit: %v", err)
+	}
+	if _, err := w.Reserve(ctx, dledger.ReserveInput{
+		PlayerID: "p1", Currency: "USD", Amount: "40",
+		IdempotencyKey: "r1", SourceService: "matcher",
+	}); err != nil {
+		t.Fatalf("Reserve: %v", err)
+	}
+
+	snap, err := w.GetWallet(ctx, "p1", "USD")
+	if err != nil {
+		t.Fatalf("GetWallet: %v", err)
+	}
+	if snap.Available.String() != "60" {
+		t.Fatalf("want available=60 got %s", snap.Available)
+	}
+	if snap.Reserved.String() != "40" {
+		t.Fatalf("want reserved=40 got %s", snap.Reserved)
+	}
+	if len(snap.OpenReservations) != 1 {
+		t.Fatalf("want 1 open reservation got %d", len(snap.OpenReservations))
+	}
+	if snap.OpenReservations[0].Status != "HELD" {
+		t.Fatalf("want HELD got %s", snap.OpenReservations[0].Status)
+	}
+}
