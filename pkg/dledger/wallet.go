@@ -72,12 +72,15 @@ func (w *Wallet) ensureAccount(ctx context.Context, ownerID, acctType, currency 
 	if connect.CodeOf(err) == connect.CodeAlreadyExists {
 		return nil
 	}
-	if _, ge := w.client.GetAccount(ctx, connect.NewRequest(&v1.GetAccountRequest{
+	// CreateAccount failed without a typed AlreadyExists. Probe via GetAccount
+	// to distinguish "already there" (success) from a genuine create failure.
+	_, ge := w.client.GetAccount(ctx, connect.NewRequest(&v1.GetAccountRequest{
 		TenantId: w.tenant, AccountId: w.accountID(ownerID, acctType, currency),
-	})); ge == nil {
+	}))
+	if ge == nil {
 		return nil
 	}
-	return err
+	return fmt.Errorf("create %s (probe also failed: %v): %w", acctType, ge, err)
 }
 
 // Deposit credits the player's cash_available by debiting the FundingAccountID.

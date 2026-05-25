@@ -12,7 +12,13 @@ import (
 )
 
 // NewRemote returns a Client that talks to a hosted dledger server.
-// tenantID is injected as the X-Tenant-Id header on every request.
+// tenantID is injected as the X-Tenant-Id header on every request — it
+// satisfies the server's tenant interceptor but does NOT scope request
+// bodies. Tenant filtering inside SQL queries uses each request's TenantId
+// field. NewWallet(client, tenantID) writes that field on every call; if a
+// caller passes a different tenantID to NewWallet than to NewRemote, the
+// request still passes the interceptor but operates on the body's tenant.
+// Use one tenantID consistently across both constructors.
 func NewRemote(serverURL, tenantID string, opts ...Option) Client {
 	o := &remoteOptions{httpClient: http.DefaultClient}
 	for _, fn := range opts {
