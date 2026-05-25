@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log/slog"
+	"sync"
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -103,17 +104,19 @@ type embeddedClient struct {
 	ledgerv1connect.LedgerServiceHandler
 	store  repo.Store
 	cancel context.CancelFunc
-	closed bool
+	once   sync.Once
 }
 
 func (c *embeddedClient) Close() error {
-	if c.closed {
-		return nil
-	}
-	c.closed = true
-	c.cancel()
-	return c.store.Close()
+	var err error
+	c.once.Do(func() {
+		c.cancel()
+		err = c.store.Close()
+	})
+	return err
 }
+
+var gooseMu sync.Mutex
 
 // runMigrations executes `goose up` against an embedded filesystem.
 func runMigrations(driver, dsn string, fsys fs.FS, dialect string) error {
@@ -122,11 +125,13 @@ func runMigrations(driver, dsn string, fsys fs.FS, dialect string) error {
 		return fmt.Errorf("open for migrate: %w", err)
 	}
 	defer db.Close()
+	gooseMu.Lock()
+	defer gooseMu.Unlock()
 	if err := goose.SetDialect(dialect); err != nil {
 		return err
 	}
 	goose.SetBaseFS(fsys)
-	return goose.Up(db, ".")
+	return goose.UpContext(context.Background(), db, ".")
 }
 
 var _ Client = (*embeddedClient)(nil)
