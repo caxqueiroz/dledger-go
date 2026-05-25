@@ -24,15 +24,15 @@ type Client interface {
 	GetFlow(context.Context, *connect.Request[v1.GetFlowRequest]) (*connect.Response[v1.GetFlowResponse], error)
 	ListAccountActivity(context.Context, *connect.Request[v1.ListAccountActivityRequest]) (*connect.Response[v1.ListAccountActivityResponse], error)
 
+	// Snapshots
+	TakeBalanceSnapshot(context.Context, *connect.Request[v1.TakeBalanceSnapshotRequest]) (*connect.Response[v1.TakeBalanceSnapshotResponse], error)
+
 	// Reservations
 	CreateReservation(context.Context, *connect.Request[v1.CreateReservationRequest]) (*connect.Response[v1.CreateReservationResponse], error)
 	CommitReservation(context.Context, *connect.Request[v1.CommitReservationRequest]) (*connect.Response[v1.CommitReservationResponse], error)
 	ReleaseReservation(context.Context, *connect.Request[v1.ReleaseReservationRequest]) (*connect.Response[v1.ReleaseReservationResponse], error)
 	GetReservation(context.Context, *connect.Request[v1.GetReservationRequest]) (*connect.Response[v1.GetReservationResponse], error)
 	ListReservations(context.Context, *connect.Request[v1.ListReservationsRequest]) (*connect.Response[v1.ListReservationsResponse], error)
-
-	// Snapshots
-	TakeBalanceSnapshot(context.Context, *connect.Request[v1.TakeBalanceSnapshotRequest]) (*connect.Response[v1.TakeBalanceSnapshotResponse], error)
 
 	// FX
 	ExecuteExchange(context.Context, *connect.Request[v1.ExecuteExchangeRequest]) (*connect.Response[v1.ExecuteExchangeResponse], error)

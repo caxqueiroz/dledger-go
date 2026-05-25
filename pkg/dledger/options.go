@@ -26,17 +26,24 @@ const (
 	MigrateSkip
 )
 
+// Sink is a re-export of outbox.Sink. Implement it to receive ledger events
+// emitted by the embedded backend.
+type Sink = outbox.Sink
+
 // Options configures NewEmbedded.
 type Options struct {
 	Backend          Backend
 	DSN              string
 	MigrateMode      MigrateMode
-	OutboxSink       outbox.Sink  // default outbox.LogSink with Logger
+	// OutboxSink receives ledger events from the embedded backend. Defaults to
+	// a LogSink backed by Options.Logger.
+	OutboxSink       Sink
 	DisableScheduler bool
 	Logger           *slog.Logger // default slog.Default()
 }
 
-// Option is a functional option for NewRemote.
+// Option is a functional option for NewRemote. For NewEmbedded configuration,
+// use the Options struct instead.
 type Option func(*remoteOptions)
 
 type remoteOptions struct {
@@ -50,7 +57,7 @@ func WithHTTPClient(c *http.Client) Option {
 	return func(o *remoteOptions) { o.httpClient = c }
 }
 
-// WithLogger overrides the logger used by NewRemote.
+// WithLogger overrides the logger used by NewRemote. Defaults to slog.Default().
 func WithLogger(l *slog.Logger) Option {
 	return func(o *remoteOptions) { o.logger = l }
 }
