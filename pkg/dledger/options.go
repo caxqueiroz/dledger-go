@@ -32,9 +32,9 @@ type Sink = outbox.Sink
 
 // Options configures NewEmbedded.
 type Options struct {
-	Backend          Backend
-	DSN              string
-	MigrateMode      MigrateMode
+	Backend     Backend
+	DSN         string
+	MigrateMode MigrateMode
 	// OutboxSink receives ledger events from the embedded backend. Defaults to
 	// a LogSink backed by Options.Logger.
 	OutboxSink       Sink

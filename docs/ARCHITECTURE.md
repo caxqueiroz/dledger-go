@@ -276,6 +276,31 @@ The Connect response includes a `ledger-error-code` header carrying the domain c
 - **New flow types**: callers submit `ExecuteFlowRequest` with arbitrary `flow_type`. Outbox `event_type` is `<flow_type>.<step_id>` — downstream consumers can dispatch on this prefix.
 - **Custom domain errors**: add a code to `internal/ledger/errors.go`, map it in `internal/service/errors.go`. The header surface lets clients see new codes without breaking older clients.
 
+## Public SDK (`pkg/dledger`)
+
+The Go SDK lets a consumer microservice — initially the tipmarket PAM — pick
+between two modes with the same call site:
+
+- `NewEmbedded(ctx, Options)`: opens an in-process ledger. Owns the DB
+  connection, runs the snapshot/expiry/retention scheduler, and starts the
+  outbox dispatcher. Goose migrations are embedded into the binary via
+  `internal/sdk/migrations.go` so the SDK is fully self-contained.
+- `NewRemote(serverURL, tenantID, opts...)`: returns a Connect-RPC client
+  with an `X-Tenant-Id` round-tripper.
+
+Both implementations satisfy the same `Client` interface (the 22 RPCs plus
+`Close`). The `Wallet` helper wraps the prediction-market primitives —
+Deposit, Reserve, Commit, Release, Settle, Withdraw, GetWallet — and takes
+funding/destination/pool/withdrawal account IDs per call. The SDK never
+invents an accounting policy: callers own the chart of accounts.
+
+Errors are surfaced as `*connect.Error` with a `ledger-error-code` header.
+`dledger.IsErrCode(err, code)` matches against the typed `ErrCode`
+constants and works for both modes.
+
+See `examples/go/sdk_embedded/` and `examples/go/sdk_remote/` for runnable
+walkthroughs.
+
 ## Non-goals
 
 The service deliberately does **not** do:

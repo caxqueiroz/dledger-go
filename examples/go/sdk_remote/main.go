@@ -26,7 +26,7 @@ const (
 func main() {
 	ctx := context.Background()
 	c := dledger.NewRemote(serverURL, tenantID)
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 
 	// Funding + pool accounts.
 	for _, in := range []*ledgerv1.CreateAccountRequest{

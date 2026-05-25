@@ -27,7 +27,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	defer func() { _ = os.RemoveAll(dir) }()
 	dsn := filepath.Join(dir, "pam.db")
 
 	c, err := dledger.NewEmbedded(ctx, dledger.Options{
@@ -36,7 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("NewEmbedded: %v", err)
 	}
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 
 	// Set up the funding account that mirrors the payment processor.
 	if _, err := c.CreateAccount(ctx, connect.NewRequest(&ledgerv1.CreateAccountRequest{
