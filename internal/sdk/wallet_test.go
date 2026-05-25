@@ -111,3 +111,57 @@ func TestWallet_Withdraw_DecreasesAvailable(t *testing.T) {
 		t.Fatalf("want available=70 got %q", got)
 	}
 }
+
+func TestWallet_Reserve_Commit_Release(t *testing.T) {
+	c, w := newWalletWithEmbedded(t)
+	ctx := context.Background()
+	if _, err := w.EnsurePlayerAccounts(ctx, "p1", "USD"); err != nil {
+		t.Fatalf("ensure: %v", err)
+	}
+	mustCreate(t, c, "t1", "platform", "0", "funding", "USD", ledgerv1.NormalBalance_NORMAL_BALANCE_CREDIT)
+	mustCreate(t, c, "t1", "market", "42", "collateral_pool", "USD", ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
+
+	if _, err := w.Deposit(ctx, dledger.DepositInput{
+		PlayerID: "p1", Currency: "USD", Amount: "100",
+		FundingAccountID: "platform:0:funding:USD",
+		ExternalRef:      "ev", IdempotencyKey: "d", SourceService: "stripe",
+	}); err != nil {
+		t.Fatalf("Deposit: %v", err)
+	}
+
+	r, err := w.Reserve(ctx, dledger.ReserveInput{
+		PlayerID: "p1", Currency: "USD", Amount: "60",
+		IdempotencyKey: "res-1", SourceService: "matcher",
+	})
+	if err != nil {
+		t.Fatalf("Reserve: %v", err)
+	}
+	if r.Status != "HELD" || r.OutstandingAmount != "60" {
+		t.Fatalf("unexpected reservation: %+v", r)
+	}
+
+	r, err = w.Commit(ctx, dledger.CommitInput{
+		ReservationID:        r.ID,
+		DestinationAccountID: "market:42:collateral_pool:USD",
+		Amount:               "25",
+		IdempotencyKey:       "com-1",
+		SourceService:        "matcher",
+	})
+	if err != nil {
+		t.Fatalf("Commit: %v", err)
+	}
+	if r.Status != "PARTIAL" || r.OutstandingAmount != "35" || r.CommittedAmount != "25" {
+		t.Fatalf("unexpected after commit: %+v", r)
+	}
+
+	r, err = w.Release(ctx, dledger.ReleaseInput{
+		ReservationID: r.ID, Amount: "35",
+		IdempotencyKey: "rel-1", SourceService: "matcher",
+	})
+	if err != nil {
+		t.Fatalf("Release: %v", err)
+	}
+	if r.Status != "RELEASED" || r.OutstandingAmount != "0" || r.ReleasedAmount != "35" {
+		t.Fatalf("unexpected after release: %+v", r)
+	}
+}

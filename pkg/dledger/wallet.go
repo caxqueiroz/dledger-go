@@ -6,6 +6,8 @@ import (
 	"fmt"
 
 	"connectrpc.com/connect"
+	"google.golang.org/protobuf/types/known/structpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	v1 "github.com/caxqueiroz/dledger-go/gen/proto/ledger/v1"
 )
@@ -122,6 +124,74 @@ type postJournalArgs struct {
 	EventID        string
 	Debit          accountAmount
 	Credit         accountAmount
+}
+
+// Reserve places a HELD reservation over the player's cash_available.
+func (w *Wallet) Reserve(ctx context.Context, in ReserveInput) (Reservation, error) {
+	src := w.accountID(in.PlayerID, "cash_available", in.Currency)
+	resv := w.accountID(in.PlayerID, "cash_reserved", in.Currency)
+	req := &v1.CreateReservationRequest{
+		TenantId: w.tenant, IdempotencyKey: in.IdempotencyKey,
+		SourceAccountId: src, ReservedAccountId: resv,
+		Currency: in.Currency, Amount: in.Amount,
+		SourceService: in.SourceService,
+	}
+	if !in.ExpiresAt.IsZero() {
+		req.ExpiresAt = timestamppb.New(in.ExpiresAt)
+	}
+	if len(in.Metadata) > 0 {
+		md, err := structpb.NewStruct(in.Metadata)
+		if err != nil {
+			return Reservation{}, fmt.Errorf("metadata: %w", err)
+		}
+		req.Metadata = md
+	}
+	resp, err := w.client.CreateReservation(ctx, connect.NewRequest(req))
+	if err != nil {
+		return Reservation{}, err
+	}
+	return resvToSDK(resp.Msg.GetReservation()), nil
+}
+
+// Commit shifts the named amount from reserved to the caller's
+// DestinationAccountID. The reservation may transition to PARTIAL or COMMITTED.
+func (w *Wallet) Commit(ctx context.Context, in CommitInput) (Reservation, error) {
+	resp, err := w.client.CommitReservation(ctx, connect.NewRequest(&v1.CommitReservationRequest{
+		TenantId: w.tenant, ReservationId: in.ReservationID,
+		DestinationAccountId: in.DestinationAccountID,
+		Amount:               in.Amount,
+		IdempotencyKey:       in.IdempotencyKey,
+		SourceService:        in.SourceService,
+	}))
+	if err != nil {
+		return Reservation{}, err
+	}
+	return resvToSDK(resp.Msg.GetReservation()), nil
+}
+
+// Release returns the named amount to the player's cash_available.
+func (w *Wallet) Release(ctx context.Context, in ReleaseInput) (Reservation, error) {
+	resp, err := w.client.ReleaseReservation(ctx, connect.NewRequest(&v1.ReleaseReservationRequest{
+		TenantId: w.tenant, ReservationId: in.ReservationID,
+		Amount: in.Amount, IdempotencyKey: in.IdempotencyKey,
+		SourceService: in.SourceService,
+	}))
+	if err != nil {
+		return Reservation{}, err
+	}
+	return resvToSDK(resp.Msg.GetReservation()), nil
+}
+
+func resvToSDK(p *v1.Reservation) Reservation {
+	r := Reservation{
+		ID: p.GetId(), Status: p.GetStatus(),
+		OriginalAmount: p.GetOriginalAmount(), OutstandingAmount: p.GetOutstandingAmount(),
+		CommittedAmount: p.GetCommittedAmount(), ReleasedAmount: p.GetReleasedAmount(),
+	}
+	if p.GetExpiresAt() != nil {
+		r.ExpiresAt = p.GetExpiresAt().AsTime()
+	}
+	return r
 }
 
 func (w *Wallet) postJournal(ctx context.Context, a postJournalArgs) (Receipt, error) {
