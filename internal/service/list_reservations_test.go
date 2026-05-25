@@ -74,4 +74,17 @@ func TestListReservations_FiltersByOwner(t *testing.T) {
 	if got, want := resp.Msg.GetReservations()[0].GetOriginalAmount(), "10"; got != want {
 		t.Fatalf("want original=%s got %s", want, got)
 	}
+
+	resp2, err := srv.ListReservations(ctx, connect.NewRequest(&ledgerv1.ListReservationsRequest{
+		TenantId: "t1", OwnerType: "user", OwnerId: "u2",
+	}))
+	if err != nil {
+		t.Fatalf("ListReservations u2: %v", err)
+	}
+	if got := len(resp2.Msg.GetReservations()); got != 1 {
+		t.Fatalf("u2 want 1 reservation, got %d", got)
+	}
+	if got, want := resp2.Msg.GetReservations()[0].GetOriginalAmount(), "20"; got != want {
+		t.Fatalf("u2 want original=%s got %s", want, got)
+	}
 }
