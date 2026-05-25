@@ -68,6 +68,9 @@ const (
 	// LedgerServiceGetReservationProcedure is the fully-qualified name of the LedgerService's
 	// GetReservation RPC.
 	LedgerServiceGetReservationProcedure = "/ledger.v1.LedgerService/GetReservation"
+	// LedgerServiceListReservationsProcedure is the fully-qualified name of the LedgerService's
+	// ListReservations RPC.
+	LedgerServiceListReservationsProcedure = "/ledger.v1.LedgerService/ListReservations"
 	// LedgerServiceExecuteExchangeProcedure is the fully-qualified name of the LedgerService's
 	// ExecuteExchange RPC.
 	LedgerServiceExecuteExchangeProcedure = "/ledger.v1.LedgerService/ExecuteExchange"
@@ -109,6 +112,7 @@ type LedgerServiceClient interface {
 	CommitReservation(context.Context, *connect.Request[v1.CommitReservationRequest]) (*connect.Response[v1.CommitReservationResponse], error)
 	ReleaseReservation(context.Context, *connect.Request[v1.ReleaseReservationRequest]) (*connect.Response[v1.ReleaseReservationResponse], error)
 	GetReservation(context.Context, *connect.Request[v1.GetReservationRequest]) (*connect.Response[v1.GetReservationResponse], error)
+	ListReservations(context.Context, *connect.Request[v1.ListReservationsRequest]) (*connect.Response[v1.ListReservationsResponse], error)
 	ExecuteExchange(context.Context, *connect.Request[v1.ExecuteExchangeRequest]) (*connect.Response[v1.ExecuteExchangeResponse], error)
 	PutFXRate(context.Context, *connect.Request[v1.PutFXRateRequest]) (*connect.Response[v1.PutFXRateResponse], error)
 	GetFXRate(context.Context, *connect.Request[v1.GetFXRateRequest]) (*connect.Response[v1.GetFXRateResponse], error)
@@ -203,6 +207,12 @@ func NewLedgerServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(ledgerServiceMethods.ByName("GetReservation")),
 			connect.WithClientOptions(opts...),
 		),
+		listReservations: connect.NewClient[v1.ListReservationsRequest, v1.ListReservationsResponse](
+			httpClient,
+			baseURL+LedgerServiceListReservationsProcedure,
+			connect.WithSchema(ledgerServiceMethods.ByName("ListReservations")),
+			connect.WithClientOptions(opts...),
+		),
 		executeExchange: connect.NewClient[v1.ExecuteExchangeRequest, v1.ExecuteExchangeResponse](
 			httpClient,
 			baseURL+LedgerServiceExecuteExchangeProcedure,
@@ -274,6 +284,7 @@ type ledgerServiceClient struct {
 	commitReservation      *connect.Client[v1.CommitReservationRequest, v1.CommitReservationResponse]
 	releaseReservation     *connect.Client[v1.ReleaseReservationRequest, v1.ReleaseReservationResponse]
 	getReservation         *connect.Client[v1.GetReservationRequest, v1.GetReservationResponse]
+	listReservations       *connect.Client[v1.ListReservationsRequest, v1.ListReservationsResponse]
 	executeExchange        *connect.Client[v1.ExecuteExchangeRequest, v1.ExecuteExchangeResponse]
 	putFXRate              *connect.Client[v1.PutFXRateRequest, v1.PutFXRateResponse]
 	getFXRate              *connect.Client[v1.GetFXRateRequest, v1.GetFXRateResponse]
@@ -345,6 +356,11 @@ func (c *ledgerServiceClient) GetReservation(ctx context.Context, req *connect.R
 	return c.getReservation.CallUnary(ctx, req)
 }
 
+// ListReservations calls ledger.v1.LedgerService.ListReservations.
+func (c *ledgerServiceClient) ListReservations(ctx context.Context, req *connect.Request[v1.ListReservationsRequest]) (*connect.Response[v1.ListReservationsResponse], error) {
+	return c.listReservations.CallUnary(ctx, req)
+}
+
 // ExecuteExchange calls ledger.v1.LedgerService.ExecuteExchange.
 func (c *ledgerServiceClient) ExecuteExchange(ctx context.Context, req *connect.Request[v1.ExecuteExchangeRequest]) (*connect.Response[v1.ExecuteExchangeResponse], error) {
 	return c.executeExchange.CallUnary(ctx, req)
@@ -404,6 +420,7 @@ type LedgerServiceHandler interface {
 	CommitReservation(context.Context, *connect.Request[v1.CommitReservationRequest]) (*connect.Response[v1.CommitReservationResponse], error)
 	ReleaseReservation(context.Context, *connect.Request[v1.ReleaseReservationRequest]) (*connect.Response[v1.ReleaseReservationResponse], error)
 	GetReservation(context.Context, *connect.Request[v1.GetReservationRequest]) (*connect.Response[v1.GetReservationResponse], error)
+	ListReservations(context.Context, *connect.Request[v1.ListReservationsRequest]) (*connect.Response[v1.ListReservationsResponse], error)
 	ExecuteExchange(context.Context, *connect.Request[v1.ExecuteExchangeRequest]) (*connect.Response[v1.ExecuteExchangeResponse], error)
 	PutFXRate(context.Context, *connect.Request[v1.PutFXRateRequest]) (*connect.Response[v1.PutFXRateResponse], error)
 	GetFXRate(context.Context, *connect.Request[v1.GetFXRateRequest]) (*connect.Response[v1.GetFXRateResponse], error)
@@ -494,6 +511,12 @@ func NewLedgerServiceHandler(svc LedgerServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(ledgerServiceMethods.ByName("GetReservation")),
 		connect.WithHandlerOptions(opts...),
 	)
+	ledgerServiceListReservationsHandler := connect.NewUnaryHandler(
+		LedgerServiceListReservationsProcedure,
+		svc.ListReservations,
+		connect.WithSchema(ledgerServiceMethods.ByName("ListReservations")),
+		connect.WithHandlerOptions(opts...),
+	)
 	ledgerServiceExecuteExchangeHandler := connect.NewUnaryHandler(
 		LedgerServiceExecuteExchangeProcedure,
 		svc.ExecuteExchange,
@@ -574,6 +597,8 @@ func NewLedgerServiceHandler(svc LedgerServiceHandler, opts ...connect.HandlerOp
 			ledgerServiceReleaseReservationHandler.ServeHTTP(w, r)
 		case LedgerServiceGetReservationProcedure:
 			ledgerServiceGetReservationHandler.ServeHTTP(w, r)
+		case LedgerServiceListReservationsProcedure:
+			ledgerServiceListReservationsHandler.ServeHTTP(w, r)
 		case LedgerServiceExecuteExchangeProcedure:
 			ledgerServiceExecuteExchangeHandler.ServeHTTP(w, r)
 		case LedgerServicePutFXRateProcedure:
@@ -647,6 +672,10 @@ func (UnimplementedLedgerServiceHandler) ReleaseReservation(context.Context, *co
 
 func (UnimplementedLedgerServiceHandler) GetReservation(context.Context, *connect.Request[v1.GetReservationRequest]) (*connect.Response[v1.GetReservationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.GetReservation is not implemented"))
+}
+
+func (UnimplementedLedgerServiceHandler) ListReservations(context.Context, *connect.Request[v1.ListReservationsRequest]) (*connect.Response[v1.ListReservationsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("ledger.v1.LedgerService.ListReservations is not implemented"))
 }
 
 func (UnimplementedLedgerServiceHandler) ExecuteExchange(context.Context, *connect.Request[v1.ExecuteExchangeRequest]) (*connect.Response[v1.ExecuteExchangeResponse], error) {

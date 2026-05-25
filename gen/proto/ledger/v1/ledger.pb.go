@@ -2428,6 +2428,126 @@ func (x *GetReservationResponse) GetReservation() *Reservation {
 	return nil
 }
 
+type ListReservationsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	OwnerType     string                 `protobuf:"bytes,2,opt,name=owner_type,json=ownerType,proto3" json:"owner_type,omitempty"` // optional filter (e.g. "user")
+	OwnerId       string                 `protobuf:"bytes,3,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`       // optional filter
+	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`                        // optional: HELD|PARTIAL|COMMITTED|RELEASED|EXPIRED
+	PageSize      int32                  `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`   // 1..500; 0 → 100
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListReservationsRequest) Reset() {
+	*x = ListReservationsRequest{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListReservationsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListReservationsRequest) ProtoMessage() {}
+
+func (x *ListReservationsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListReservationsRequest.ProtoReflect.Descriptor instead.
+func (*ListReservationsRequest) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *ListReservationsRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *ListReservationsRequest) GetOwnerType() string {
+	if x != nil {
+		return x.OwnerType
+	}
+	return ""
+}
+
+func (x *ListReservationsRequest) GetOwnerId() string {
+	if x != nil {
+		return x.OwnerId
+	}
+	return ""
+}
+
+func (x *ListReservationsRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ListReservationsRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+type ListReservationsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Reservations  []*Reservation         `protobuf:"bytes,1,rep,name=reservations,proto3" json:"reservations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListReservationsResponse) Reset() {
+	*x = ListReservationsResponse{}
+	mi := &file_ledger_v1_ledger_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListReservationsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListReservationsResponse) ProtoMessage() {}
+
+func (x *ListReservationsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_ledger_v1_ledger_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListReservationsResponse.ProtoReflect.Descriptor instead.
+func (*ListReservationsResponse) Descriptor() ([]byte, []int) {
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *ListReservationsResponse) GetReservations() []*Reservation {
+	if x != nil {
+		return x.Reservations
+	}
+	return nil
+}
+
 type FXRate struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -2444,7 +2564,7 @@ type FXRate struct {
 
 func (x *FXRate) Reset() {
 	*x = FXRate{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[32]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2456,7 +2576,7 @@ func (x *FXRate) String() string {
 func (*FXRate) ProtoMessage() {}
 
 func (x *FXRate) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[32]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2469,7 +2589,7 @@ func (x *FXRate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FXRate.ProtoReflect.Descriptor instead.
 func (*FXRate) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{32}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *FXRate) GetId() string {
@@ -2549,7 +2669,7 @@ type ExecuteExchangeRequest struct {
 
 func (x *ExecuteExchangeRequest) Reset() {
 	*x = ExecuteExchangeRequest{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[33]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2561,7 +2681,7 @@ func (x *ExecuteExchangeRequest) String() string {
 func (*ExecuteExchangeRequest) ProtoMessage() {}
 
 func (x *ExecuteExchangeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[33]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2574,7 +2694,7 @@ func (x *ExecuteExchangeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteExchangeRequest.ProtoReflect.Descriptor instead.
 func (*ExecuteExchangeRequest) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{33}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *ExecuteExchangeRequest) GetTenantId() string {
@@ -2680,7 +2800,7 @@ type ExecuteExchangeResponse struct {
 
 func (x *ExecuteExchangeResponse) Reset() {
 	*x = ExecuteExchangeResponse{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[34]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2692,7 +2812,7 @@ func (x *ExecuteExchangeResponse) String() string {
 func (*ExecuteExchangeResponse) ProtoMessage() {}
 
 func (x *ExecuteExchangeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[34]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2705,7 +2825,7 @@ func (x *ExecuteExchangeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteExchangeResponse.ProtoReflect.Descriptor instead.
 func (*ExecuteExchangeResponse) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{34}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ExecuteExchangeResponse) GetFlowRunId() string {
@@ -2750,7 +2870,7 @@ type PutFXRateRequest struct {
 
 func (x *PutFXRateRequest) Reset() {
 	*x = PutFXRateRequest{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[35]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2762,7 +2882,7 @@ func (x *PutFXRateRequest) String() string {
 func (*PutFXRateRequest) ProtoMessage() {}
 
 func (x *PutFXRateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[35]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2775,7 +2895,7 @@ func (x *PutFXRateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutFXRateRequest.ProtoReflect.Descriptor instead.
 func (*PutFXRateRequest) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{35}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *PutFXRateRequest) GetTenantId() string {
@@ -2829,7 +2949,7 @@ type PutFXRateResponse struct {
 
 func (x *PutFXRateResponse) Reset() {
 	*x = PutFXRateResponse{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[36]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2841,7 +2961,7 @@ func (x *PutFXRateResponse) String() string {
 func (*PutFXRateResponse) ProtoMessage() {}
 
 func (x *PutFXRateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[36]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2854,7 +2974,7 @@ func (x *PutFXRateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutFXRateResponse.ProtoReflect.Descriptor instead.
 func (*PutFXRateResponse) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{36}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *PutFXRateResponse) GetRate() *FXRate {
@@ -2876,7 +2996,7 @@ type GetFXRateRequest struct {
 
 func (x *GetFXRateRequest) Reset() {
 	*x = GetFXRateRequest{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[37]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2888,7 +3008,7 @@ func (x *GetFXRateRequest) String() string {
 func (*GetFXRateRequest) ProtoMessage() {}
 
 func (x *GetFXRateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[37]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2901,7 +3021,7 @@ func (x *GetFXRateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFXRateRequest.ProtoReflect.Descriptor instead.
 func (*GetFXRateRequest) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{37}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *GetFXRateRequest) GetTenantId() string {
@@ -2941,7 +3061,7 @@ type GetFXRateResponse struct {
 
 func (x *GetFXRateResponse) Reset() {
 	*x = GetFXRateResponse{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[38]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2953,7 +3073,7 @@ func (x *GetFXRateResponse) String() string {
 func (*GetFXRateResponse) ProtoMessage() {}
 
 func (x *GetFXRateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[38]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2966,7 +3086,7 @@ func (x *GetFXRateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFXRateResponse.ProtoReflect.Descriptor instead.
 func (*GetFXRateResponse) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{38}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *GetFXRateResponse) GetRate() *FXRate {
@@ -2990,7 +3110,7 @@ type ListFXRatesRequest struct {
 
 func (x *ListFXRatesRequest) Reset() {
 	*x = ListFXRatesRequest{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[39]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3002,7 +3122,7 @@ func (x *ListFXRatesRequest) String() string {
 func (*ListFXRatesRequest) ProtoMessage() {}
 
 func (x *ListFXRatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[39]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3015,7 +3135,7 @@ func (x *ListFXRatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFXRatesRequest.ProtoReflect.Descriptor instead.
 func (*ListFXRatesRequest) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{39}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ListFXRatesRequest) GetTenantId() string {
@@ -3069,7 +3189,7 @@ type ListFXRatesResponse struct {
 
 func (x *ListFXRatesResponse) Reset() {
 	*x = ListFXRatesResponse{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[40]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3081,7 +3201,7 @@ func (x *ListFXRatesResponse) String() string {
 func (*ListFXRatesResponse) ProtoMessage() {}
 
 func (x *ListFXRatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[40]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3094,7 +3214,7 @@ func (x *ListFXRatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFXRatesResponse.ProtoReflect.Descriptor instead.
 func (*ListFXRatesResponse) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{40}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ListFXRatesResponse) GetRates() []*FXRate {
@@ -3124,7 +3244,7 @@ type ExternalRecord struct {
 
 func (x *ExternalRecord) Reset() {
 	*x = ExternalRecord{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[41]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3136,7 +3256,7 @@ func (x *ExternalRecord) String() string {
 func (*ExternalRecord) ProtoMessage() {}
 
 func (x *ExternalRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[41]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3149,7 +3269,7 @@ func (x *ExternalRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalRecord.ProtoReflect.Descriptor instead.
 func (*ExternalRecord) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{41}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *ExternalRecord) GetId() string {
@@ -3251,7 +3371,7 @@ type ExternalRecordInput struct {
 
 func (x *ExternalRecordInput) Reset() {
 	*x = ExternalRecordInput{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[42]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3263,7 +3383,7 @@ func (x *ExternalRecordInput) String() string {
 func (*ExternalRecordInput) ProtoMessage() {}
 
 func (x *ExternalRecordInput) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[42]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3276,7 +3396,7 @@ func (x *ExternalRecordInput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalRecordInput.ProtoReflect.Descriptor instead.
 func (*ExternalRecordInput) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{42}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ExternalRecordInput) GetSource() string {
@@ -3338,7 +3458,7 @@ type IngestExternalRecordsRequest struct {
 
 func (x *IngestExternalRecordsRequest) Reset() {
 	*x = IngestExternalRecordsRequest{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[43]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3350,7 +3470,7 @@ func (x *IngestExternalRecordsRequest) String() string {
 func (*IngestExternalRecordsRequest) ProtoMessage() {}
 
 func (x *IngestExternalRecordsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[43]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3363,7 +3483,7 @@ func (x *IngestExternalRecordsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IngestExternalRecordsRequest.ProtoReflect.Descriptor instead.
 func (*IngestExternalRecordsRequest) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{43}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *IngestExternalRecordsRequest) GetTenantId() string {
@@ -3390,7 +3510,7 @@ type IngestExternalRecordsResponse struct {
 
 func (x *IngestExternalRecordsResponse) Reset() {
 	*x = IngestExternalRecordsResponse{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[44]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3402,7 +3522,7 @@ func (x *IngestExternalRecordsResponse) String() string {
 func (*IngestExternalRecordsResponse) ProtoMessage() {}
 
 func (x *IngestExternalRecordsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[44]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3415,7 +3535,7 @@ func (x *IngestExternalRecordsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IngestExternalRecordsResponse.ProtoReflect.Descriptor instead.
 func (*IngestExternalRecordsResponse) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{44}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *IngestExternalRecordsResponse) GetInserted() int32 {
@@ -3446,7 +3566,7 @@ type RunReconciliationRequest struct {
 
 func (x *RunReconciliationRequest) Reset() {
 	*x = RunReconciliationRequest{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[45]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3458,7 +3578,7 @@ func (x *RunReconciliationRequest) String() string {
 func (*RunReconciliationRequest) ProtoMessage() {}
 
 func (x *RunReconciliationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[45]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3471,7 +3591,7 @@ func (x *RunReconciliationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunReconciliationRequest.ProtoReflect.Descriptor instead.
 func (*RunReconciliationRequest) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{45}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *RunReconciliationRequest) GetTenantId() string {
@@ -3538,7 +3658,7 @@ type ReconciliationBatch struct {
 
 func (x *ReconciliationBatch) Reset() {
 	*x = ReconciliationBatch{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[46]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3550,7 +3670,7 @@ func (x *ReconciliationBatch) String() string {
 func (*ReconciliationBatch) ProtoMessage() {}
 
 func (x *ReconciliationBatch) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[46]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3563,7 +3683,7 @@ func (x *ReconciliationBatch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReconciliationBatch.ProtoReflect.Descriptor instead.
 func (*ReconciliationBatch) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{46}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *ReconciliationBatch) GetId() string {
@@ -3673,7 +3793,7 @@ type RunReconciliationResponse struct {
 
 func (x *RunReconciliationResponse) Reset() {
 	*x = RunReconciliationResponse{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[47]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3685,7 +3805,7 @@ func (x *RunReconciliationResponse) String() string {
 func (*RunReconciliationResponse) ProtoMessage() {}
 
 func (x *RunReconciliationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[47]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3698,7 +3818,7 @@ func (x *RunReconciliationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunReconciliationResponse.ProtoReflect.Descriptor instead.
 func (*RunReconciliationResponse) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{47}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *RunReconciliationResponse) GetBatch() *ReconciliationBatch {
@@ -3718,7 +3838,7 @@ type GetReconciliationBatchRequest struct {
 
 func (x *GetReconciliationBatchRequest) Reset() {
 	*x = GetReconciliationBatchRequest{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[48]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3730,7 +3850,7 @@ func (x *GetReconciliationBatchRequest) String() string {
 func (*GetReconciliationBatchRequest) ProtoMessage() {}
 
 func (x *GetReconciliationBatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[48]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3743,7 +3863,7 @@ func (x *GetReconciliationBatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReconciliationBatchRequest.ProtoReflect.Descriptor instead.
 func (*GetReconciliationBatchRequest) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{48}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *GetReconciliationBatchRequest) GetTenantId() string {
@@ -3769,7 +3889,7 @@ type GetReconciliationBatchResponse struct {
 
 func (x *GetReconciliationBatchResponse) Reset() {
 	*x = GetReconciliationBatchResponse{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[49]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3781,7 +3901,7 @@ func (x *GetReconciliationBatchResponse) String() string {
 func (*GetReconciliationBatchResponse) ProtoMessage() {}
 
 func (x *GetReconciliationBatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[49]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3794,7 +3914,7 @@ func (x *GetReconciliationBatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReconciliationBatchResponse.ProtoReflect.Descriptor instead.
 func (*GetReconciliationBatchResponse) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{49}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *GetReconciliationBatchResponse) GetBatch() *ReconciliationBatch {
@@ -3824,7 +3944,7 @@ type Discrepancy struct {
 
 func (x *Discrepancy) Reset() {
 	*x = Discrepancy{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[50]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3836,7 +3956,7 @@ func (x *Discrepancy) String() string {
 func (*Discrepancy) ProtoMessage() {}
 
 func (x *Discrepancy) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[50]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3849,7 +3969,7 @@ func (x *Discrepancy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Discrepancy.ProtoReflect.Descriptor instead.
 func (*Discrepancy) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{50}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *Discrepancy) GetId() string {
@@ -3948,7 +4068,7 @@ type ListDiscrepanciesRequest struct {
 
 func (x *ListDiscrepanciesRequest) Reset() {
 	*x = ListDiscrepanciesRequest{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[51]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3960,7 +4080,7 @@ func (x *ListDiscrepanciesRequest) String() string {
 func (*ListDiscrepanciesRequest) ProtoMessage() {}
 
 func (x *ListDiscrepanciesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[51]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3973,7 +4093,7 @@ func (x *ListDiscrepanciesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDiscrepanciesRequest.ProtoReflect.Descriptor instead.
 func (*ListDiscrepanciesRequest) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{51}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *ListDiscrepanciesRequest) GetTenantId() string {
@@ -4013,7 +4133,7 @@ type ListDiscrepanciesResponse struct {
 
 func (x *ListDiscrepanciesResponse) Reset() {
 	*x = ListDiscrepanciesResponse{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[52]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4025,7 +4145,7 @@ func (x *ListDiscrepanciesResponse) String() string {
 func (*ListDiscrepanciesResponse) ProtoMessage() {}
 
 func (x *ListDiscrepanciesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[52]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4038,7 +4158,7 @@ func (x *ListDiscrepanciesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDiscrepanciesResponse.ProtoReflect.Descriptor instead.
 func (*ListDiscrepanciesResponse) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{52}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *ListDiscrepanciesResponse) GetDiscrepancies() []*Discrepancy {
@@ -4063,7 +4183,7 @@ type ResolveDiscrepancyRequest struct {
 
 func (x *ResolveDiscrepancyRequest) Reset() {
 	*x = ResolveDiscrepancyRequest{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[53]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4075,7 +4195,7 @@ func (x *ResolveDiscrepancyRequest) String() string {
 func (*ResolveDiscrepancyRequest) ProtoMessage() {}
 
 func (x *ResolveDiscrepancyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[53]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4088,7 +4208,7 @@ func (x *ResolveDiscrepancyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResolveDiscrepancyRequest.ProtoReflect.Descriptor instead.
 func (*ResolveDiscrepancyRequest) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{53}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ResolveDiscrepancyRequest) GetTenantId() string {
@@ -4149,7 +4269,7 @@ type ResolveDiscrepancyResponse struct {
 
 func (x *ResolveDiscrepancyResponse) Reset() {
 	*x = ResolveDiscrepancyResponse{}
-	mi := &file_ledger_v1_ledger_proto_msgTypes[54]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4161,7 +4281,7 @@ func (x *ResolveDiscrepancyResponse) String() string {
 func (*ResolveDiscrepancyResponse) ProtoMessage() {}
 
 func (x *ResolveDiscrepancyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_ledger_v1_ledger_proto_msgTypes[54]
+	mi := &file_ledger_v1_ledger_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4174,7 +4294,7 @@ func (x *ResolveDiscrepancyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResolveDiscrepancyResponse.ProtoReflect.Descriptor instead.
 func (*ResolveDiscrepancyResponse) Descriptor() ([]byte, []int) {
-	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{54}
+	return file_ledger_v1_ledger_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ResolveDiscrepancyResponse) GetDiscrepancy() *Discrepancy {
@@ -4376,7 +4496,16 @@ const file_ledger_v1_ledger_proto_rawDesc = "" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12%\n" +
 	"\x0ereservation_id\x18\x02 \x01(\tR\rreservationId\"R\n" +
 	"\x16GetReservationResponse\x128\n" +
-	"\vreservation\x18\x01 \x01(\v2\x16.ledger.v1.ReservationR\vreservation\"\xa7\x02\n" +
+	"\vreservation\x18\x01 \x01(\v2\x16.ledger.v1.ReservationR\vreservation\"\xae\x01\n" +
+	"\x17ListReservationsRequest\x12$\n" +
+	"\ttenant_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\btenantId\x12\x1d\n" +
+	"\n" +
+	"owner_type\x18\x02 \x01(\tR\townerType\x12\x19\n" +
+	"\bowner_id\x18\x03 \x01(\tR\aownerId\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x12\x1b\n" +
+	"\tpage_size\x18\x05 \x01(\x05R\bpageSize\"V\n" +
+	"\x18ListReservationsResponse\x12:\n" +
+	"\freservations\x18\x01 \x03(\v2\x16.ledger.v1.ReservationR\freservations\"\xa7\x02\n" +
 	"\x06FXRate\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\ttenant_id\x18\x02 \x01(\tR\btenantId\x12#\n" +
@@ -4561,7 +4690,7 @@ const file_ledger_v1_ledger_proto_rawDesc = "" +
 	"\x17FLOW_STATUS_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13FLOW_STATUS_RUNNING\x10\x01\x12\x19\n" +
 	"\x15FLOW_STATUS_COMPLETED\x10\x02\x12\x16\n" +
-	"\x12FLOW_STATUS_FAILED\x10\x032\xd3\x0e\n" +
+	"\x12FLOW_STATUS_FAILED\x10\x032\xb0\x0f\n" +
 	"\rLedgerService\x12R\n" +
 	"\rCreateAccount\x12\x1f.ledger.v1.CreateAccountRequest\x1a .ledger.v1.CreateAccountResponse\x12I\n" +
 	"\n" +
@@ -4576,7 +4705,8 @@ const file_ledger_v1_ledger_proto_rawDesc = "" +
 	"\x11CreateReservation\x12#.ledger.v1.CreateReservationRequest\x1a$.ledger.v1.CreateReservationResponse\x12^\n" +
 	"\x11CommitReservation\x12#.ledger.v1.CommitReservationRequest\x1a$.ledger.v1.CommitReservationResponse\x12a\n" +
 	"\x12ReleaseReservation\x12$.ledger.v1.ReleaseReservationRequest\x1a%.ledger.v1.ReleaseReservationResponse\x12U\n" +
-	"\x0eGetReservation\x12 .ledger.v1.GetReservationRequest\x1a!.ledger.v1.GetReservationResponse\x12X\n" +
+	"\x0eGetReservation\x12 .ledger.v1.GetReservationRequest\x1a!.ledger.v1.GetReservationResponse\x12[\n" +
+	"\x10ListReservations\x12\".ledger.v1.ListReservationsRequest\x1a#.ledger.v1.ListReservationsResponse\x12X\n" +
 	"\x0fExecuteExchange\x12!.ledger.v1.ExecuteExchangeRequest\x1a\".ledger.v1.ExecuteExchangeResponse\x12F\n" +
 	"\tPutFXRate\x12\x1b.ledger.v1.PutFXRateRequest\x1a\x1c.ledger.v1.PutFXRateResponse\x12F\n" +
 	"\tGetFXRate\x12\x1b.ledger.v1.GetFXRateRequest\x1a\x1c.ledger.v1.GetFXRateResponse\x12L\n" +
@@ -4602,7 +4732,7 @@ func file_ledger_v1_ledger_proto_rawDescGZIP() []byte {
 }
 
 var file_ledger_v1_ledger_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_ledger_v1_ledger_proto_msgTypes = make([]protoimpl.MessageInfo, 55)
+var file_ledger_v1_ledger_proto_msgTypes = make([]protoimpl.MessageInfo, 57)
 var file_ledger_v1_ledger_proto_goTypes = []any{
 	(Direction)(0),                         // 0: ledger.v1.Direction
 	(NormalBalance)(0),                     // 1: ledger.v1.NormalBalance
@@ -4640,141 +4770,146 @@ var file_ledger_v1_ledger_proto_goTypes = []any{
 	(*ReleaseReservationResponse)(nil),     // 33: ledger.v1.ReleaseReservationResponse
 	(*GetReservationRequest)(nil),          // 34: ledger.v1.GetReservationRequest
 	(*GetReservationResponse)(nil),         // 35: ledger.v1.GetReservationResponse
-	(*FXRate)(nil),                         // 36: ledger.v1.FXRate
-	(*ExecuteExchangeRequest)(nil),         // 37: ledger.v1.ExecuteExchangeRequest
-	(*ExecuteExchangeResponse)(nil),        // 38: ledger.v1.ExecuteExchangeResponse
-	(*PutFXRateRequest)(nil),               // 39: ledger.v1.PutFXRateRequest
-	(*PutFXRateResponse)(nil),              // 40: ledger.v1.PutFXRateResponse
-	(*GetFXRateRequest)(nil),               // 41: ledger.v1.GetFXRateRequest
-	(*GetFXRateResponse)(nil),              // 42: ledger.v1.GetFXRateResponse
-	(*ListFXRatesRequest)(nil),             // 43: ledger.v1.ListFXRatesRequest
-	(*ListFXRatesResponse)(nil),            // 44: ledger.v1.ListFXRatesResponse
-	(*ExternalRecord)(nil),                 // 45: ledger.v1.ExternalRecord
-	(*ExternalRecordInput)(nil),            // 46: ledger.v1.ExternalRecordInput
-	(*IngestExternalRecordsRequest)(nil),   // 47: ledger.v1.IngestExternalRecordsRequest
-	(*IngestExternalRecordsResponse)(nil),  // 48: ledger.v1.IngestExternalRecordsResponse
-	(*RunReconciliationRequest)(nil),       // 49: ledger.v1.RunReconciliationRequest
-	(*ReconciliationBatch)(nil),            // 50: ledger.v1.ReconciliationBatch
-	(*RunReconciliationResponse)(nil),      // 51: ledger.v1.RunReconciliationResponse
-	(*GetReconciliationBatchRequest)(nil),  // 52: ledger.v1.GetReconciliationBatchRequest
-	(*GetReconciliationBatchResponse)(nil), // 53: ledger.v1.GetReconciliationBatchResponse
-	(*Discrepancy)(nil),                    // 54: ledger.v1.Discrepancy
-	(*ListDiscrepanciesRequest)(nil),       // 55: ledger.v1.ListDiscrepanciesRequest
-	(*ListDiscrepanciesResponse)(nil),      // 56: ledger.v1.ListDiscrepanciesResponse
-	(*ResolveDiscrepancyRequest)(nil),      // 57: ledger.v1.ResolveDiscrepancyRequest
-	(*ResolveDiscrepancyResponse)(nil),     // 58: ledger.v1.ResolveDiscrepancyResponse
-	(*structpb.Struct)(nil),                // 59: google.protobuf.Struct
-	(*timestamppb.Timestamp)(nil),          // 60: google.protobuf.Timestamp
+	(*ListReservationsRequest)(nil),        // 36: ledger.v1.ListReservationsRequest
+	(*ListReservationsResponse)(nil),       // 37: ledger.v1.ListReservationsResponse
+	(*FXRate)(nil),                         // 38: ledger.v1.FXRate
+	(*ExecuteExchangeRequest)(nil),         // 39: ledger.v1.ExecuteExchangeRequest
+	(*ExecuteExchangeResponse)(nil),        // 40: ledger.v1.ExecuteExchangeResponse
+	(*PutFXRateRequest)(nil),               // 41: ledger.v1.PutFXRateRequest
+	(*PutFXRateResponse)(nil),              // 42: ledger.v1.PutFXRateResponse
+	(*GetFXRateRequest)(nil),               // 43: ledger.v1.GetFXRateRequest
+	(*GetFXRateResponse)(nil),              // 44: ledger.v1.GetFXRateResponse
+	(*ListFXRatesRequest)(nil),             // 45: ledger.v1.ListFXRatesRequest
+	(*ListFXRatesResponse)(nil),            // 46: ledger.v1.ListFXRatesResponse
+	(*ExternalRecord)(nil),                 // 47: ledger.v1.ExternalRecord
+	(*ExternalRecordInput)(nil),            // 48: ledger.v1.ExternalRecordInput
+	(*IngestExternalRecordsRequest)(nil),   // 49: ledger.v1.IngestExternalRecordsRequest
+	(*IngestExternalRecordsResponse)(nil),  // 50: ledger.v1.IngestExternalRecordsResponse
+	(*RunReconciliationRequest)(nil),       // 51: ledger.v1.RunReconciliationRequest
+	(*ReconciliationBatch)(nil),            // 52: ledger.v1.ReconciliationBatch
+	(*RunReconciliationResponse)(nil),      // 53: ledger.v1.RunReconciliationResponse
+	(*GetReconciliationBatchRequest)(nil),  // 54: ledger.v1.GetReconciliationBatchRequest
+	(*GetReconciliationBatchResponse)(nil), // 55: ledger.v1.GetReconciliationBatchResponse
+	(*Discrepancy)(nil),                    // 56: ledger.v1.Discrepancy
+	(*ListDiscrepanciesRequest)(nil),       // 57: ledger.v1.ListDiscrepanciesRequest
+	(*ListDiscrepanciesResponse)(nil),      // 58: ledger.v1.ListDiscrepanciesResponse
+	(*ResolveDiscrepancyRequest)(nil),      // 59: ledger.v1.ResolveDiscrepancyRequest
+	(*ResolveDiscrepancyResponse)(nil),     // 60: ledger.v1.ResolveDiscrepancyResponse
+	(*structpb.Struct)(nil),                // 61: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil),          // 62: google.protobuf.Timestamp
 }
 var file_ledger_v1_ledger_proto_depIdxs = []int32{
 	0,  // 0: ledger.v1.Entry.direction:type_name -> ledger.v1.Direction
-	59, // 1: ledger.v1.Journal.metadata:type_name -> google.protobuf.Struct
+	61, // 1: ledger.v1.Journal.metadata:type_name -> google.protobuf.Struct
 	4,  // 2: ledger.v1.Journal.entries:type_name -> ledger.v1.Entry
 	1,  // 3: ledger.v1.Account.normal_balance:type_name -> ledger.v1.NormalBalance
 	2,  // 4: ledger.v1.Account.status:type_name -> ledger.v1.AccountStatus
-	60, // 5: ledger.v1.Account.created_at:type_name -> google.protobuf.Timestamp
+	62, // 5: ledger.v1.Account.created_at:type_name -> google.protobuf.Timestamp
 	1,  // 6: ledger.v1.CreateAccountRequest.normal_balance:type_name -> ledger.v1.NormalBalance
 	6,  // 7: ledger.v1.CreateAccountResponse.account:type_name -> ledger.v1.Account
 	6,  // 8: ledger.v1.GetAccountResponse.account:type_name -> ledger.v1.Account
-	60, // 9: ledger.v1.GetBalanceRequest.as_of:type_name -> google.protobuf.Timestamp
+	62, // 9: ledger.v1.GetBalanceRequest.as_of:type_name -> google.protobuf.Timestamp
 	7,  // 10: ledger.v1.GetBalanceResponse.balance:type_name -> ledger.v1.Balance
 	5,  // 11: ledger.v1.PostJournalRequest.journal:type_name -> ledger.v1.Journal
 	5,  // 12: ledger.v1.Step.journal:type_name -> ledger.v1.Journal
 	16, // 13: ledger.v1.ExecuteFlowRequest.steps:type_name -> ledger.v1.Step
-	59, // 14: ledger.v1.ExecuteFlowRequest.metadata:type_name -> google.protobuf.Struct
+	61, // 14: ledger.v1.ExecuteFlowRequest.metadata:type_name -> google.protobuf.Struct
 	3,  // 15: ledger.v1.ExecuteFlowResponse.status:type_name -> ledger.v1.FlowStatus
 	18, // 16: ledger.v1.ExecuteFlowResponse.steps:type_name -> ledger.v1.FlowStepResult
 	19, // 17: ledger.v1.GetFlowResponse.flow:type_name -> ledger.v1.ExecuteFlowResponse
-	60, // 18: ledger.v1.ListAccountActivityRequest.since:type_name -> google.protobuf.Timestamp
-	60, // 19: ledger.v1.ListAccountActivityRequest.until:type_name -> google.protobuf.Timestamp
+	62, // 18: ledger.v1.ListAccountActivityRequest.since:type_name -> google.protobuf.Timestamp
+	62, // 19: ledger.v1.ListAccountActivityRequest.until:type_name -> google.protobuf.Timestamp
 	0,  // 20: ledger.v1.AccountActivityEntry.direction:type_name -> ledger.v1.Direction
-	60, // 21: ledger.v1.AccountActivityEntry.created_at:type_name -> google.protobuf.Timestamp
+	62, // 21: ledger.v1.AccountActivityEntry.created_at:type_name -> google.protobuf.Timestamp
 	23, // 22: ledger.v1.ListAccountActivityResponse.entries:type_name -> ledger.v1.AccountActivityEntry
-	60, // 23: ledger.v1.Reservation.expires_at:type_name -> google.protobuf.Timestamp
-	60, // 24: ledger.v1.Reservation.created_at:type_name -> google.protobuf.Timestamp
-	60, // 25: ledger.v1.Reservation.updated_at:type_name -> google.protobuf.Timestamp
-	60, // 26: ledger.v1.CreateReservationRequest.expires_at:type_name -> google.protobuf.Timestamp
-	59, // 27: ledger.v1.CreateReservationRequest.metadata:type_name -> google.protobuf.Struct
+	62, // 23: ledger.v1.Reservation.expires_at:type_name -> google.protobuf.Timestamp
+	62, // 24: ledger.v1.Reservation.created_at:type_name -> google.protobuf.Timestamp
+	62, // 25: ledger.v1.Reservation.updated_at:type_name -> google.protobuf.Timestamp
+	62, // 26: ledger.v1.CreateReservationRequest.expires_at:type_name -> google.protobuf.Timestamp
+	61, // 27: ledger.v1.CreateReservationRequest.metadata:type_name -> google.protobuf.Struct
 	27, // 28: ledger.v1.CreateReservationResponse.reservation:type_name -> ledger.v1.Reservation
 	27, // 29: ledger.v1.CommitReservationResponse.reservation:type_name -> ledger.v1.Reservation
 	27, // 30: ledger.v1.ReleaseReservationResponse.reservation:type_name -> ledger.v1.Reservation
 	27, // 31: ledger.v1.GetReservationResponse.reservation:type_name -> ledger.v1.Reservation
-	60, // 32: ledger.v1.FXRate.effective_at:type_name -> google.protobuf.Timestamp
-	60, // 33: ledger.v1.FXRate.created_at:type_name -> google.protobuf.Timestamp
-	59, // 34: ledger.v1.ExecuteExchangeRequest.metadata:type_name -> google.protobuf.Struct
-	60, // 35: ledger.v1.PutFXRateRequest.effective_at:type_name -> google.protobuf.Timestamp
-	36, // 36: ledger.v1.PutFXRateResponse.rate:type_name -> ledger.v1.FXRate
-	60, // 37: ledger.v1.GetFXRateRequest.at:type_name -> google.protobuf.Timestamp
-	36, // 38: ledger.v1.GetFXRateResponse.rate:type_name -> ledger.v1.FXRate
-	60, // 39: ledger.v1.ListFXRatesRequest.since:type_name -> google.protobuf.Timestamp
-	60, // 40: ledger.v1.ListFXRatesRequest.until:type_name -> google.protobuf.Timestamp
-	36, // 41: ledger.v1.ListFXRatesResponse.rates:type_name -> ledger.v1.FXRate
-	60, // 42: ledger.v1.ExternalRecord.occurred_at:type_name -> google.protobuf.Timestamp
-	59, // 43: ledger.v1.ExternalRecord.raw_payload:type_name -> google.protobuf.Struct
-	60, // 44: ledger.v1.ExternalRecord.created_at:type_name -> google.protobuf.Timestamp
-	60, // 45: ledger.v1.ExternalRecordInput.occurred_at:type_name -> google.protobuf.Timestamp
-	59, // 46: ledger.v1.ExternalRecordInput.raw_payload:type_name -> google.protobuf.Struct
-	46, // 47: ledger.v1.IngestExternalRecordsRequest.records:type_name -> ledger.v1.ExternalRecordInput
-	60, // 48: ledger.v1.RunReconciliationRequest.window_start:type_name -> google.protobuf.Timestamp
-	60, // 49: ledger.v1.RunReconciliationRequest.window_end:type_name -> google.protobuf.Timestamp
-	60, // 50: ledger.v1.ReconciliationBatch.window_start:type_name -> google.protobuf.Timestamp
-	60, // 51: ledger.v1.ReconciliationBatch.window_end:type_name -> google.protobuf.Timestamp
-	60, // 52: ledger.v1.ReconciliationBatch.started_at:type_name -> google.protobuf.Timestamp
-	60, // 53: ledger.v1.ReconciliationBatch.completed_at:type_name -> google.protobuf.Timestamp
-	50, // 54: ledger.v1.RunReconciliationResponse.batch:type_name -> ledger.v1.ReconciliationBatch
-	50, // 55: ledger.v1.GetReconciliationBatchResponse.batch:type_name -> ledger.v1.ReconciliationBatch
-	60, // 56: ledger.v1.Discrepancy.resolved_at:type_name -> google.protobuf.Timestamp
-	60, // 57: ledger.v1.Discrepancy.created_at:type_name -> google.protobuf.Timestamp
-	54, // 58: ledger.v1.ListDiscrepanciesResponse.discrepancies:type_name -> ledger.v1.Discrepancy
-	17, // 59: ledger.v1.ResolveDiscrepancyRequest.adjustment:type_name -> ledger.v1.ExecuteFlowRequest
-	54, // 60: ledger.v1.ResolveDiscrepancyResponse.discrepancy:type_name -> ledger.v1.Discrepancy
-	8,  // 61: ledger.v1.LedgerService.CreateAccount:input_type -> ledger.v1.CreateAccountRequest
-	10, // 62: ledger.v1.LedgerService.GetAccount:input_type -> ledger.v1.GetAccountRequest
-	12, // 63: ledger.v1.LedgerService.GetBalance:input_type -> ledger.v1.GetBalanceRequest
-	14, // 64: ledger.v1.LedgerService.PostJournal:input_type -> ledger.v1.PostJournalRequest
-	17, // 65: ledger.v1.LedgerService.ExecuteFlow:input_type -> ledger.v1.ExecuteFlowRequest
-	20, // 66: ledger.v1.LedgerService.GetFlow:input_type -> ledger.v1.GetFlowRequest
-	22, // 67: ledger.v1.LedgerService.ListAccountActivity:input_type -> ledger.v1.ListAccountActivityRequest
-	25, // 68: ledger.v1.LedgerService.TakeBalanceSnapshot:input_type -> ledger.v1.TakeBalanceSnapshotRequest
-	28, // 69: ledger.v1.LedgerService.CreateReservation:input_type -> ledger.v1.CreateReservationRequest
-	30, // 70: ledger.v1.LedgerService.CommitReservation:input_type -> ledger.v1.CommitReservationRequest
-	32, // 71: ledger.v1.LedgerService.ReleaseReservation:input_type -> ledger.v1.ReleaseReservationRequest
-	34, // 72: ledger.v1.LedgerService.GetReservation:input_type -> ledger.v1.GetReservationRequest
-	37, // 73: ledger.v1.LedgerService.ExecuteExchange:input_type -> ledger.v1.ExecuteExchangeRequest
-	39, // 74: ledger.v1.LedgerService.PutFXRate:input_type -> ledger.v1.PutFXRateRequest
-	41, // 75: ledger.v1.LedgerService.GetFXRate:input_type -> ledger.v1.GetFXRateRequest
-	43, // 76: ledger.v1.LedgerService.ListFXRates:input_type -> ledger.v1.ListFXRatesRequest
-	47, // 77: ledger.v1.LedgerService.IngestExternalRecords:input_type -> ledger.v1.IngestExternalRecordsRequest
-	49, // 78: ledger.v1.LedgerService.RunReconciliation:input_type -> ledger.v1.RunReconciliationRequest
-	52, // 79: ledger.v1.LedgerService.GetReconciliationBatch:input_type -> ledger.v1.GetReconciliationBatchRequest
-	55, // 80: ledger.v1.LedgerService.ListDiscrepancies:input_type -> ledger.v1.ListDiscrepanciesRequest
-	57, // 81: ledger.v1.LedgerService.ResolveDiscrepancy:input_type -> ledger.v1.ResolveDiscrepancyRequest
-	9,  // 82: ledger.v1.LedgerService.CreateAccount:output_type -> ledger.v1.CreateAccountResponse
-	11, // 83: ledger.v1.LedgerService.GetAccount:output_type -> ledger.v1.GetAccountResponse
-	13, // 84: ledger.v1.LedgerService.GetBalance:output_type -> ledger.v1.GetBalanceResponse
-	15, // 85: ledger.v1.LedgerService.PostJournal:output_type -> ledger.v1.PostJournalResponse
-	19, // 86: ledger.v1.LedgerService.ExecuteFlow:output_type -> ledger.v1.ExecuteFlowResponse
-	21, // 87: ledger.v1.LedgerService.GetFlow:output_type -> ledger.v1.GetFlowResponse
-	24, // 88: ledger.v1.LedgerService.ListAccountActivity:output_type -> ledger.v1.ListAccountActivityResponse
-	26, // 89: ledger.v1.LedgerService.TakeBalanceSnapshot:output_type -> ledger.v1.TakeBalanceSnapshotResponse
-	29, // 90: ledger.v1.LedgerService.CreateReservation:output_type -> ledger.v1.CreateReservationResponse
-	31, // 91: ledger.v1.LedgerService.CommitReservation:output_type -> ledger.v1.CommitReservationResponse
-	33, // 92: ledger.v1.LedgerService.ReleaseReservation:output_type -> ledger.v1.ReleaseReservationResponse
-	35, // 93: ledger.v1.LedgerService.GetReservation:output_type -> ledger.v1.GetReservationResponse
-	38, // 94: ledger.v1.LedgerService.ExecuteExchange:output_type -> ledger.v1.ExecuteExchangeResponse
-	40, // 95: ledger.v1.LedgerService.PutFXRate:output_type -> ledger.v1.PutFXRateResponse
-	42, // 96: ledger.v1.LedgerService.GetFXRate:output_type -> ledger.v1.GetFXRateResponse
-	44, // 97: ledger.v1.LedgerService.ListFXRates:output_type -> ledger.v1.ListFXRatesResponse
-	48, // 98: ledger.v1.LedgerService.IngestExternalRecords:output_type -> ledger.v1.IngestExternalRecordsResponse
-	51, // 99: ledger.v1.LedgerService.RunReconciliation:output_type -> ledger.v1.RunReconciliationResponse
-	53, // 100: ledger.v1.LedgerService.GetReconciliationBatch:output_type -> ledger.v1.GetReconciliationBatchResponse
-	56, // 101: ledger.v1.LedgerService.ListDiscrepancies:output_type -> ledger.v1.ListDiscrepanciesResponse
-	58, // 102: ledger.v1.LedgerService.ResolveDiscrepancy:output_type -> ledger.v1.ResolveDiscrepancyResponse
-	82, // [82:103] is the sub-list for method output_type
-	61, // [61:82] is the sub-list for method input_type
-	61, // [61:61] is the sub-list for extension type_name
-	61, // [61:61] is the sub-list for extension extendee
-	0,  // [0:61] is the sub-list for field type_name
+	27, // 32: ledger.v1.ListReservationsResponse.reservations:type_name -> ledger.v1.Reservation
+	62, // 33: ledger.v1.FXRate.effective_at:type_name -> google.protobuf.Timestamp
+	62, // 34: ledger.v1.FXRate.created_at:type_name -> google.protobuf.Timestamp
+	61, // 35: ledger.v1.ExecuteExchangeRequest.metadata:type_name -> google.protobuf.Struct
+	62, // 36: ledger.v1.PutFXRateRequest.effective_at:type_name -> google.protobuf.Timestamp
+	38, // 37: ledger.v1.PutFXRateResponse.rate:type_name -> ledger.v1.FXRate
+	62, // 38: ledger.v1.GetFXRateRequest.at:type_name -> google.protobuf.Timestamp
+	38, // 39: ledger.v1.GetFXRateResponse.rate:type_name -> ledger.v1.FXRate
+	62, // 40: ledger.v1.ListFXRatesRequest.since:type_name -> google.protobuf.Timestamp
+	62, // 41: ledger.v1.ListFXRatesRequest.until:type_name -> google.protobuf.Timestamp
+	38, // 42: ledger.v1.ListFXRatesResponse.rates:type_name -> ledger.v1.FXRate
+	62, // 43: ledger.v1.ExternalRecord.occurred_at:type_name -> google.protobuf.Timestamp
+	61, // 44: ledger.v1.ExternalRecord.raw_payload:type_name -> google.protobuf.Struct
+	62, // 45: ledger.v1.ExternalRecord.created_at:type_name -> google.protobuf.Timestamp
+	62, // 46: ledger.v1.ExternalRecordInput.occurred_at:type_name -> google.protobuf.Timestamp
+	61, // 47: ledger.v1.ExternalRecordInput.raw_payload:type_name -> google.protobuf.Struct
+	48, // 48: ledger.v1.IngestExternalRecordsRequest.records:type_name -> ledger.v1.ExternalRecordInput
+	62, // 49: ledger.v1.RunReconciliationRequest.window_start:type_name -> google.protobuf.Timestamp
+	62, // 50: ledger.v1.RunReconciliationRequest.window_end:type_name -> google.protobuf.Timestamp
+	62, // 51: ledger.v1.ReconciliationBatch.window_start:type_name -> google.protobuf.Timestamp
+	62, // 52: ledger.v1.ReconciliationBatch.window_end:type_name -> google.protobuf.Timestamp
+	62, // 53: ledger.v1.ReconciliationBatch.started_at:type_name -> google.protobuf.Timestamp
+	62, // 54: ledger.v1.ReconciliationBatch.completed_at:type_name -> google.protobuf.Timestamp
+	52, // 55: ledger.v1.RunReconciliationResponse.batch:type_name -> ledger.v1.ReconciliationBatch
+	52, // 56: ledger.v1.GetReconciliationBatchResponse.batch:type_name -> ledger.v1.ReconciliationBatch
+	62, // 57: ledger.v1.Discrepancy.resolved_at:type_name -> google.protobuf.Timestamp
+	62, // 58: ledger.v1.Discrepancy.created_at:type_name -> google.protobuf.Timestamp
+	56, // 59: ledger.v1.ListDiscrepanciesResponse.discrepancies:type_name -> ledger.v1.Discrepancy
+	17, // 60: ledger.v1.ResolveDiscrepancyRequest.adjustment:type_name -> ledger.v1.ExecuteFlowRequest
+	56, // 61: ledger.v1.ResolveDiscrepancyResponse.discrepancy:type_name -> ledger.v1.Discrepancy
+	8,  // 62: ledger.v1.LedgerService.CreateAccount:input_type -> ledger.v1.CreateAccountRequest
+	10, // 63: ledger.v1.LedgerService.GetAccount:input_type -> ledger.v1.GetAccountRequest
+	12, // 64: ledger.v1.LedgerService.GetBalance:input_type -> ledger.v1.GetBalanceRequest
+	14, // 65: ledger.v1.LedgerService.PostJournal:input_type -> ledger.v1.PostJournalRequest
+	17, // 66: ledger.v1.LedgerService.ExecuteFlow:input_type -> ledger.v1.ExecuteFlowRequest
+	20, // 67: ledger.v1.LedgerService.GetFlow:input_type -> ledger.v1.GetFlowRequest
+	22, // 68: ledger.v1.LedgerService.ListAccountActivity:input_type -> ledger.v1.ListAccountActivityRequest
+	25, // 69: ledger.v1.LedgerService.TakeBalanceSnapshot:input_type -> ledger.v1.TakeBalanceSnapshotRequest
+	28, // 70: ledger.v1.LedgerService.CreateReservation:input_type -> ledger.v1.CreateReservationRequest
+	30, // 71: ledger.v1.LedgerService.CommitReservation:input_type -> ledger.v1.CommitReservationRequest
+	32, // 72: ledger.v1.LedgerService.ReleaseReservation:input_type -> ledger.v1.ReleaseReservationRequest
+	34, // 73: ledger.v1.LedgerService.GetReservation:input_type -> ledger.v1.GetReservationRequest
+	36, // 74: ledger.v1.LedgerService.ListReservations:input_type -> ledger.v1.ListReservationsRequest
+	39, // 75: ledger.v1.LedgerService.ExecuteExchange:input_type -> ledger.v1.ExecuteExchangeRequest
+	41, // 76: ledger.v1.LedgerService.PutFXRate:input_type -> ledger.v1.PutFXRateRequest
+	43, // 77: ledger.v1.LedgerService.GetFXRate:input_type -> ledger.v1.GetFXRateRequest
+	45, // 78: ledger.v1.LedgerService.ListFXRates:input_type -> ledger.v1.ListFXRatesRequest
+	49, // 79: ledger.v1.LedgerService.IngestExternalRecords:input_type -> ledger.v1.IngestExternalRecordsRequest
+	51, // 80: ledger.v1.LedgerService.RunReconciliation:input_type -> ledger.v1.RunReconciliationRequest
+	54, // 81: ledger.v1.LedgerService.GetReconciliationBatch:input_type -> ledger.v1.GetReconciliationBatchRequest
+	57, // 82: ledger.v1.LedgerService.ListDiscrepancies:input_type -> ledger.v1.ListDiscrepanciesRequest
+	59, // 83: ledger.v1.LedgerService.ResolveDiscrepancy:input_type -> ledger.v1.ResolveDiscrepancyRequest
+	9,  // 84: ledger.v1.LedgerService.CreateAccount:output_type -> ledger.v1.CreateAccountResponse
+	11, // 85: ledger.v1.LedgerService.GetAccount:output_type -> ledger.v1.GetAccountResponse
+	13, // 86: ledger.v1.LedgerService.GetBalance:output_type -> ledger.v1.GetBalanceResponse
+	15, // 87: ledger.v1.LedgerService.PostJournal:output_type -> ledger.v1.PostJournalResponse
+	19, // 88: ledger.v1.LedgerService.ExecuteFlow:output_type -> ledger.v1.ExecuteFlowResponse
+	21, // 89: ledger.v1.LedgerService.GetFlow:output_type -> ledger.v1.GetFlowResponse
+	24, // 90: ledger.v1.LedgerService.ListAccountActivity:output_type -> ledger.v1.ListAccountActivityResponse
+	26, // 91: ledger.v1.LedgerService.TakeBalanceSnapshot:output_type -> ledger.v1.TakeBalanceSnapshotResponse
+	29, // 92: ledger.v1.LedgerService.CreateReservation:output_type -> ledger.v1.CreateReservationResponse
+	31, // 93: ledger.v1.LedgerService.CommitReservation:output_type -> ledger.v1.CommitReservationResponse
+	33, // 94: ledger.v1.LedgerService.ReleaseReservation:output_type -> ledger.v1.ReleaseReservationResponse
+	35, // 95: ledger.v1.LedgerService.GetReservation:output_type -> ledger.v1.GetReservationResponse
+	37, // 96: ledger.v1.LedgerService.ListReservations:output_type -> ledger.v1.ListReservationsResponse
+	40, // 97: ledger.v1.LedgerService.ExecuteExchange:output_type -> ledger.v1.ExecuteExchangeResponse
+	42, // 98: ledger.v1.LedgerService.PutFXRate:output_type -> ledger.v1.PutFXRateResponse
+	44, // 99: ledger.v1.LedgerService.GetFXRate:output_type -> ledger.v1.GetFXRateResponse
+	46, // 100: ledger.v1.LedgerService.ListFXRates:output_type -> ledger.v1.ListFXRatesResponse
+	50, // 101: ledger.v1.LedgerService.IngestExternalRecords:output_type -> ledger.v1.IngestExternalRecordsResponse
+	53, // 102: ledger.v1.LedgerService.RunReconciliation:output_type -> ledger.v1.RunReconciliationResponse
+	55, // 103: ledger.v1.LedgerService.GetReconciliationBatch:output_type -> ledger.v1.GetReconciliationBatchResponse
+	58, // 104: ledger.v1.LedgerService.ListDiscrepancies:output_type -> ledger.v1.ListDiscrepanciesResponse
+	60, // 105: ledger.v1.LedgerService.ResolveDiscrepancy:output_type -> ledger.v1.ResolveDiscrepancyResponse
+	84, // [84:106] is the sub-list for method output_type
+	62, // [62:84] is the sub-list for method input_type
+	62, // [62:62] is the sub-list for extension type_name
+	62, // [62:62] is the sub-list for extension extendee
+	0,  // [0:62] is the sub-list for field type_name
 }
 
 func init() { file_ledger_v1_ledger_proto_init() }
@@ -4788,7 +4923,7 @@ func file_ledger_v1_ledger_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_ledger_v1_ledger_proto_rawDesc), len(file_ledger_v1_ledger_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   55,
+			NumMessages:   57,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

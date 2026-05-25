@@ -19,6 +19,7 @@ service LedgerService {
   rpc CommitReservation(CommitReservationRequest) returns (CommitReservationResponse);
   rpc ReleaseReservation(ReleaseReservationRequest) returns (ReleaseReservationResponse);
   rpc GetReservation(GetReservationRequest) returns (GetReservationResponse);
+  rpc ListReservations(ListReservationsRequest) returns (ListReservationsResponse);
   rpc ExecuteExchange(ExecuteExchangeRequest) returns (ExecuteExchangeResponse);
   rpc PutFXRate(PutFXRateRequest) returns (PutFXRateResponse);
   rpc GetFXRate(GetFXRateRequest) returns (GetFXRateResponse);
@@ -247,6 +248,17 @@ message ReleaseReservationResponse { Reservation reservation = 1; }
 
 message GetReservationRequest  { string tenant_id = 1; string reservation_id = 2; }
 message GetReservationResponse { Reservation reservation = 1; }
+
+message ListReservationsRequest {
+  string tenant_id  = 1 [(buf.validate.field).string.min_len = 1];
+  string owner_type = 2;                   // optional filter (e.g. "user")
+  string owner_id   = 3;                   // optional filter
+  string status     = 4;                   // optional: HELD|PARTIAL|COMMITTED|RELEASED|EXPIRED
+  int32  page_size  = 5;                   // 1..500; 0 → 100
+}
+message ListReservationsResponse {
+  repeated Reservation reservations = 1;
+}
 
 message FXRate {
   string id              = 1;
