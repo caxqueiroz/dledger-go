@@ -28,3 +28,14 @@ WHERE status IN ('HELD', 'PARTIAL')
 ORDER BY expires_at ASC
 LIMIT $2
 FOR UPDATE SKIP LOCKED;
+
+-- name: ListReservations :many
+SELECT r.*
+FROM reservations r
+JOIN accounts a ON a.id = r.source_account_id
+WHERE r.tenant_id = $1
+  AND (a.owner_type = $2 OR $2 = '')
+  AND (a.owner_id   = $3 OR $3 = '')
+  AND (r.status     = $4 OR $4 = '')
+ORDER BY r.created_at DESC, r.id DESC
+LIMIT $5;

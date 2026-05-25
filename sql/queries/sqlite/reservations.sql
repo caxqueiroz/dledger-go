@@ -24,3 +24,14 @@ WHERE status IN ('HELD', 'PARTIAL')
   AND expires_at <= ?
 ORDER BY expires_at ASC
 LIMIT ?;
+
+-- name: ListReservations :many
+SELECT r.*
+FROM reservations r
+JOIN accounts a ON a.id = r.source_account_id
+WHERE r.tenant_id = ?
+  AND (a.owner_type = ?  OR ? = '')
+  AND (a.owner_id   = ?  OR ? = '')
+  AND (r.status     = ?  OR ? = '')
+ORDER BY r.created_at DESC, r.id DESC
+LIMIT ?;

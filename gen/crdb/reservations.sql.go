@@ -159,6 +159,69 @@ func (q *Queries) ListExpiredReservations(ctx context.Context, arg ListExpiredRe
 	return items, nil
 }
 
+const listReservations = `-- name: ListReservations :many
+SELECT r.id, r.tenant_id, r.idempotency_key, r.source_account_id, r.reserved_account_id, r.currency, r.original_amount, r.outstanding_amount, r.committed_amount, r.released_amount, r.status, r.expires_at, r.flow_run_id, r.metadata, r.created_at, r.updated_at
+FROM reservations r
+JOIN accounts a ON a.id = r.source_account_id
+WHERE r.tenant_id = $1
+  AND (a.owner_type = $2 OR $2 = '')
+  AND (a.owner_id   = $3 OR $3 = '')
+  AND (r.status     = $4 OR $4 = '')
+ORDER BY r.created_at DESC, r.id DESC
+LIMIT $5
+`
+
+type ListReservationsParams struct {
+	TenantID  string `db:"tenant_id"`
+	OwnerType string `db:"owner_type"`
+	OwnerID   string `db:"owner_id"`
+	Status    string `db:"status"`
+	Limit     int32  `db:"limit"`
+}
+
+func (q *Queries) ListReservations(ctx context.Context, arg ListReservationsParams) ([]Reservation, error) {
+	rows, err := q.db.Query(ctx, listReservations,
+		arg.TenantID,
+		arg.OwnerType,
+		arg.OwnerID,
+		arg.Status,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Reservation
+	for rows.Next() {
+		var i Reservation
+		if err := rows.Scan(
+			&i.ID,
+			&i.TenantID,
+			&i.IdempotencyKey,
+			&i.SourceAccountID,
+			&i.ReservedAccountID,
+			&i.Currency,
+			&i.OriginalAmount,
+			&i.OutstandingAmount,
+			&i.CommittedAmount,
+			&i.ReleasedAmount,
+			&i.Status,
+			&i.ExpiresAt,
+			&i.FlowRunID,
+			&i.Metadata,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const lockReservation = `-- name: LockReservation :one
 SELECT id, tenant_id, idempotency_key, source_account_id, reserved_account_id, currency, original_amount, outstanding_amount, committed_amount, released_amount, status, expires_at, flow_run_id, metadata, created_at, updated_at FROM reservations WHERE tenant_id = $1 AND id = $2 FOR UPDATE
 `

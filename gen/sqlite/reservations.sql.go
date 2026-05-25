@@ -158,6 +158,78 @@ func (q *Queries) ListExpiredReservations(ctx context.Context, arg ListExpiredRe
 	return items, nil
 }
 
+const listReservations = `-- name: ListReservations :many
+SELECT r.id, r.tenant_id, r.idempotency_key, r.source_account_id, r.reserved_account_id, r.currency, r.original_amount, r.outstanding_amount, r.committed_amount, r.released_amount, r.status, r.expires_at, r.flow_run_id, r.metadata, r.created_at, r.updated_at
+FROM reservations r
+JOIN accounts a ON a.id = r.source_account_id
+WHERE r.tenant_id = ?
+  AND (a.owner_type = ?  OR ? = '')
+  AND (a.owner_id   = ?  OR ? = '')
+  AND (r.status     = ?  OR ? = '')
+ORDER BY r.created_at DESC, r.id DESC
+LIMIT ?
+`
+
+type ListReservationsParams struct {
+	TenantID  string      `db:"tenant_id"`
+	OwnerType string      `db:"owner_type"`
+	Column3   interface{} `db:"column_3"`
+	OwnerID   string      `db:"owner_id"`
+	Column5   interface{} `db:"column_5"`
+	Status    string      `db:"status"`
+	Column7   interface{} `db:"column_7"`
+	Limit     int64       `db:"limit"`
+}
+
+func (q *Queries) ListReservations(ctx context.Context, arg ListReservationsParams) ([]Reservation, error) {
+	rows, err := q.db.QueryContext(ctx, listReservations,
+		arg.TenantID,
+		arg.OwnerType,
+		arg.Column3,
+		arg.OwnerID,
+		arg.Column5,
+		arg.Status,
+		arg.Column7,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Reservation
+	for rows.Next() {
+		var i Reservation
+		if err := rows.Scan(
+			&i.ID,
+			&i.TenantID,
+			&i.IdempotencyKey,
+			&i.SourceAccountID,
+			&i.ReservedAccountID,
+			&i.Currency,
+			&i.OriginalAmount,
+			&i.OutstandingAmount,
+			&i.CommittedAmount,
+			&i.ReleasedAmount,
+			&i.Status,
+			&i.ExpiresAt,
+			&i.FlowRunID,
+			&i.Metadata,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateReservationAmounts = `-- name: UpdateReservationAmounts :exec
 UPDATE reservations
 SET outstanding_amount = ?, committed_amount = ?, released_amount = ?,
