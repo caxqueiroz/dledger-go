@@ -76,3 +76,68 @@ func (w *Wallet) ensureAccount(ctx context.Context, ownerID, acctType, currency 
 	}
 	return err
 }
+
+// Deposit credits the player's cash_available by debiting the FundingAccountID.
+// FundingAccountID is the caller-owned mirror account (e.g. the payment
+// processor's clearing account in dledger).
+//
+//	DEBIT  user:<player>:cash_available:<ccy>   amount
+//	CREDIT funding_account                       amount
+func (w *Wallet) Deposit(ctx context.Context, in DepositInput) (Receipt, error) {
+	avail := w.accountID(in.PlayerID, "cash_available", in.Currency)
+	return w.postJournal(ctx, postJournalArgs{
+		IdempotencyKey: in.IdempotencyKey,
+		SourceService:  in.SourceService,
+		EventID:        in.ExternalRef,
+		Debit:          accountAmount{accountID: avail, currency: in.Currency, amount: in.Amount},
+		Credit:         accountAmount{accountID: in.FundingAccountID, currency: in.Currency, amount: in.Amount},
+	})
+}
+
+// Withdraw moves funds from the player's cash_available to the caller's
+// WithdrawalAccountID.
+//
+//	DEBIT  withdrawal_account                    amount
+//	CREDIT user:<player>:cash_available:<ccy>   amount
+func (w *Wallet) Withdraw(ctx context.Context, in WithdrawInput) (Receipt, error) {
+	avail := w.accountID(in.PlayerID, "cash_available", in.Currency)
+	return w.postJournal(ctx, postJournalArgs{
+		IdempotencyKey: in.IdempotencyKey,
+		SourceService:  in.SourceService,
+		EventID:        in.ExternalRef,
+		Debit:          accountAmount{accountID: in.WithdrawalAccountID, currency: in.Currency, amount: in.Amount},
+		Credit:         accountAmount{accountID: avail, currency: in.Currency, amount: in.Amount},
+	})
+}
+
+type accountAmount struct {
+	accountID string
+	currency  string
+	amount    string
+}
+
+type postJournalArgs struct {
+	IdempotencyKey string
+	SourceService  string
+	EventID        string
+	Debit          accountAmount
+	Credit         accountAmount
+}
+
+func (w *Wallet) postJournal(ctx context.Context, a postJournalArgs) (Receipt, error) {
+	resp, err := w.client.PostJournal(ctx, connect.NewRequest(&v1.PostJournalRequest{
+		TenantId: w.tenant, IdempotencyKey: a.IdempotencyKey, SourceService: a.SourceService,
+		Journal: &v1.Journal{
+			EventId:       a.EventID,
+			SourceService: a.SourceService,
+			Entries: []*v1.Entry{
+				{AccountId: a.Debit.accountID, Currency: a.Debit.currency, Direction: v1.Direction_DIRECTION_DEBIT, Amount: a.Debit.amount},
+				{AccountId: a.Credit.accountID, Currency: a.Credit.currency, Direction: v1.Direction_DIRECTION_CREDIT, Amount: a.Credit.amount},
+			},
+		},
+	}))
+	if err != nil {
+		return Receipt{}, err
+	}
+	return Receipt{JournalID: resp.Msg.GetJournalId(), FlowRunID: resp.Msg.GetFlowRunId()}, nil
+}
