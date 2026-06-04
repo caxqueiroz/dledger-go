@@ -23,6 +23,7 @@ const (
 	CodeDiscrepancyNotFound         DomainCode = "DISCREPANCY_NOT_FOUND"
 	CodeDiscrepancyClosed           DomainCode = "DISCREPANCY_CLOSED"
 	CodeReconBatchNotFound          DomainCode = "RECON_BATCH_NOT_FOUND"
+	CodeUnsupportedOperation        DomainCode = "UNSUPPORTED_OPERATION"
 )
 
 type DomainError struct {
