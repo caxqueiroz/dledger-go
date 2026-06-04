@@ -89,7 +89,9 @@ func newServerWithDynamo(t *testing.T) (*service.Server, repo.Store, func()) {
 		t.Fatalf("EnsureTable %s: %v", table, err)
 	}
 	cleanup := func() {
-		_ = st.DeleteTable(context.Background())
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		_ = st.DeleteTable(cleanupCtx)
 		_ = st.Close()
 	}
 	t.Cleanup(cleanup)

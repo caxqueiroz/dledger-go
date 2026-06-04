@@ -173,11 +173,17 @@ func TestNoDoubleSpendUnderParallelReserves(t *testing.T) {
 	}
 
 	// 4. Money invariant: available + reserved == 100, reserved == 100.
-	waitForGSI()
-	snap, err := w.GetWallet(ctx, playerID, currency)
-	if err != nil {
-		t.Fatalf("GetWallet: %v", err)
-	}
+	// Poll until the GSI-backed OpenReservations count stabilises at 10 (one per
+	// successful goroutine) before running the full strict assertion block.
+	var snap dledger.WalletSnapshot
+	pollUntil(t, func() bool {
+		s, err := w.GetWallet(ctx, playerID, currency)
+		if err != nil {
+			return false
+		}
+		snap = s
+		return len(snap.OpenReservations) == 10
+	})
 	total := snap.Available.Add(snap.Reserved)
 	if total.String() != "100" {
 		t.Fatalf("money invariant: available(%s) + reserved(%s) = %s, want 100",
@@ -301,11 +307,17 @@ func TestParallelSameIdempotencyKey(t *testing.T) {
 	}
 
 	// 3. Exactly one 10.00 reservation; available == 90.
-	waitForGSI()
-	snap, err := w.GetWallet(ctx, playerID, currency)
-	if err != nil {
-		t.Fatalf("GetWallet: %v", err)
-	}
+	// Poll until the GSI-backed OpenReservations list shows exactly 1 entry
+	// before running the full strict assertion block.
+	var snap dledger.WalletSnapshot
+	pollUntil(t, func() bool {
+		s, err := w.GetWallet(ctx, playerID, currency)
+		if err != nil {
+			return false
+		}
+		snap = s
+		return len(snap.OpenReservations) == 1
+	})
 	if len(snap.OpenReservations) != 1 {
 		t.Fatalf("want exactly 1 open reservation, got %d", len(snap.OpenReservations))
 	}
@@ -457,31 +469,45 @@ func TestConcurrentFlowsSharedAccount(t *testing.T) {
 		t.Fatalf("want %d commits, got %d", goroutines, commitCount.Load())
 	}
 
-	waitForGSI()
+	// Poll until the GSI-backed OpenReservations lists are empty for both
+	// players (all 10 goroutines committed → no open reservations remain)
+	// before running the full strict assertion block.
+	var snapA, snapB dledger.WalletSnapshot
+	pollUntil(t, func() bool {
+		a, err := w.GetWallet(ctx, "sha-pA", currency)
+		if err != nil {
+			return false
+		}
+		b, err := w.GetWallet(ctx, "sha-pB", currency)
+		if err != nil {
+			return false
+		}
+		snapA, snapB = a, b
+		return len(snapA.OpenReservations) == 0 && len(snapB.OpenReservations) == 0
+	})
 
 	// 1. Destination balance == 10.00.
-	destResp, err := c.GetBalance(ctx, connect.NewRequest(&ledgerv1.GetBalanceRequest{
-		TenantId:  "t1",
-		AccountId: "platform:sha-dest:shared_pool:BRL",
-		Currency:  currency,
-	}))
-	if err != nil {
-		t.Fatalf("GetBalance(dest): %v", err)
-	}
-	destBal := destResp.Msg.GetBalance().GetNormalized()
+	// Poll until the destination balance reaches 10 (all 10 commits must have
+	// landed; ExtendDB balance updates are occasionally propagated with a small
+	// delay under concurrent load).
+	var destBal string
+	pollUntil(t, func() bool {
+		r, err := c.GetBalance(ctx, connect.NewRequest(&ledgerv1.GetBalanceRequest{
+			TenantId:  "t1",
+			AccountId: "platform:sha-dest:shared_pool:BRL",
+			Currency:  currency,
+		}))
+		if err != nil {
+			return false
+		}
+		destBal = r.Msg.GetBalance().GetNormalized()
+		return destBal == "10" || destBal == "10.00"
+	})
 	if destBal != "10" && destBal != "10.00" {
 		t.Fatalf("want destination balance=10, got %s", destBal)
 	}
 
 	// 2. Total system money conserved: sum all three wallets' available+reserved == 100.
-	snapA, err := w.GetWallet(ctx, "sha-pA", currency)
-	if err != nil {
-		t.Fatalf("GetWallet(pA): %v", err)
-	}
-	snapB, err := w.GetWallet(ctx, "sha-pB", currency)
-	if err != nil {
-		t.Fatalf("GetWallet(pB): %v", err)
-	}
 
 	// Parse destination balance.
 	var destAvail float64

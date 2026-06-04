@@ -55,7 +55,9 @@ func newDynamoWallet(t *testing.T) walletFixture {
 		t.Fatalf("Open raw store: %v", err)
 	}
 	t.Cleanup(func() {
-		if err := rawStore.DeleteTable(context.Background()); err != nil {
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := rawStore.DeleteTable(cleanupCtx); err != nil {
 			t.Logf("cleanup DeleteTable: %v", err)
 		}
 		_ = rawStore.Close()
@@ -87,6 +89,20 @@ func waitForGSI() {
 	if os.Getenv("AWS_ENDPOINT_URL_DYNAMODB") != "" {
 		time.Sleep(250 * time.Millisecond)
 	}
+}
+
+// pollUntil retries fn every 100ms up to 10 times until it returns true.
+// Used for GSI-backed reads on ExtendDB, whose index propagation can
+// occasionally exceed a fixed sleep.
+func pollUntil(t *testing.T, fn func() bool) {
+	t.Helper()
+	for range 10 {
+		if fn() {
+			return
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+	t.Fatal("pollUntil: condition not reached within 1s")
 }
 
 // ---------------------------------------------------------------------------

@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -25,7 +26,9 @@ func newTestStore(t *testing.T) *Store {
 		t.Fatalf("EnsureTable: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = s.DeleteTable(context.Background())
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		_ = s.DeleteTable(cleanupCtx)
 		_ = s.Close()
 	})
 	return s
