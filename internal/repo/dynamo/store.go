@@ -10,6 +10,8 @@ import (
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+
+	"github.com/caxqueiroz/dledger-go/internal/repo"
 )
 
 // Store implements repo.Store on a single DynamoDB table. The DSN passed to
@@ -94,3 +96,7 @@ func (s *Store) DeleteTable(ctx context.Context) error {
 // Close releases nothing today (the SDK client is connectionless) but
 // satisfies repo.Store.
 func (s *Store) Close() error { return nil }
+
+// Compile-time assertion: *Store must implement repo.Store completely.
+// The interface is now fully implemented (Task 9 completes the outbox methods).
+var _ repo.Store = (*Store)(nil)

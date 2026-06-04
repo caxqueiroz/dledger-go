@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"os"
 	"testing"
+	"time"
 
 	"connectrpc.com/connect"
 
@@ -170,6 +171,111 @@ func TestEmbeddedDynamo(t *testing.T) {
 	}
 	if !IsErrCode(err, ErrInsufficientFunds) {
 		t.Fatalf("expected ledger-error-code=INSUFFICIENT_FUNDS, got: %v", err)
+	}
+}
+
+// TestOutboxDispatcherDrains proves that the embedded dispatcher (LogSink)
+// picks up an outbox event written by PostJournal and marks it published.
+// It polls PendingOutbox on a raw DynamoDB store against the same table until
+// the count reaches zero or a 5-second deadline expires.
+func TestOutboxDispatcherDrains(t *testing.T) {
+	if os.Getenv("AWS_ENDPOINT_URL_DYNAMODB") == "" {
+		t.Skip("AWS_ENDPOINT_URL_DYNAMODB not set; skipping DynamoDB integration test")
+	}
+
+	ctx := context.Background()
+	table := fmt.Sprintf("dltest_%08x_drain", rand.Uint32()) //nolint:gosec
+
+	// Boot NewEmbedded with a DynamoDB backend; do NOT disable the outbox
+	// dispatcher so it runs at its default 250 ms interval.
+	c, err := NewEmbedded(ctx, Options{
+		Backend:          DynamoDB,
+		DSN:              table,
+		MigrateMode:      MigrateAuto,
+		DisableScheduler: true,
+	})
+	if err != nil {
+		t.Fatalf("NewEmbedded: %v", err)
+	}
+	defer func() { _ = c.Close() }()
+
+	// Cleanup: delete the table after the test.
+	t.Cleanup(func() {
+		s, err := dynamostore.Open(context.Background(), table)
+		if err != nil {
+			t.Logf("cleanup Open: %v", err)
+			return
+		}
+		if err := s.DeleteTable(context.Background()); err != nil {
+			t.Logf("cleanup DeleteTable: %v", err)
+		}
+		_ = s.Close()
+	})
+
+	tenant := "t-dispatcher-drain"
+
+	// Create the accounts required by PostJournal.
+	_, err = c.CreateAccount(ctx, connect.NewRequest(&ledgerv1.CreateAccountRequest{
+		TenantId: tenant, OwnerType: "platform", OwnerId: "0",
+		AccountType: "funding", Currency: "BRL",
+		NormalBalance: ledgerv1.NormalBalance_NORMAL_BALANCE_CREDIT,
+		AllowNegative: true,
+	}))
+	if err != nil {
+		t.Fatalf("CreateAccount (funding): %v", err)
+	}
+	_, err = c.CreateAccount(ctx, connect.NewRequest(&ledgerv1.CreateAccountRequest{
+		TenantId: tenant, OwnerType: "user", OwnerId: "p1",
+		AccountType: "cash_available", Currency: "BRL",
+		NormalBalance: ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT,
+		AllowNegative: false,
+	}))
+	if err != nil {
+		t.Fatalf("CreateAccount (player): %v", err)
+	}
+
+	// PostJournal writes one outbox event.
+	_, err = c.PostJournal(ctx, connect.NewRequest(&ledgerv1.PostJournalRequest{
+		TenantId: tenant, IdempotencyKey: "drain-1", SourceService: "test",
+		Journal: &ledgerv1.Journal{
+			EventId: "evt-drain-1",
+			Entries: []*ledgerv1.Entry{
+				{AccountId: "user:p1:cash_available:BRL", Currency: "BRL", Direction: ledgerv1.Direction_DIRECTION_DEBIT, Amount: "50"},
+				{AccountId: "platform:0:funding:BRL", Currency: "BRL", Direction: ledgerv1.Direction_DIRECTION_CREDIT, Amount: "50"},
+			},
+		},
+	}))
+	if err != nil {
+		t.Fatalf("PostJournal: %v", err)
+	}
+
+	// Open a raw store on the same table to poll PendingOutbox.
+	raw, err := dynamostore.Open(ctx, table)
+	if err != nil {
+		t.Fatalf("raw Open: %v", err)
+	}
+	defer raw.Close()
+
+	// Poll up to 5 s for the dispatcher to drain the outbox.
+	deadline := time.Now().Add(5 * time.Second)
+	for time.Now().Before(deadline) {
+		pending, err := raw.PendingOutbox(ctx, 100)
+		if err != nil {
+			t.Fatalf("PendingOutbox poll: %v", err)
+		}
+		if len(pending) == 0 {
+			return // dispatcher drained the event
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	// Final check — might have been published in the last poll window.
+	pending, err := raw.PendingOutbox(ctx, 100)
+	if err != nil {
+		t.Fatalf("PendingOutbox final: %v", err)
+	}
+	if len(pending) != 0 {
+		t.Fatalf("dispatcher did not drain outbox within 5s; still pending: %d", len(pending))
 	}
 }
 
