@@ -24,6 +24,7 @@ const (
 	CodeDiscrepancyClosed           DomainCode = "DISCREPANCY_CLOSED"
 	CodeReconBatchNotFound          DomainCode = "RECON_BATCH_NOT_FOUND"
 	CodeUnsupportedOperation        DomainCode = "UNSUPPORTED_OPERATION"
+	CodeFlowTooLarge                DomainCode = "FLOW_TOO_LARGE"
 )
 
 type DomainError struct {
