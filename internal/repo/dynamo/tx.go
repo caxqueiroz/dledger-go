@@ -65,6 +65,13 @@ type txBalance struct {
 // Tx: in-memory write buffer with optimistic-concurrency commit
 // ---------------------------------------------------------------------------
 
+// flowState is the in-memory overlay for a single flow run and its steps
+// within this transaction.
+type flowState struct {
+	run   ledger.FlowRun
+	steps []ledger.FlowStep
+}
+
 // Tx is a write-buffered, single-use transaction over DynamoDB. All writes
 // are held in memory and atomically flushed via TransactWriteItems on Commit.
 // Not safe for concurrent use.
@@ -81,6 +88,18 @@ type Tx struct {
 	// balances is the in-memory overlay for balance rows touched in this tx.
 	balances map[string]*txBalance
 
+	// flows is the in-memory overlay for flow runs keyed by flow PK
+	// (flowPK(tenantID, flowRunID)).
+	flows map[string]*flowState
+
+	// journals is the in-memory overlay for journals keyed by journal PK
+	// (journalPK(tenantID, journalID)).
+	journals map[string]*ledger.Journal
+
+	// flowIdemp maps idempotency PK (flowIdempPK(tenantID, key)) to flow PK
+	// (flowPK(tenantID, flowRunID)) for overlay lookups.
+	flowIdemp map[string]string
+
 	done bool
 }
 
@@ -90,11 +109,14 @@ type Tx struct {
 
 func (s *Store) BeginFlowTx(ctx context.Context) (repo.Tx, error) {
 	return &Tx{
-		store:    s,
-		ctx:      ctx,
-		puts:     make(map[string]*pendingPut),
-		order:    nil,
-		balances: make(map[string]*txBalance),
+		store:     s,
+		ctx:       ctx,
+		puts:      make(map[string]*pendingPut),
+		order:     nil,
+		balances:  make(map[string]*txBalance),
+		flows:     make(map[string]*flowState),
+		journals:  make(map[string]*ledger.Journal),
+		flowIdemp: make(map[string]string),
 	}, nil
 }
 
@@ -397,44 +419,226 @@ func (t *Tx) Rollback() error {
 	t.puts = nil
 	t.order = nil
 	t.balances = nil
+	t.flows = nil
+	t.journals = nil
+	t.flowIdemp = nil
 	return nil
 }
 
 // ---------------------------------------------------------------------------
-// Unimplemented methods — deferred to Tasks 6, 7, 8
-// These stubs satisfy the repo.Tx interface so the package compiles now.
+// Flow run overlay helpers
 // ---------------------------------------------------------------------------
 
-func (t *Tx) GetFlowByIdempotency(_ context.Context, _, _ string) (*ledger.FlowRun, error) {
-	return nil, errUnsupported("Tx.GetFlowByIdempotency")
+// putFlow re-serialises the flowState into the write buffer under the flow PK.
+// On first call the put is registered with condNotExists; subsequent calls
+// replace the item bytes but preserve the original condition (coalescing).
+func (t *Tx) putFlow(pk string, fs *flowState) error {
+	item := flowToItem(fs.run, fs.steps)
+	return t.put(pk, item, condNotExists, 0)
 }
 
-func (t *Tx) InsertFlowRun(_ context.Context, _ ledger.FlowRun) error {
-	return errUnsupported("Tx.InsertFlowRun")
+// ---------------------------------------------------------------------------
+// InsertFlowRun
+// ---------------------------------------------------------------------------
+
+// InsertFlowRun records the flow run in the overlay and buffers:
+//   - the flow item (condNotExists)
+//   - the FIDEMP# idempotency marker (condNotExists)
+func (t *Tx) InsertFlowRun(_ context.Context, f ledger.FlowRun) error {
+	pk := flowPK(f.TenantID, f.ID)
+
+	// Record in overlay
+	t.flows[pk] = &flowState{run: f}
+
+	// Buffer the flow item (condNotExists)
+	if err := t.putFlow(pk, t.flows[pk]); err != nil {
+		return err
+	}
+
+	// Buffer FIDEMP# idempotency marker (condNotExists)
+	idempPK := flowIdempPK(f.TenantID, f.IdempotencyKey)
+	idempItem := map[string]string{
+		"pk":          idempPK,
+		"flow_run_id": f.ID,
+	}
+	if err := t.put(idempPK, idempItem, condNotExists, 0); err != nil {
+		return err
+	}
+
+	// Record in flowIdemp overlay so GetFlowByIdempotency can find it without
+	// a DynamoDB round-trip while the tx is uncommitted.
+	t.flowIdemp[idempPK] = pk
+
+	return nil
 }
 
-func (t *Tx) CompleteFlowRun(_ context.Context, _, _ string) error {
-	return errUnsupported("Tx.CompleteFlowRun")
+// ---------------------------------------------------------------------------
+// InsertFlowStep
+// ---------------------------------------------------------------------------
+
+// InsertFlowStep appends a step to the overlay flowState and re-puts the flow
+// item. Returns an error if InsertFlowRun was not called first in this tx.
+func (t *Tx) InsertFlowStep(_ context.Context, s ledger.FlowStep) error {
+	pk := flowPK(s.TenantID, s.FlowRunID)
+	fs, ok := t.flows[pk]
+	if !ok {
+		return fmt.Errorf("dynamo: InsertFlowStep before InsertFlowRun in tx (flow %s)", s.FlowRunID)
+	}
+	fs.steps = append(fs.steps, s)
+	return t.putFlow(pk, fs)
 }
 
-func (t *Tx) InsertJournal(_ context.Context, _ ledger.Journal) error {
-	return errUnsupported("Tx.InsertJournal")
+// ---------------------------------------------------------------------------
+// CompleteFlowRun
+// ---------------------------------------------------------------------------
+
+// CompleteFlowRun sets the flow status to COMPLETED and stamps CompletedAt.
+// Returns an error if InsertFlowRun was not called first in this tx.
+func (t *Tx) CompleteFlowRun(_ context.Context, tenantID, flowRunID string) error {
+	pk := flowPK(tenantID, flowRunID)
+	fs, ok := t.flows[pk]
+	if !ok {
+		return fmt.Errorf("dynamo: CompleteFlowRun before InsertFlowRun in tx (flow %s)", flowRunID)
+	}
+	now := t.store.now()
+	fs.run.Status = ledger.FlowCompleted
+	fs.run.CompletedAt = &now
+	return t.putFlow(pk, fs)
 }
 
-func (t *Tx) InsertEntry(_ context.Context, _, _, _, _, _ string, _ ledger.Direction, _ decimal.Decimal) error {
-	return errUnsupported("Tx.InsertEntry")
+// ---------------------------------------------------------------------------
+// GetFlowByIdempotency
+// ---------------------------------------------------------------------------
+
+// GetFlowByIdempotency checks the tx overlay first, then falls through to
+// DynamoDB. Returns (nil, nil) when not found — matching the sqlite contract.
+func (t *Tx) GetFlowByIdempotency(ctx context.Context, tenantID, key string) (*ledger.FlowRun, error) {
+	idempPK := flowIdempPK(tenantID, key)
+
+	// Overlay: check flowIdemp mapping first
+	if flowPKVal, ok := t.flowIdemp[idempPK]; ok {
+		if fs, ok2 := t.flows[flowPKVal]; ok2 {
+			// Return a copy with a copied steps slice to prevent caller mutation
+			// from affecting the overlay.
+			runCopy := fs.run
+			stepsCopy := make([]ledger.FlowStep, len(fs.steps))
+			copy(stepsCopy, fs.steps)
+			runCopy.Steps = stepsCopy
+			return &runCopy, nil
+		}
+	}
+
+	// Fall through to DynamoDB: read FIDEMP# marker first
+	type fidempItem struct {
+		PK        string `dynamodbav:"pk"`
+		FlowRunID string `dynamodbav:"flow_run_id"`
+	}
+	var marker fidempItem
+	found, err := t.store.getItem(ctx, idempPK, &marker)
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		return nil, nil
+	}
+
+	// Fetch the full flow item
+	return t.store.GetFlow(ctx, tenantID, marker.FlowRunID)
 }
 
-func (t *Tx) InsertFlowStep(_ context.Context, _ ledger.FlowStep) error {
-	return errUnsupported("Tx.InsertFlowStep")
+// ---------------------------------------------------------------------------
+// GetFlowSteps
+// ---------------------------------------------------------------------------
+
+// GetFlowSteps returns the steps for the given flow. The overlay is checked
+// first; if the flow is not buffered in this tx, the flow item is read from
+// DynamoDB. Returns (nil, nil) when not found.
+func (t *Tx) GetFlowSteps(ctx context.Context, tenantID, flowRunID string) ([]ledger.FlowStep, error) {
+	pk := flowPK(tenantID, flowRunID)
+
+	// Overlay
+	if fs, ok := t.flows[pk]; ok {
+		out := make([]ledger.FlowStep, len(fs.steps))
+		copy(out, fs.steps)
+		return out, nil
+	}
+
+	// Fall through to DynamoDB
+	f, err := t.store.GetFlow(ctx, tenantID, flowRunID)
+	if err != nil {
+		return nil, err
+	}
+	if f == nil {
+		return nil, nil
+	}
+	return f.Steps, nil
 }
 
-func (t *Tx) InsertOutbox(_ context.Context, _ repo.OutboxEvent) error {
-	return errUnsupported("Tx.InsertOutbox")
+// ---------------------------------------------------------------------------
+// InsertJournal
+// ---------------------------------------------------------------------------
+
+// InsertJournal records the journal (without entries) in the overlay and
+// buffers:
+//   - the JRN# journal item (condNotExists) — entry list starts empty here;
+//     InsertEntry accumulates into the overlay and re-puts the item.
+//   - the EVT# event uniqueness marker (condNotExists).
+func (t *Tx) InsertJournal(_ context.Context, j ledger.Journal) error {
+	// Store in overlay with entries stripped — entries accumulate via InsertEntry.
+	jCopy := j
+	jCopy.Entries = nil
+	jPK := journalPK(j.TenantID, j.ID)
+	t.journals[jPK] = &jCopy
+
+	// Buffer journal item (condNotExists)
+	item := journalToItem(jCopy)
+	if err := t.put(jPK, item, condNotExists, 0); err != nil {
+		return err
+	}
+
+	// Buffer EVT# uniqueness marker (condNotExists)
+	evtPK := eventUniqPK(j.EventID)
+	evtItem := map[string]string{
+		"pk":         evtPK,
+		"journal_id": j.ID,
+	}
+	return t.put(evtPK, evtItem, condNotExists, 0)
 }
 
-func (t *Tx) GetFlowSteps(_ context.Context, _, _ string) ([]ledger.FlowStep, error) {
-	return nil, errUnsupported("Tx.GetFlowSteps")
+// ---------------------------------------------------------------------------
+// InsertEntry
+// ---------------------------------------------------------------------------
+
+// InsertEntry appends an entry to the overlaid journal and re-puts the journal
+// item. The entryID parameter is accepted for interface compatibility but is
+// not stored — ledger.Entry has no ID field.
+func (t *Tx) InsertEntry(_ context.Context, tenantID, _ /* entryID — Entry has no ID field */, journalID, accountID, currency string, direction ledger.Direction, amount decimal.Decimal) error {
+	jPK := journalPK(tenantID, journalID)
+	jPtr, ok := t.journals[jPK]
+	if !ok {
+		return fmt.Errorf("dynamo: InsertEntry before InsertJournal in tx (journal %s)", journalID)
+	}
+
+	jPtr.Entries = append(jPtr.Entries, ledger.Entry{
+		AccountID: accountID,
+		Currency:  currency,
+		Direction: direction,
+		Amount:    amount,
+	})
+
+	// Re-put the journal item (coalesce keeps condNotExists from first put).
+	item := journalToItem(*jPtr)
+	return t.put(jPK, item, condNotExists, 0)
+}
+
+// ---------------------------------------------------------------------------
+// InsertOutbox
+// ---------------------------------------------------------------------------
+
+// InsertOutbox buffers the outbox event item (condNotExists).
+func (t *Tx) InsertOutbox(_ context.Context, e repo.OutboxEvent) error {
+	item := outboxToItem(e)
+	return t.put(item.PK, item, condNotExists, 0)
 }
 
 func (t *Tx) InsertReservation(_ context.Context, _ ledger.Reservation) error {
