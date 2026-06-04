@@ -203,6 +203,7 @@ func TestGetFlow_ReturnsCompletedFlow(t *testing.T) {
 }
 
 func TestListAccountActivity_ReturnsEntries(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 	avail := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)

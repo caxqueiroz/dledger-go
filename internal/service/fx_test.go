@@ -25,6 +25,7 @@ func putFXRate(t *testing.T, srv *service.Server, base, quote, rate, source stri
 }
 
 func TestPutAndGetFXRate(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 
@@ -44,6 +45,7 @@ func TestPutAndGetFXRate(t *testing.T) {
 }
 
 func TestGetFXRate_TimeOrdered(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 
@@ -75,6 +77,7 @@ func TestGetFXRate_TimeOrdered(t *testing.T) {
 }
 
 func TestGetFXRate_NotFound(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 
@@ -88,6 +91,7 @@ func TestGetFXRate_NotFound(t *testing.T) {
 }
 
 func TestExecuteExchange_HappyPath(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 
@@ -142,6 +146,7 @@ func TestExecuteExchange_HappyPath(t *testing.T) {
 }
 
 func TestExecuteExchange_ResolvesRateFromStore(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 	userUSD := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
@@ -180,6 +185,7 @@ func TestExecuteExchange_ResolvesRateFromStore(t *testing.T) {
 }
 
 func TestExecuteExchange_AmountMismatch(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 	userUSD := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
@@ -201,6 +207,7 @@ func TestExecuteExchange_AmountMismatch(t *testing.T) {
 }
 
 func TestExecuteExchange_NoRateAvailable(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 	userUSD := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
@@ -222,6 +229,7 @@ func TestExecuteExchange_NoRateAvailable(t *testing.T) {
 }
 
 func TestExecuteExchange_IdempotentReplay(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 	userUSD := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)

@@ -14,6 +14,7 @@ import (
 )
 
 func TestIngest_HappyPathAndIdempotent(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 
@@ -46,6 +47,7 @@ func TestIngest_HappyPathAndIdempotent(t *testing.T) {
 }
 
 func TestRunReconciliation_AllMatched(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 	avail := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
@@ -92,6 +94,7 @@ func TestRunReconciliation_AllMatched(t *testing.T) {
 }
 
 func TestRunReconciliation_MissingInLedger(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 
@@ -128,6 +131,7 @@ func TestRunReconciliation_MissingInLedger(t *testing.T) {
 }
 
 func TestRunReconciliation_MissingInExternal(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 	avail := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
@@ -158,6 +162,7 @@ func TestRunReconciliation_MissingInExternal(t *testing.T) {
 }
 
 func TestRunReconciliation_AmountMismatch(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 	avail := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
@@ -197,6 +202,7 @@ func TestRunReconciliation_AmountMismatch(t *testing.T) {
 }
 
 func TestResolveDiscrepancy_WithAdjustment(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 	avail := mustCreateAccount(t, srv, "1", "cash_available", "USD", false, ledgerv1.NormalBalance_NORMAL_BALANCE_DEBIT)
@@ -262,6 +268,7 @@ func TestResolveDiscrepancy_WithAdjustment(t *testing.T) {
 }
 
 func TestResolveDiscrepancy_NoAdjustment(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 	now := time.Now()
@@ -302,6 +309,7 @@ func TestResolveDiscrepancy_NoAdjustment(t *testing.T) {
 }
 
 func TestResolveDiscrepancy_AlreadyClosed(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 	now := time.Now()
@@ -338,6 +346,7 @@ func TestResolveDiscrepancy_AlreadyClosed(t *testing.T) {
 }
 
 func TestRunReconciliation_IdempotentReplay(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 	now := time.Now()

@@ -62,6 +62,11 @@ func TestListReservations_FiltersByOwner(t *testing.T) {
 		t.Fatalf("reserve u2: %v", err)
 	}
 
+	// waitForGSIPropagation is a no-op on sqlite; on the dynamo backend the GSI2
+	// index (used by ListReservations) is eventually consistent — give it a moment
+	// to catch up before asserting. See internal/repo/dynamo/README.md.
+	waitForGSIPropagation(t)
+
 	resp, err := srv.ListReservations(ctx, connect.NewRequest(&ledgerv1.ListReservationsRequest{
 		TenantId: "t1", OwnerType: "user", OwnerId: "u1",
 	}))

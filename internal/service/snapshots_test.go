@@ -13,6 +13,7 @@ import (
 )
 
 func TestTakeBalanceSnapshot_SingleRow(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 
@@ -41,6 +42,7 @@ func TestTakeBalanceSnapshot_SingleRow(t *testing.T) {
 }
 
 func TestGetBalance_AsOfHistoricalPoint(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 
@@ -102,6 +104,7 @@ func TestGetBalance_AsOfHistoricalPoint(t *testing.T) {
 }
 
 func TestTakeBalanceSnapshot_BulkTenantWide(t *testing.T) {
+	skipUnsupportedOnDynamo(t)
 	srv, cleanup := newServer(t)
 	defer cleanup()
 
