@@ -168,9 +168,11 @@ func (t *Tx) loadBalance(ctx context.Context, tenantID, accountID, currency stri
 // EnsureBalanceRow
 // ---------------------------------------------------------------------------
 
-// EnsureBalanceRow loads (or creates an overlay for) the balance row but
-// discards the result. Its sole purpose is to guarantee a row exists so that
-// subsequent UpdateBalance calls see existed=true even for new rows.
+// EnsureBalanceRow primes the in-memory overlay cache for the balance row so
+// that a subsequent UpdateBalance within this transaction observes the correct
+// baseline. If the row already exists in the store, existed is true and
+// UpdateBalance will use condVersionEquals; if the row is brand-new, existed is
+// false and UpdateBalance will use condNotExists.
 func (t *Tx) EnsureBalanceRow(ctx context.Context, tenantID, accountID, currency string) error {
 	_, err := t.loadBalance(ctx, tenantID, accountID, currency)
 	return err
@@ -274,16 +276,25 @@ func (t *Tx) InsertAccount(ctx context.Context, a ledger.Account) error {
 
 // Commit atomically flushes all buffered writes via TransactWriteItems.
 //
-// ExtendDB divergence note: ExtendDB (the local DynamoDB-compatible test
-// server used in CI) returns TransactionCanceledException with CancellationReasons
-// populated identically to AWS DynamoDB when a ConditionalCheckFailed occurs.
-// However, as a defensive fallback, this implementation ALSO matches the error
-// string "ConditionalCheckFailed" in case a local server variant does not
-// populate CancellationReasons correctly. The string match is intentionally
-// placed after the typed check so it only fires on misbehaving implementations.
+// Conflict classification uses the typed positional CancellationReasons slice
+// returned by DynamoDB (and ExtendDB). Index i of CancellationReasons maps to
+// t.order[i] (i.e. t.puts[t.order[i]]). The FIRST ConditionalCheckFailed
+// reason is classified as:
+//
+//   - condVersionEquals → retryable: CodeSerializationRetryExhausted (stale read)
+//   - condNotExists, pk prefix "BAL#" → retryable: CodeSerializationRetryExhausted
+//     (fresh-balance race: another tx just created the same new balance row)
+//   - condNotExists, any other pk prefix → non-retryable duplicate:
+//     "ACC#"/"ACCU#" prefixes → CodeFlowConflict (no dedicated account-duplicate
+//     code exists; CodeFlowConflict maps to connect.CodeAborted at the service layer)
+//     all other prefixes ("FIDEMP#", "EVT#", "RIDEMP#", etc.) → CodeFlowConflict
+//
+// ExtendDB (the local DynamoDB-compatible test server used in CI) populates
+// CancellationReasons identically to AWS DynamoDB — empirically verified; the
+// string-matching fallbacks have been removed.
 func (t *Tx) Commit() error {
 	if t.done {
-		return nil
+		return errors.New("dynamo: tx already finished")
 	}
 	t.done = true
 
@@ -326,34 +337,50 @@ func (t *Tx) Commit() error {
 		return nil
 	}
 
-	// Map TransactionCanceledException with any ConditionalCheckFailed reason
-	// to CodeSerializationRetryExhausted.
+	// Map TransactionCanceledException → classified domain error.
+	// CancellationReasons is positional: index i corresponds to t.order[i].
 	var tce *types.TransactionCanceledException
 	if errors.As(err, &tce) {
-		for _, reason := range tce.CancellationReasons {
-			if reason.Code != nil && *reason.Code == "ConditionalCheckFailed" {
-				return ledger.NewDomainError(
-					ledger.CodeSerializationRetryExhausted,
-					"dynamodb transaction conflict: "+err.Error(),
-				)
+		for i, reason := range tce.CancellationReasons {
+			if reason.Code == nil || *reason.Code != "ConditionalCheckFailed" {
+				continue
 			}
-		}
-		// CancellationReasons empty or all None but error type is correct:
-		// treat as conflict anyway (defensive; covers partial ExtendDB divergence).
-		if strings.Contains(err.Error(), "ConditionalCheckFailed") {
+			// Identify the failing item.
+			pk := ""
+			if i < len(t.order) {
+				pk = t.order[i]
+				if pp, ok := t.puts[pk]; ok {
+					switch pp.cond {
+					case condVersionEquals:
+						// Stale read: another writer committed a newer version.
+						return ledger.NewDomainError(
+							ledger.CodeSerializationRetryExhausted,
+							fmt.Sprintf("dynamodb version conflict on %s", pk),
+						)
+					case condNotExists:
+						if strings.HasPrefix(pk, "BAL#") {
+							// Fresh-balance race: two concurrent txs both tried to
+							// create the same brand-new balance row.
+							return ledger.NewDomainError(
+								ledger.CodeSerializationRetryExhausted,
+								fmt.Sprintf("dynamodb fresh-balance race on %s", pk),
+							)
+						}
+						// Any other condNotExists failure is a true duplicate:
+						// ACC#, ACCU#, FIDEMP#, EVT#, RIDEMP#, etc.
+						return ledger.NewDomainError(
+							ledger.CodeFlowConflict,
+							fmt.Sprintf("dynamodb duplicate item on %s", pk),
+						)
+					}
+				}
+			}
+			// Fallback: index out of range or cond unknown — treat as conflict.
 			return ledger.NewDomainError(
-				ledger.CodeSerializationRetryExhausted,
-				"dynamodb transaction conflict: "+err.Error(),
+				ledger.CodeFlowConflict,
+				fmt.Sprintf("dynamodb conditional check failed on %s", pk),
 			)
 		}
-	} else if strings.Contains(err.Error(), "ConditionalCheckFailed") {
-		// ExtendDB divergence: some versions return a plain error (not the typed
-		// TransactionCanceledException) with "ConditionalCheckFailed" in the
-		// message. Map it identically.
-		return ledger.NewDomainError(
-			ledger.CodeSerializationRetryExhausted,
-			"dynamodb transaction conflict: "+err.Error(),
-		)
 	}
 
 	return fmt.Errorf("transact write: %w", err)

@@ -207,6 +207,7 @@ func TestTxDuplicateAccountUniqueness(t *testing.T) {
 	}
 
 	// Second account: different ID, SAME owner tuple → uniqueness marker collision
+	// The ACCU# item fails condNotExists → non-retryable CodeFlowConflict.
 	a2 := makeAccount("t1", "acct-uniq-2", "user", "u3", "checking", "USD")
 	tx2 := mustBegin(t, s)
 	if err := tx2.InsertAccount(ctx, a2); err != nil {
@@ -216,10 +217,9 @@ func TestTxDuplicateAccountUniqueness(t *testing.T) {
 	if errCommit == nil {
 		t.Fatal("tx2 Commit: expected uniqueness conflict, got nil")
 	}
-	// The error should be a serialization/conflict DomainError (ConditionalCheckFailed
-	// from the uniqueness marker item).
-	if !ledger.IsDomainCode(errCommit, ledger.CodeSerializationRetryExhausted) {
-		t.Errorf("tx2 Commit: want CodeSerializationRetryExhausted, got %v", errCommit)
+	// ACCU# prefix → non-retryable duplicate: CodeFlowConflict (not serialization).
+	if !ledger.IsDomainCode(errCommit, ledger.CodeFlowConflict) {
+		t.Errorf("tx2 Commit: want CodeFlowConflict (duplicate ACCU#), got %v", errCommit)
 	}
 
 	// The second account must NOT exist
@@ -227,6 +227,57 @@ func TestTxDuplicateAccountUniqueness(t *testing.T) {
 	if !ledger.IsDomainCode(err, ledger.CodeAccountNotFound) {
 		t.Errorf("a2 should not exist; GetAccount returned: %v", err)
 	}
+}
+
+// ---------------------------------------------------------------------------
+// TestTxDoubleCommitErrors — pure unit, no env required
+// ---------------------------------------------------------------------------
+
+func TestTxDoubleCommitErrors(t *testing.T) {
+	// Build a Tx directly without a live Store; both empty-buffer and
+	// double-commit checks fire before any network access.
+	newEmptyTx := func() *Tx {
+		return &Tx{
+			store:    &Store{},
+			ctx:      context.Background(),
+			puts:     make(map[string]*pendingPut),
+			balances: make(map[string]*txBalance),
+		}
+	}
+
+	t.Run("double Commit errors", func(t *testing.T) {
+		tx := newEmptyTx()
+		// First Commit on empty tx must succeed (nil).
+		if err := tx.Commit(); err != nil {
+			t.Fatalf("first Commit (empty): want nil, got %v", err)
+		}
+		// Second Commit must error.
+		if err := tx.Commit(); err == nil {
+			t.Fatal("second Commit: want error, got nil")
+		}
+	})
+
+	t.Run("Commit after Rollback errors", func(t *testing.T) {
+		tx := newEmptyTx()
+		if err := tx.Rollback(); err != nil {
+			t.Fatalf("Rollback: want nil, got %v", err)
+		}
+		// Commit after Rollback must also error (tx is done).
+		if err := tx.Commit(); err == nil {
+			t.Fatal("Commit after Rollback: want error, got nil")
+		}
+	})
+
+	t.Run("Rollback after Commit is silent no-op", func(t *testing.T) {
+		tx := newEmptyTx()
+		if err := tx.Commit(); err != nil {
+			t.Fatalf("first Commit: want nil, got %v", err)
+		}
+		// defer Rollback pattern: must remain silent no-op.
+		if err := tx.Rollback(); err != nil {
+			t.Errorf("Rollback after Commit: want nil, got %v", err)
+		}
+	})
 }
 
 // ---------------------------------------------------------------------------
