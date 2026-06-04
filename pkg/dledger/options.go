@@ -15,6 +15,9 @@ type Backend string
 const (
 	SQLite Backend = "sqlite"
 	CRDB   Backend = "crdb"
+	// DynamoDB stores the ledger on a DynamoDB-compatible endpoint. DSN is the
+	// table name; endpoint/region/credentials come from standard AWS env vars.
+	DynamoDB Backend = "dynamodb"
 )
 
 // MigrateMode controls whether NewEmbedded runs goose migrations on open.

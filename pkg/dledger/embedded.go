@@ -19,6 +19,7 @@ import (
 	"github.com/caxqueiroz/dledger-go/internal/outbox"
 	"github.com/caxqueiroz/dledger-go/internal/repo"
 	"github.com/caxqueiroz/dledger-go/internal/repo/crdb"
+	dynamostore "github.com/caxqueiroz/dledger-go/internal/repo/dynamo"
 	"github.com/caxqueiroz/dledger-go/internal/repo/sqlite"
 	"github.com/caxqueiroz/dledger-go/internal/scheduler"
 	"github.com/caxqueiroz/dledger-go/internal/sdk"
@@ -39,10 +40,11 @@ func NewEmbedded(ctx context.Context, opts Options) (Client, error) {
 	}
 
 	var (
-		store   repo.Store
-		migFs   = sdk.SQLiteMigrations()
-		migDrv  = "sqlite"
-		migDial = "sqlite3"
+		store              repo.Store
+		migFs              = sdk.SQLiteMigrations()
+		migDrv             = "sqlite"
+		migDial            = "sqlite3"
+		skipGooseMigrations bool
 	)
 	switch opts.Backend {
 	case SQLite, "":
@@ -60,11 +62,24 @@ func NewEmbedded(ctx context.Context, opts Options) (Client, error) {
 		migFs = sdk.CRDBMigrations()
 		migDrv = "pgx"
 		migDial = "postgres"
+	case DynamoDB:
+		s, err := dynamostore.Open(ctx, opts.DSN)
+		if err != nil {
+			return nil, fmt.Errorf("open dynamodb: %w", err)
+		}
+		if opts.MigrateMode == MigrateAuto {
+			if err := s.EnsureTable(ctx); err != nil {
+				_ = s.Close()
+				return nil, fmt.Errorf("migrate: %w", err)
+			}
+		}
+		store = s
+		skipGooseMigrations = true
 	default:
 		return nil, fmt.Errorf("dledger: unknown backend %q", opts.Backend)
 	}
 
-	if opts.MigrateMode == MigrateAuto {
+	if opts.MigrateMode == MigrateAuto && !skipGooseMigrations {
 		if err := runMigrations(migDrv, opts.DSN, migFs, migDial); err != nil {
 			_ = store.Close()
 			return nil, fmt.Errorf("migrate: %w", err)
