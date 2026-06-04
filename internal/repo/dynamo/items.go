@@ -3,6 +3,7 @@ package dynamo
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -391,6 +392,8 @@ type reservationItem struct {
 	ReservationID     string `dynamodbav:"reservation_id"`
 	IdempotencyKey    string `dynamodbav:"idempotency_key"`
 	SourceAccountID   string `dynamodbav:"source_account_id"`
+	OwnerType         string `dynamodbav:"owner_type"`
+	OwnerID           string `dynamodbav:"owner_id"`
 	ReservedAccountID string `dynamodbav:"reserved_account_id"`
 	Currency          string `dynamodbav:"currency"`
 	OriginalAmount    string `dynamodbav:"original_amount"`
@@ -406,6 +409,10 @@ type reservationItem struct {
 	Version           int64  `dynamodbav:"version"`
 	GSI1PK            string `dynamodbav:"gsi1pk,omitempty"`
 	GSI1SK            string `dynamodbav:"gsi1sk,omitempty"`
+	// GSI2: account-scoped index for ListReservations by (tenant, ownerType, ownerID).
+	// Set only while ACTIVE (HELD or PARTIAL) so terminal items fall off the index.
+	GSI2PK string `dynamodbav:"gsi2pk,omitempty"`
+	GSI2SK string `dynamodbav:"gsi2sk,omitempty"`
 }
 
 // reservationActive reports whether a reservation status is active (not terminal).
@@ -414,14 +421,28 @@ func reservationActive(status ledger.ReservationStatus) bool {
 	return status == ledger.ReservationHeld || status == ledger.ReservationPartial
 }
 
+// parseAccountOwner extracts (ownerType, ownerID) from an account ID of the
+// form "<ownerType>:<ownerID>:<accountType>:<currency>". Returns ("", "") if
+// the format is not recognised.
+func parseAccountOwner(accountID string) (ownerType, ownerID string) {
+	parts := strings.SplitN(accountID, ":", 4)
+	if len(parts) < 2 {
+		return "", ""
+	}
+	return parts[0], parts[1]
+}
+
 func reservationToItem(r ledger.Reservation, version int64) reservationItem {
 	expiresAt := fmtTimePtr(r.ExpiresAt)
+	ownerType, ownerID := parseAccountOwner(r.SourceAccountID)
 	it := reservationItem{
 		PK:                reservationPK(r.TenantID, r.ID),
 		TenantID:          r.TenantID,
 		ReservationID:     r.ID,
 		IdempotencyKey:    r.IdempotencyKey,
 		SourceAccountID:   r.SourceAccountID,
+		OwnerType:         ownerType,
+		OwnerID:           ownerID,
 		ReservedAccountID: r.ReservedAccountID,
 		Currency:          r.Currency,
 		OriginalAmount:    r.OriginalAmount.String(),
@@ -436,10 +457,17 @@ func reservationToItem(r ledger.Reservation, version int64) reservationItem {
 		UpdatedAt:         fmtTime(r.UpdatedAt),
 		Version:           version,
 	}
-	// Set GSI expiry keys only for active reservations that have an expiry set.
+	// GSI1: expiry index — only for active reservations with an expiry set.
 	if reservationActive(r.Status) && expiresAt != "" {
 		it.GSI1PK = gsiReservationExpiry
 		it.GSI1SK = expiresAt + "#" + r.TenantID + "#" + r.ID
+	}
+	// GSI2: owner-scoped index — only for active reservations.
+	// gsi2pk = "RESOWN#<tenant>#<ownerType>#<ownerID>"
+	// gsi2sk = "<createdAt>#<id>"
+	if reservationActive(r.Status) && ownerType != "" && ownerID != "" {
+		it.GSI2PK = gsiResOwnerPK(r.TenantID, ownerType, ownerID)
+		it.GSI2SK = fmtTime(r.CreatedAt) + "#" + r.ID
 	}
 	return it
 }

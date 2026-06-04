@@ -1,31 +1,13 @@
-// Temporary stubs — replaced by Tasks 8 and 9.
+// Temporary stubs — replaced by Tasks 8 (reservations) and 9 (outbox).
+// Task 8 reservation stubs have been moved to reads_reservations.go and
+// the Tx methods are implemented in tx.go.
 package dynamo
 
 import (
 	"context"
-	"time"
 
-	"github.com/caxqueiroz/dledger-go/internal/ledger"
 	"github.com/caxqueiroz/dledger-go/internal/repo"
 )
-
-// ---------------------------------------------------------------------------
-// Reservations (Task 8)
-// ---------------------------------------------------------------------------
-
-func (s *Store) GetReservation(_ context.Context, _, _ string) (*ledger.Reservation, error) {
-	return nil, errUnsupported("GetReservation (implemented in a later task)")
-}
-
-// ListExpiredReservations is a quiet scheduler no-op: returns (nil, nil) so
-// the expiry scheduler simply finds nothing to expire rather than crashing.
-func (s *Store) ListExpiredReservations(_ context.Context, _ time.Time, _ int) ([]repo.ExpiredReservation, error) {
-	return nil, nil
-}
-
-func (s *Store) ListReservations(_ context.Context, _ repo.ListReservationsInput) ([]ledger.Reservation, error) {
-	return nil, errUnsupported("ListReservations (implemented in a later task)")
-}
 
 // ---------------------------------------------------------------------------
 // Outbox store methods (Task 9)

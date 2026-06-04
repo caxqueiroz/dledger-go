@@ -72,6 +72,15 @@ type flowState struct {
 	steps []ledger.FlowStep
 }
 
+// resState is the in-memory overlay for a single reservation within this tx.
+type resState struct {
+	res         ledger.Reservation
+	readVersion int64
+	// existed is true when the reservation row was already in the store before
+	// this transaction; false when InsertReservation created it fresh in-tx.
+	existed bool
+}
+
 // Tx is a write-buffered, single-use transaction over DynamoDB. All writes
 // are held in memory and atomically flushed via TransactWriteItems on Commit.
 // Not safe for concurrent use.
@@ -100,6 +109,10 @@ type Tx struct {
 	// (flowPK(tenantID, flowRunID)) for overlay lookups.
 	flowIdemp map[string]string
 
+	// reservations is the in-memory overlay for reservation rows touched in
+	// this tx, keyed by reservationPK(tenantID, reservationID).
+	reservations map[string]*resState
+
 	done bool
 }
 
@@ -109,14 +122,15 @@ type Tx struct {
 
 func (s *Store) BeginFlowTx(ctx context.Context) (repo.Tx, error) {
 	return &Tx{
-		store:     s,
-		ctx:       ctx,
-		puts:      make(map[string]*pendingPut),
-		order:     nil,
-		balances:  make(map[string]*txBalance),
-		flows:     make(map[string]*flowState),
-		journals:  make(map[string]*ledger.Journal),
-		flowIdemp: make(map[string]string),
+		store:        s,
+		ctx:          ctx,
+		puts:         make(map[string]*pendingPut),
+		order:        nil,
+		balances:     make(map[string]*txBalance),
+		flows:        make(map[string]*flowState),
+		journals:     make(map[string]*ledger.Journal),
+		flowIdemp:    make(map[string]string),
+		reservations: make(map[string]*resState),
 	}, nil
 }
 
@@ -422,6 +436,7 @@ func (t *Tx) Rollback() error {
 	t.flows = nil
 	t.journals = nil
 	t.flowIdemp = nil
+	t.reservations = nil
 	return nil
 }
 
@@ -641,20 +656,147 @@ func (t *Tx) InsertOutbox(_ context.Context, e repo.OutboxEvent) error {
 	return t.put(item.PK, item, condNotExists, 0)
 }
 
-func (t *Tx) InsertReservation(_ context.Context, _ ledger.Reservation) error {
-	return errUnsupported("Tx.InsertReservation")
+// ---------------------------------------------------------------------------
+// InsertReservation
+// ---------------------------------------------------------------------------
+
+// InsertReservation buffers:
+//   - the RES# reservation item (condNotExists, version 1)
+//   - the RIDEMP# idempotency marker (condNotExists)
+//
+// It also primes the overlay so that UpdateReservationAmounts can be called
+// without a prior LockReservation.
+func (t *Tx) InsertReservation(_ context.Context, r ledger.Reservation) error {
+	pk := reservationPK(r.TenantID, r.ID)
+
+	// Prime overlay (existed=false → fresh insert)
+	rs := &resState{res: r, readVersion: 0, existed: false}
+	t.reservations[pk] = rs
+
+	// Buffer RES# item (condNotExists)
+	item := reservationToItem(r, 1)
+	if err := t.put(pk, item, condNotExists, 0); err != nil {
+		return err
+	}
+
+	// Buffer RIDEMP# idempotency marker (condNotExists)
+	idempPK := resIdempPK(r.TenantID, r.IdempotencyKey)
+	idempItem := map[string]string{
+		"pk":             idempPK,
+		"reservation_id": r.ID,
+	}
+	return t.put(idempPK, idempItem, condNotExists, 0)
 }
 
-func (t *Tx) LockReservation(_ context.Context, _, _ string) (*ledger.Reservation, error) {
-	return nil, errUnsupported("Tx.LockReservation")
+// ---------------------------------------------------------------------------
+// LockReservation
+// ---------------------------------------------------------------------------
+
+// LockReservation returns the reservation for the given ID. The overlay is
+// checked first (copy returned); otherwise the item is read from DynamoDB and
+// cached. Returns CodeReservationNotFound when absent — matching the sqlite
+// contract exactly.
+func (t *Tx) LockReservation(ctx context.Context, tenantID, reservationID string) (*ledger.Reservation, error) {
+	pk := reservationPK(tenantID, reservationID)
+
+	// Overlay hit: return a copy to prevent caller mutation.
+	if rs, ok := t.reservations[pk]; ok {
+		cp := rs.res
+		return &cp, nil
+	}
+
+	// Read from DynamoDB.
+	var it reservationItem
+	found, err := t.store.getItem(ctx, pk, &it)
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		return nil, ledger.NewDomainError(ledger.CodeReservationNotFound, reservationID)
+	}
+	r, ver, err := reservationFromItem(it)
+	if err != nil {
+		return nil, err
+	}
+
+	// Cache in overlay.
+	t.reservations[pk] = &resState{res: *r, readVersion: ver, existed: true}
+
+	cp := *r
+	return &cp, nil
 }
 
-func (t *Tx) GetReservationByIdempotency(_ context.Context, _, _ string) (*ledger.Reservation, error) {
-	return nil, errUnsupported("Tx.GetReservationByIdempotency")
+// ---------------------------------------------------------------------------
+// GetReservationByIdempotency
+// ---------------------------------------------------------------------------
+
+// GetReservationByIdempotency looks up a reservation by idempotency key.
+// Checks the overlay first (iterates; maps are small), then falls back to the
+// RIDEMP# marker in DynamoDB. Returns (nil, nil) when not found — matching the
+// sqlite contract.
+func (t *Tx) GetReservationByIdempotency(ctx context.Context, tenantID, key string) (*ledger.Reservation, error) {
+	// Overlay: iterate for matching IdempotencyKey.
+	for _, rs := range t.reservations {
+		if rs.res.TenantID == tenantID && rs.res.IdempotencyKey == key {
+			cp := rs.res
+			return &cp, nil
+		}
+	}
+
+	// Fall through to DynamoDB: read RIDEMP# marker first.
+	idempPK := resIdempPK(tenantID, key)
+	type ridempItem struct {
+		PK            string `dynamodbav:"pk"`
+		ReservationID string `dynamodbav:"reservation_id"`
+	}
+	var marker ridempItem
+	found, err := t.store.getItem(ctx, idempPK, &marker)
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		return nil, nil
+	}
+
+	// Use LockReservation to read + cache the full reservation item.
+	return t.LockReservation(ctx, tenantID, marker.ReservationID)
 }
 
-func (t *Tx) UpdateReservationAmounts(_ context.Context, _, _ string, _, _, _ decimal.Decimal, _ ledger.ReservationStatus) error {
-	return errUnsupported("Tx.UpdateReservationAmounts")
+// ---------------------------------------------------------------------------
+// UpdateReservationAmounts
+// ---------------------------------------------------------------------------
+
+// UpdateReservationAmounts mutates the overlay reservation and buffers an
+// updated Put. Requires that LockReservation (or InsertReservation) was called
+// first in this tx; returns an error otherwise.
+//
+// Condition used:
+//   - existed=true  → condVersionEquals(readVersion) — stale-read protection
+//   - existed=false → condNotExists (coalesced: original condition is kept)
+func (t *Tx) UpdateReservationAmounts(_ context.Context, tenantID, reservationID string, outstanding, committed, released decimal.Decimal, status ledger.ReservationStatus) error {
+	pk := reservationPK(tenantID, reservationID)
+	rs, ok := t.reservations[pk]
+	if !ok {
+		return fmt.Errorf("dynamo: UpdateReservationAmounts before LockReservation in tx (reservation %s)", reservationID)
+	}
+
+	// Mutate overlay copy.
+	rs.res.OutstandingAmount = outstanding
+	rs.res.CommittedAmount = committed
+	rs.res.ReleasedAmount = released
+	rs.res.Status = status
+	rs.res.UpdatedAt = t.store.now()
+
+	// Buffer updated item; coalescing in put() preserves the original condition
+	// from InsertReservation (condNotExists) or uses condVersionEquals for
+	// a row that already existed in the store.
+	if rs.existed {
+		item := reservationToItem(rs.res, rs.readVersion+1)
+		return t.put(pk, item, condVersionEquals, rs.readVersion)
+	}
+	// Fresh-in-tx: re-put with condNotExists; coalescing keeps original cond.
+	item := reservationToItem(rs.res, 1)
+	return t.put(pk, item, condNotExists, 0)
 }
 
 func (t *Tx) GetReconBatchByIdempotency(_ context.Context, _, _ string) (*ledger.ReconciliationBatch, error) {

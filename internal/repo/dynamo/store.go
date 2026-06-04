@@ -47,18 +47,30 @@ func (s *Store) EnsureTable(ctx context.Context) error {
 			{AttributeName: aws.String("pk"), AttributeType: types.ScalarAttributeTypeS},
 			{AttributeName: aws.String("gsi1pk"), AttributeType: types.ScalarAttributeTypeS},
 			{AttributeName: aws.String("gsi1sk"), AttributeType: types.ScalarAttributeTypeS},
+			{AttributeName: aws.String("gsi2pk"), AttributeType: types.ScalarAttributeTypeS},
+			{AttributeName: aws.String("gsi2sk"), AttributeType: types.ScalarAttributeTypeS},
 		},
 		KeySchema: []types.KeySchemaElement{
 			{AttributeName: aws.String("pk"), KeyType: types.KeyTypeHash},
 		},
-		GlobalSecondaryIndexes: []types.GlobalSecondaryIndex{{
-			IndexName: aws.String(gsi1),
-			KeySchema: []types.KeySchemaElement{
-				{AttributeName: aws.String("gsi1pk"), KeyType: types.KeyTypeHash},
-				{AttributeName: aws.String("gsi1sk"), KeyType: types.KeyTypeRange},
+		GlobalSecondaryIndexes: []types.GlobalSecondaryIndex{
+			{
+				IndexName: aws.String(gsi1),
+				KeySchema: []types.KeySchemaElement{
+					{AttributeName: aws.String("gsi1pk"), KeyType: types.KeyTypeHash},
+					{AttributeName: aws.String("gsi1sk"), KeyType: types.KeyTypeRange},
+				},
+				Projection: &types.Projection{ProjectionType: types.ProjectionTypeAll},
 			},
-			Projection: &types.Projection{ProjectionType: types.ProjectionTypeAll},
-		}},
+			{
+				IndexName: aws.String(gsi2),
+				KeySchema: []types.KeySchemaElement{
+					{AttributeName: aws.String("gsi2pk"), KeyType: types.KeyTypeHash},
+					{AttributeName: aws.String("gsi2sk"), KeyType: types.KeyTypeRange},
+				},
+				Projection: &types.Projection{ProjectionType: types.ProjectionTypeAll},
+			},
+		},
 	})
 	if err != nil {
 		var inUse *types.ResourceInUseException

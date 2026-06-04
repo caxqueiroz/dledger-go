@@ -5,6 +5,7 @@ package dynamo
 
 const (
 	gsi1                 = "gsi1"
+	gsi2                 = "gsi2"
 	gsiOutboxPending     = "OBX#PENDING"
 	gsiReservationExpiry = "RESEXP"
 )
@@ -24,5 +25,8 @@ func eventUniqPK(eventID string) string           { return "EVT#" + eventID }
 func flowPK(tenantID, flowRunID string) string    { return "FLOW#" + tenantID + "#" + flowRunID }
 func flowIdempPK(tenantID, key string) string     { return "FIDEMP#" + tenantID + "#" + key }
 func outboxPK(id string) string                   { return "OBX#" + id }
-func reservationPK(tenantID, id string) string    { return "RES#" + tenantID + "#" + id }
-func resIdempPK(tenantID, key string) string      { return "RIDEMP#" + tenantID + "#" + key }
+func reservationPK(tenantID, id string) string { return "RES#" + tenantID + "#" + id }
+func resIdempPK(tenantID, key string) string   { return "RIDEMP#" + tenantID + "#" + key }
+func gsiResOwnerPK(tenantID, ownerType, ownerID string) string {
+	return "RESOWN#" + tenantID + "#" + ownerType + "#" + ownerID
+}
