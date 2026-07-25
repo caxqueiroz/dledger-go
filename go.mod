@@ -5,6 +5,10 @@ go 1.26.3
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1
 	connectrpc.com/connect v1.20.0
+	github.com/aws/aws-sdk-go-v2 v1.41.11
+	github.com/aws/aws-sdk-go-v2/config v1.32.22
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.20.44
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.57.8
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/pressly/goose/v3 v3.27.1
@@ -21,15 +25,11 @@ require (
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.41.11 // indirect
-	github.com/aws/aws-sdk-go-v2/config v1.32.22 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.21 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.20.44 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.27 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.27 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.27 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.28 // indirect
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.57.8 // indirect
 	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.32.20 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.11 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/endpoint-discovery v1.12.4 // indirect
@@ -100,9 +100,9 @@ require (
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.44.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260401024825-9d38bb4040a9 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260414002931-afd174a4e478 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260420184626-e10c466a9529 // indirect
-	google.golang.org/grpc v1.80.0 // indirect
+	google.golang.org/grpc v1.82.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.72.3 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
